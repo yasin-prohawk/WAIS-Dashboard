@@ -24,6 +24,8 @@ import {
   Legend,
 } from "recharts"
 import DashboardNav from "@/components/dashboard-nav"
+import { DashboardPage } from "@/components/dashboard-page"
+import { ResponsiveTable } from "@/components/responsive-table"
 import {
   Filter,
   TrendingUp,
@@ -186,7 +188,7 @@ export default function ComplaintModulePage() {
   const [priorityFilter, setPriorityFilter] = useState<"all" | "critical" | "high">("all")
 
   return (
-    <div className="min-h-screen bg-background">
+    <DashboardPage>
       <DashboardNav title="Complaint Management Module" />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -266,7 +268,7 @@ export default function ComplaintModulePage() {
             </Card>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
                 <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Total Complaints</CardTitle></CardHeader>
                 <CardContent><div className="text-3xl font-bold">1,313</div><p className="text-xs text-muted-foreground mt-1">YTD {selectedYear}</p></CardContent>
@@ -294,7 +296,7 @@ export default function ComplaintModulePage() {
             </div>
 
             {/* Charts Row 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-3">
               <Card className="xl:col-span-2">
                 <CardHeader><CardTitle className="text-sm font-semibold">Monthly Complaint Volume – Received vs Resolved vs Overdue</CardTitle></CardHeader>
                 <CardContent>
@@ -906,6 +908,6 @@ export default function ComplaintModulePage() {
 
         </div>
       </Tabs>
-    </div>
+    </DashboardPage>
   )
 }

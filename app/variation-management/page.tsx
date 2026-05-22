@@ -23,6 +23,8 @@ import {
   Legend,
 } from "recharts"
 import DashboardNav from "@/components/dashboard-nav"
+import { DashboardPage } from "@/components/dashboard-page"
+import { ResponsiveTable } from "@/components/responsive-table"
 import {
   Filter,
   TrendingUp,
@@ -272,10 +274,10 @@ export default function VariationManagementPage() {
   const [selectedStatus, setSelectedStatus] = useState("all")
 
   return (
-    <div className="min-h-screen bg-background">
+    <DashboardPage>
       <DashboardNav title="Variation Management" />
 
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto max-w-[1600px] space-y-4 sm:space-y-6">
 
         {/* ── FILTERS ──────────────────────────────────────────────────────── */}
         <Card className="border-primary/20">
@@ -360,7 +362,7 @@ export default function VariationManagementPage() {
         </Card>
 
         {/* ── KPI CARDS ────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
             <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Total Variations</CardTitle></CardHeader>
             <CardContent>
@@ -410,7 +412,7 @@ export default function VariationManagementPage() {
         </div>
 
         {/* ── ROW 1: Volume Trend + Status Distribution ─────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-3">
           <Card className="xl:col-span-2">
             <CardHeader><CardTitle className="text-sm font-semibold">Monthly Variation Activity – Submitted vs Approved vs Rejected</CardTitle></CardHeader>
             <CardContent>
@@ -713,6 +715,6 @@ export default function VariationManagementPage() {
         </Card>
 
       </div>
-    </div>
+    </DashboardPage>
   )
 }

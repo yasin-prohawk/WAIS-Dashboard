@@ -123,3 +123,85 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ── Dashboard mobile layout utilities ───────────────────────────── */
+@layer utilities {
+  .dashboard-table-scroll table {
+    min-width: 36rem;
+  }
+
+  .dashboard-chart-box {
+    @apply relative w-full min-w-0;
+    height: clamp(11rem, 42vw, 16rem);
+  }
+
+  .dashboard-chart-box-lg {
+    @apply relative w-full min-w-0;
+    height: clamp(14rem, 50vw, 20rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-module-page .dashboard-main-columns {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .dashboard-module-page .dashboard-filter-bar {
+    height: auto !important;
+    min-height: 54px;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .dashboard-module-page .dashboard-top-bar {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    flex-wrap: wrap;
+    gap: 8px;
+    height: auto !important;
+    min-height: 62px;
+  }
+
+  .dashboard-module-page .dashboard-top-bar > div:last-child {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .dashboard-module-page .dashboard-stat-grid,
+  .dashboard-module-page .dashboard-card-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  @media (min-width: 480px) {
+    .dashboard-module-page .dashboard-stat-grid,
+    .dashboard-module-page .dashboard-card-grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+  }
+
+  .dashboard-module-page .dashboard-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dashboard-module-page .dashboard-table-wrap table {
+    min-width: 32rem;
+  }
+
+  .dashboard-module-page [style*='gridTemplateColumns: "1fr 1fr"'],
+  .dashboard-module-page [style*="gridTemplateColumns: '1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-module-page [style*='gridTemplateColumns: "repeat(3'],
+  .dashboard-module-page [style*='gridTemplateColumns: "repeat(4'],
+  .dashboard-module-page [style*='gridTemplateColumns: "repeat(5'],
+  .dashboard-module-page [style*="gridTemplateColumns: 'repeat(3"],
+  .dashboard-module-page [style*="gridTemplateColumns: 'repeat(4"],
+  .dashboard-module-page [style*="gridTemplateColumns: 'repeat(5"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

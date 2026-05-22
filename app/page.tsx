@@ -8,6 +8,8 @@ import {
   User, Users, Settings, Landmark, TrendingUp,
   Bell, ChevronDown, Moon, Sun, Search,
 } from "lucide-react"
+import { DashboardMenuButton } from "@/components/dashboard-menu-button"
+import { useTheme } from "@/components/theme-provider"
 
 /* ─────────────────────────────────────────
    Module definitions
@@ -57,7 +59,8 @@ function cardHover(dark: boolean) {
    Main component
 ───────────────────────────────────────── */
 export default function HomePage() {
-  const [dark, setDark]     = useState(true)
+  const { theme, setTheme } = useTheme()
+  const dark = theme === "dark"
   const [search, setSearch] = useState("")
   const [time, setTime]     = useState("")
   const [date, setDate]     = useState("")
@@ -79,11 +82,6 @@ export default function HomePage() {
     const id = setInterval(tick, 15_000)
     return () => clearInterval(id)
   }, [])
-
-  /* sync dark class to <html> for Tailwind dark: variants if needed */
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark)
-  }, [dark])
 
   return (
     <div
@@ -110,7 +108,7 @@ export default function HomePage() {
           HEADER - Solid background, NO blur
       ════════════════════════════════ */}
       <header
-        className="relative z-20 flex items-center justify-between px-5 py-2.5 border-b transition-all duration-300"
+        className="relative z-20 flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 border-b transition-all duration-300 sm:px-5"
         style={{
           backgroundColor: dark ? "rgba(30,41,59,0.85)" : "rgba(255,255,255,0.85)",
           // NO backdropFilter
@@ -118,7 +116,12 @@ export default function HomePage() {
         }}
       >
         {/* ── left: logos ── */}
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <DashboardMenuButton
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 shrink-0 text-slate-200 hover:bg-white/10 hover:text-white"
+          />
 
           {/* ProHAWK */}
           <div className="flex items-center gap-2">
@@ -151,7 +154,7 @@ export default function HomePage() {
           <div className="w-px h-7" style={{ background: dark ? "rgba(255,255,255,0.14)" : "rgba(15,45,110,0.18)" }} />
 
           {/* system name */}
-          <div>
+          <div className="hidden min-[520px]:block">
             <p className="text-[11.5px] font-semibold leading-tight"
                style={{ color: dark ? "rgba(226,232,240,0.95)" : "#1e293b" }}>
               WACH Asset Information System
@@ -168,7 +171,7 @@ export default function HomePage() {
 
           {/* toggle */}
           <button
-            onClick={() => setDark(!dark)}
+            onClick={() => setTheme(dark ? "light" : "dark")}
             aria-label="Toggle theme"
             className="relative flex items-center p-0.5 w-[50px] h-6 rounded-full border cursor-pointer transition-colors duration-300"
             style={{
@@ -208,8 +211,8 @@ export default function HomePage() {
             >
               <User className="w-3.5 h-3.5" />
             </div>
-            <span className="text-[12.5px] font-medium">User</span>
-            <ChevronDown className="w-3 h-3 opacity-60" />
+            <span className="hidden text-[12.5px] font-medium sm:inline">User</span>
+            <ChevronDown className="hidden w-3 h-3 opacity-60 sm:block" />
           </div>
         </div>
       </header>
@@ -246,10 +249,7 @@ export default function HomePage() {
           MODULE GRID - Cards WITH blur/glass effect
       ════════════════════════════════ */}
       <main className="relative z-20 flex-1 px-3.5 pb-3 pt-0.5">
-        <div
-          className="grid gap-2.5"
-          style={{ gridTemplateColumns: "repeat(6, minmax(0, 1fr))" }}
-        >
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {modules.map((mod, idx) => {
             const Icon      = mod.icon
             const isHovered = idx === hovered

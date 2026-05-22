@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { DashboardShell } from '@/components/dashboard-shell'
 import './globals.css'
 
 const _geist = Geist({ subsets: ['latin'] })
@@ -28,8 +29,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans antialiased bg-background text-foreground">
-        <ThemeProvider defaultTheme="light">
-          {children}
+        <ThemeProvider defaultTheme="dark">
+          <DashboardShell>
+            {children}
+          </DashboardShell>
           <ThemeToggle />
         </ThemeProvider>
         <Analytics />

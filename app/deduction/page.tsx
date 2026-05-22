@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useDashboardNav } from "@/components/dashboard-nav-provider";
 
 declare global { interface Window { Chart: any; XLSX: any; } }
 
@@ -16,13 +17,13 @@ const SERVICES = [
     overall: 0.82,
     data: [0.91, 0.75, 0.88, 0.62, 0.79, 1.02, 0.95, 0.70, 0.83, 0.82],
     indicators: [
-      { label: "% F1", value: 35.20, color: "#0EA5E9", deduction: 0.00 },
-      { label: "% F2", value: 28.50, color: "#06B6D4", deduction: 0.00 },
-      { label: "% F3", value: 18.30, color: "#3B82F6", deduction: 0.00 },
-      { label: "% F4", value: 12.00, color: "#6366F1", deduction: 0.00 },
-      { label: "% F5", value: 6.00, color: "#8B5CF6", deduction: 0.00 },
+      { label: "% F1", value: 35.20, color: "#0EA5E9", deduction: 12450.00 },
+      { label: "% F2", value: 28.50, color: "#06B6D4", deduction: 8320.00 },
+      { label: "% F3", value: 18.30, color: "#3B82F6", deduction: 5180.00 },
+      { label: "% F4", value: 12.00, color: "#6366F1", deduction: 3200.00 },
+      { label: "% F5", value: 6.00, color: "#8B5CF6", deduction: 1850.00 },
     ],
-    totalDeduction: 0.00,
+    totalDeduction: 31000.00,
     totalUserArea: 52,
   },
   {
@@ -32,13 +33,13 @@ const SERVICES = [
     overall: 1.24,
     data: [0.88, 1.10, 0.95, 1.32, 1.15, 0.98, 1.42, 1.28, 1.19, 1.24],
     indicators: [
-      { label: "% B1", value: 40.10, color: "#F59E0B", deduction: 0.00 },
-      { label: "% B2", value: 25.80, color: "#F97316", deduction: 0.00 },
-      { label: "% B3", value: 18.60, color: "#EF4444", deduction: 0.00 },
-      { label: "% B4", value: 10.50, color: "#FB923C", deduction: 0.00 },
-      { label: "% B5", value: 5.00, color: "#FCD34D", deduction: 0.00 },
+      { label: "% B1", value: 40.10, color: "#F59E0B", deduction: 18600.00 },
+      { label: "% B2", value: 25.80, color: "#F97316", deduction: 11400.00 },
+      { label: "% B3", value: 18.60, color: "#EF4444", deduction: 7850.00 },
+      { label: "% B4", value: 10.50, color: "#FB923C", deduction: 4300.00 },
+      { label: "% B5", value: 5.00, color: "#FCD34D", deduction: 1850.00 },
     ],
-    totalDeduction: 0.00,
+    totalDeduction: 44000.00,
     totalUserArea: 52,
   },
   {
@@ -48,13 +49,13 @@ const SERVICES = [
     overall: 0.44,
     data: [0.49, 0.47, 0.42, 0.38, 0.45, 0.48, 0.37, 0.36, 0.45, 0.48],
     indicators: [
-      { label: "% C1", value: 74.73, color: "#10B981", deduction: 0.00 },
-      { label: "% C2", value: 16.58, color: "#34D399", deduction: 0.00 },
-      { label: "% C3", value: 7.41, color: "#6EE7B7", deduction: 0.00 },
-      { label: "% C4", value: 0.78, color: "#A7F3D0", deduction: 0.00 },
-      { label: "% C5", value: 0.50, color: "#D1FAE5", deduction: 0.00 },
+      { label: "% C1", value: 74.73, color: "#10B981", deduction: 9800.00 },
+      { label: "% C2", value: 16.58, color: "#34D399", deduction: 2100.00 },
+      { label: "% C3", value: 7.41, color: "#6EE7B7", deduction: 950.00 },
+      { label: "% C4", value: 0.78, color: "#A7F3D0", deduction: 120.00 },
+      { label: "% C5", value: 0.50, color: "#D1FAE5", deduction: 80.00 },
     ],
-    totalDeduction: 0.00,
+    totalDeduction: 13050.00,
     totalUserArea: 52,
   },
   {
@@ -64,13 +65,13 @@ const SERVICES = [
     overall: 1.03,
     data: [1.58, 1.35, 1.37, 0.65, 0.46, 0.54, 0.86, 1.32, 0.46, 1.03],
     indicators: [
-      { label: "% L1", value: 0.85, color: "#8B5CF6", deduction: 0.00 },
-      { label: "% L2", value: 3.15, color: "#A78BFA", deduction: 0.00 },
-      { label: "% L3", value: 3.53, color: "#C4B5FD", deduction: 0.00 },
-      { label: "% L4", value: 0.88, color: "#DDD6FE", deduction: 0.00 },
-      { label: "% L5", value: 42.10, color: "#7C3AED", deduction: 0.00 },
+      { label: "% L1", value: 0.85, color: "#8B5CF6", deduction: 320.00 },
+      { label: "% L2", value: 3.15, color: "#A78BFA", deduction: 1100.00 },
+      { label: "% L3", value: 3.53, color: "#C4B5FD", deduction: 1250.00 },
+      { label: "% L4", value: 0.88, color: "#DDD6FE", deduction: 330.00 },
+      { label: "% L5", value: 42.10, color: "#7C3AED", deduction: 14500.00 },
     ],
-    totalDeduction: 0.00,
+    totalDeduction: 17500.00,
     totalUserArea: 52,
   },
   {
@@ -80,13 +81,13 @@ const SERVICES = [
     overall: 0.03,
     data: [0.03, 0.03, 0.02, 0.02, 0.01, 0.02, 0.06, 0.03, 0.02, 0.03],
     indicators: [
-      { label: "% HC1", value: 25.64, color: "#6F42C1", deduction: 0.00 },
-      { label: "% HC2", value: 35.90, color: "#007BFF", deduction: 0.00 },
-      { label: "% HC3", value: 6.64, color: "#00CCCC", deduction: 0.00 },
-      { label: "% HC4", value: 31.86, color: "#17A2B8", deduction: 0.00 },
-      { label: "% HC5", value: 0.0, color: "#0DCAF0", deduction: 0.00 },
+      { label: "% HC1", value: 25.64, color: "#6F42C1", deduction: 450.00 },
+      { label: "% HC2", value: 35.90, color: "#007BFF", deduction: 620.00 },
+      { label: "% HC3", value: 6.64, color: "#00CCCC", deduction: 115.00 },
+      { label: "% HC4", value: 31.86, color: "#17A2B8", deduction: 550.00 },
+      { label: "% HC5", value: 0.0,  color: "#0DCAF0", deduction: 0.00 },
     ],
-    totalDeduction: 0.00,
+    totalDeduction: 1735.00,
     totalUserArea: 52,
   },
 ];
@@ -168,11 +169,14 @@ function mkBar(id:string,labels:string[],data:number[],colors:string[]|string,T:
 function exportExcelAll(){
   if(!window.XLSX)return;
   const wb=window.XLSX.utils.book_new();
-  const sheetData = [["Deduction Module - All Services"],[""],["Service","% Deduction Overall","Indicators"]];
-  SERVICES.forEach(s => sheetData.push([s.id, s.overall.toFixed(2)+"%", s.indicators.length]));
+  const sheetData = [["Deduction Module - All Services"],[""],["Service","% Deduction Overall","Total Deduction (RM)","Indicators"]];
+  SERVICES.forEach(s => sheetData.push([s.id, s.overall.toFixed(2)+"%", "RM "+s.totalDeduction.toFixed(2), s.indicators.length]));
+  const totalPct = SERVICES.reduce((sum,s)=>sum+s.overall,0);
+  const totalRM  = SERVICES.reduce((sum,s)=>sum+s.totalDeduction,0);
+  sheetData.push(["TOTAL", totalPct.toFixed(2)+"%", "RM "+totalRM.toFixed(2), ""]);
   const ws=window.XLSX.utils.aoa_to_sheet(sheetData);
   window.XLSX.utils.book_append_sheet(wb,ws,"Summary");
-  
+
   SERVICES.forEach(svc => {
     const detailData: any[][] = [[`${svc.id} - ${svc.label}`],[""],["Indicator","% Weight","Deduction (RM)"]];
     svc.indicators.forEach(ind => detailData.push([ind.label, ind.value.toFixed(2)+"%", "RM "+ind.deduction.toFixed(2)]));
@@ -180,7 +184,7 @@ function exportExcelAll(){
     const wsDetail = window.XLSX.utils.aoa_to_sheet(detailData);
     window.XLSX.utils.book_append_sheet(wb,wsDetail,svc.id);
   });
-  
+
   window.XLSX.writeFile(wb,"Deduction_Dashboard_Export.xlsx");
 }
 
@@ -222,7 +226,7 @@ function getContrastText(h:string){
 
 /* ─── MAIN ──────────────────────────────────────── */
 export default function DeductionDashboard(){
-  const [navOpen,setNavOpen]=useState(false);
+  const { openSidebar } = useDashboardNav();
   const [themeName,setThemeName]=useState<"dark"|"light">("light");
   const [frequency,setFrequency]=useState("monthly");
   const [frequencyKey,setFrequencyKey]=useState("all");
@@ -237,9 +241,10 @@ export default function DeductionDashboard(){
 
   const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-  const overallTotalDeduction = SERVICES.reduce((sum, s) => sum + s.overall, 0);
-  const overallAvgDeduction = (overallTotalDeduction / SERVICES.length);
-  const totalUserAreas = SERVICES.reduce((sum, s) => sum + s.totalUserArea, 0);
+  /* ── Aggregates ── */
+  const overallTotalDeductionPct = SERVICES.reduce((sum, s) => sum + s.overall, 0);
+  const overallTotalDeductionRM  = SERVICES.reduce((sum, s) => sum + s.totalDeduction, 0);
+  const totalUserAreas  = SERVICES.reduce((sum, s) => sum + s.totalUserArea, 0);
   const totalIndicators = SERVICES.reduce((sum, s) => sum + s.indicators.length, 0);
 
   const currentService = activeService === "all" ? null : SERVICES.find(s => s.id === activeService);
@@ -261,7 +266,7 @@ export default function DeductionDashboard(){
 
   const initCharts=()=>{
     if(!window.Chart){setTimeout(initCharts,200);return;}
-    
+
     ["overviewLine","overviewBar","overviewPie","serviceLine","servicePie","serviceBar"].forEach(id=>{
       const c=document.getElementById(id) as HTMLCanvasElement;
       if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}
@@ -286,20 +291,20 @@ export default function DeductionDashboard(){
         opacity: isDimmed ? 0.3 : 1,
       };
     });
-    
+
     mkLine("overviewLine", MONTHS_10, lineDatasets, T, {
       plugins: {
-        legend: { 
-          display: true, 
+        legend: {
+          display: true,
           position: "bottom",
-          labels: { 
-            color: T.muted, 
-            font: { size: 10 }, 
-            boxWidth: 12, 
+          labels: {
+            color: T.muted,
+            font: { size: 10 },
+            boxWidth: 12,
             padding: 10,
             usePointStyle: true,
             pointStyleWidth: 8,
-          } 
+          }
         }
       },
       scales: { y: { ticks: { callback: (v:number) => v.toFixed(2)+"%" } } }
@@ -333,15 +338,19 @@ export default function DeductionDashboard(){
   const thStyle:React.CSSProperties={background:T.tableHeaderBg,color:T.accent,padding:"10px 14px",textAlign:"left",fontWeight:700,fontSize:12,borderBottom:`2px solid ${T.border}`};
   const tdStyle:React.CSSProperties={padding:"10px 14px",borderBottom:`1px solid ${T.border}`,color:T.text};
 
+  /* helper to format RM with thousands separator */
+  const fmtRM = (n: number) =>
+    "RM " + n.toLocaleString("en-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
   return(
-    <div style={{fontFamily:"'DM Sans',system-ui,sans-serif",background:T.bg,color:T.text,fontSize:15,height:"100vh",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+    <div className="dashboard-module-page" style={{fontFamily:"'DM Sans',system-ui,sans-serif",background:T.bg,color:T.text,fontSize:15,height:"100vh",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');*,::-webkit-scrollbar{scrollbar-width:thin;scrollbar-color:${T.scrollThumb} transparent}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:${T.scrollThumb};border-radius:99px}@page{size:A4 landscape;margin:10mm}@media print{body{-webkit-print-color-adjust:exact!important}.no-print{display:none!important}}`}</style>
 
       {/* TOP BAR */}
-      <div className="no-print" style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:HDR,borderBottom:`1px solid ${htc}15`,padding:"0 24px",height:62,flexShrink:0}}>
+      <div className="no-print dashboard-top-bar" style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:HDR,borderBottom:`1px solid ${htc}15`,padding:"0 24px",height:62,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:16}}>
-          <button onClick={()=>setNavOpen(o=>!o)} style={{background:"transparent",border:"none",color:htc,cursor:"pointer",fontSize:20,padding:"8px 11px",borderRadius:10}}><BIcon name="bi-list" size={22} color={htc} /></button>
+          <button onClick={openSidebar} style={{background:"transparent",border:"none",color:htc,cursor:"pointer",fontSize:20,padding:"8px 11px",borderRadius:10}}><BIcon name="bi-list" size={22} color={htc} /></button>
           <Link href="/" style={{display:"flex",alignItems:"center",gap:6,padding:"6px 14px",borderRadius:8,border:`1px solid ${htc}30`,color:htc,textDecoration:"none",fontSize:13,fontWeight:500}}><BIcon name="bi-arrow-left" size={16} color={htc} /><span>Back</span></Link>
           <div><div style={{fontSize:17,fontWeight:700,color:htc}}>Deduction Module</div><div style={{fontSize:11,color:htc,opacity:0.6}}>% Deduction KPI — {activeService === "all" ? "All Services Overview" : currentService?.id + " Details"}</div></div>
         </div>
@@ -360,11 +369,8 @@ export default function DeductionDashboard(){
         </div>
       </div>
 
-      {/* SIDEBAR */}
-      {navOpen&&(<div onClick={e=>{if((e.target as HTMLElement).dataset.overlay)setNavOpen(false);}} data-overlay="1" className="no-print" style={{position:"fixed",inset:0,background:"rgba(0,0,0,.4)",zIndex:400}}><div style={{position:"absolute",left:0,top:0,bottom:0,width:320,background:HDR,display:"flex",flexDirection:"column"}}><div style={{padding:"20px 18px",borderBottom:`1px solid ${htc}15`,display:"flex",justifyContent:"space-between"}}><div><div style={{fontSize:16,fontWeight:700,color:htc}}>Dashboard Menu</div></div><button onClick={()=>setNavOpen(false)} style={{background:"rgba(255,255,255,0.08)",color:htc,width:34,height:34,borderRadius:8,cursor:"pointer",border:"none"}}><BIcon name="bi-x-lg" size={18} color={htc} /></button></div><div style={{flex:1,overflowY:"auto",padding:"8px 0"}}>{NAV_PAGES.map(p=>{const a=p.key==="deduction";return(<Link key={p.key} href={p.href} onClick={()=>setNavOpen(false)} style={{padding:"12px 18px",cursor:"pointer",display:"flex",alignItems:"center",gap:12,background:a?T.accent+"10":"transparent",borderLeft:`3px solid ${a?T.accent:"transparent"}`,textDecoration:"none"}}><div style={{width:38,height:38,borderRadius:10,background:a?T.accent+"18":"rgba(255,255,255,0.04)",display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name={p.icon} size={18} color={a?T.accent:htc} /></div><div style={{fontSize:13,fontWeight:a?600:400,color:htc,opacity:a?1:0.65}}>{p.label}</div></Link>);})}</div></div></div>)}
-
       {/* FILTER BAR */}
-      <div className="no-print" style={{display:"flex",alignItems:"center",background:HDR,borderBottom:`1px solid ${htc}15`,padding:"0 22px",height:54,gap:16,flexShrink:0,flexWrap:"wrap"}}>
+      <div className="no-print dashboard-filter-bar" style={{display:"flex",alignItems:"center",background:HDR,borderBottom:`1px solid ${htc}15`,padding:"0 22px",height:54,gap:16,flexShrink:0,flexWrap:"wrap"}}>
         <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,fontWeight:600,color:"#fff"}}>Frequency</span><select value={frequency} onChange={e=>{setFrequency(e.target.value);setFrequencyKey("all");}} style={{background:"#fff",color:"#1a2636",padding:"6px 30px 6px 12px",borderRadius:8,fontSize:12,cursor:"pointer"}}><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="yearly">Yearly</option></select></div>
         <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,fontWeight:600,color:"#fff"}}>Frequency Key</span><select value={frequencyKey} onChange={e=>setFrequencyKey(e.target.value)} style={{background:"#fff",color:"#1a2636",padding:"6px 30px 6px 12px",borderRadius:8,fontSize:12,cursor:"pointer"}}><option value="all">All Months</option>{months.map(m=><option key={m} value={m.toLowerCase()}>{m}</option>)}</select></div>
         <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,fontWeight:600,color:"#fff"}}>Year</span><select value={selectedYear} onChange={e=>setSelectedYear(e.target.value)} style={{background:"#fff",color:"#1a2636",padding:"6px 30px 6px 12px",borderRadius:8,fontSize:12,cursor:"pointer"}}><option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option></select></div>
@@ -383,35 +389,42 @@ export default function DeductionDashboard(){
 
       {/* CONTENT */}
       <div style={{flex:1,overflow:"auto",padding:"20px"}}>
-        
-        {/* ALL SERVICES OVERVIEW */}
+
+        {/* ═══ ALL SERVICES OVERVIEW ═══ */}
         {activeService === "all" && (
           <>
-            {/* KPI Cards Row */}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:14,marginBottom:16}}>
+            {/* ── KPI Cards Row (4 cards) ── */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:16}}>
+
+              {/* 1 — Total Services */}
               <div style={{...card({padding:"16px",textAlign:"center"}),background:"linear-gradient(135deg,#0EA5E912,#8B5CF608)"}}>
                 <div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:6}}>Total Services</div>
                 <div style={{fontSize:32,fontWeight:800,color:T.text}}>{SERVICES.length}</div>
               </div>
-              <div style={{...card({padding:"16px",textAlign:"center"}),background:"linear-gradient(135deg,#10B98112,#10B98108)"}}>
-                <div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:6}}>Avg % Deduction</div>
-                <div style={{fontSize:32,fontWeight:800,color:"#10B981"}}>{overallAvgDeduction.toFixed(2)}%</div>
-              </div>
+
+              {/* 2 — Total Indicators */}
               <div style={{...card({padding:"16px",textAlign:"center"}),background:"linear-gradient(135deg,#F59E0B12,#F59E0B08)"}}>
                 <div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:6}}>Total Indicators</div>
                 <div style={{fontSize:32,fontWeight:800,color:"#F59E0B"}}>{totalIndicators}</div>
               </div>
-              <div style={{...card({padding:"16px",textAlign:"center"}),background:"linear-gradient(135deg,#6F42C112,#6F42C108)"}}>
-                <div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:6}}>User Areas</div>
-                <div style={{fontSize:32,fontWeight:800,color:"#6F42C1"}}>{totalUserAreas}</div>
-              </div>
+
+              {/* 3 — Total % Deduction (all services combined) */}
               <div style={{...card({padding:"16px",textAlign:"center"}),background:"linear-gradient(135deg,#EF444412,#EF444408)"}}>
-                <div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:6}}>Total Deduction</div>
-                <div style={{fontSize:28,fontWeight:800,color:T.success}}>RM 0.00</div>
+                <div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:6}}>Total % Deduction</div>
+                <div style={{fontSize:32,fontWeight:800,color:T.danger}}>{overallTotalDeductionPct.toFixed(2)}<span style={{fontSize:14,fontWeight:600}}>%</span></div>
+                <div style={{fontSize:9,color:T.muted,marginTop:4}}>All services combined</div>
               </div>
+
+              {/* 4 — Total Deduction RM */}
+              <div style={{...card({padding:"16px",textAlign:"center"}),background:"linear-gradient(135deg,#10B98112,#10B98108)"}}>
+                <div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:6}}>Total Deduction (RM)</div>
+                <div style={{fontSize:26,fontWeight:800,color:T.success,lineHeight:1.2}}>{fmtRM(overallTotalDeductionRM)}</div>
+                <div style={{fontSize:9,color:T.muted,marginTop:4}}>All services combined</div>
+              </div>
+
             </div>
 
-            {/* Service Summary Cards */}
+            {/* ── Service Summary Cards ── */}
             <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:14,marginBottom:16}}>
               {SERVICES.map(svc=>{
                 const accentBg=svc.accent+"18";
@@ -419,10 +432,10 @@ export default function DeductionDashboard(){
                 const isHighlighted = highlightedService === svc.id;
                 const isDimmed = highlightedService && highlightedService !== svc.id;
                 const isHighest = svc.overall === Math.max(...SERVICES.map(s => s.overall));
-                const isLowest = svc.overall === Math.min(...SERVICES.map(s => s.overall));
+                const isLowest  = svc.overall === Math.min(...SERVICES.map(s => s.overall));
                 return(
-                  <div 
-                    key={svc.id} 
+                  <div
+                    key={svc.id}
                     style={{
                       ...card({padding:"16px",textAlign:"center",border:`2px solid ${isHighlighted ? svc.accent : borderColor}`,cursor:"pointer",position:"relative"}),
                       background:`linear-gradient(135deg,${accentBg},${svc.accent}08)`,
@@ -430,23 +443,26 @@ export default function DeductionDashboard(){
                       transform: isHighlighted ? "scale(1.03)" : "scale(1)",
                       transition: "all 0.25s ease",
                       boxShadow: isHighlighted ? `0 4px 20px ${svc.accent}30` : "none",
-                    }} 
+                    }}
                     onClick={()=>setActiveService(svc.id)}
                     onMouseEnter={()=>setHighlightedService(svc.id)}
                     onMouseLeave={()=>setHighlightedService(null)}
                   >
                     {isHighest && <div style={{position:"absolute",top:8,right:8,fontSize:9,color:T.warn,fontWeight:700}}>Highest</div>}
-                    {isLowest && <div style={{position:"absolute",top:8,right:8,fontSize:9,color:T.success,fontWeight:700}}>Lowest</div>}
+                    {isLowest  && <div style={{position:"absolute",top:8,right:8,fontSize:9,color:T.success,fontWeight:700}}>Lowest</div>}
                     <div style={{fontSize:14,fontWeight:700,color:svc.accent,marginBottom:4,letterSpacing:"0.5px"}}>{svc.id}</div>
                     <div style={{fontSize:28,fontWeight:800,color:svc.accent,lineHeight:1,marginTop:8}}>{svc.overall.toFixed(2)}<span style={{fontSize:12,fontWeight:600}}>%</span></div>
                     <div style={{fontSize:9,color:T.muted,marginTop:4}}>% Deduction</div>
+                    {/* RM amount per service */}
+                    <div style={{fontSize:11,fontWeight:700,color:T.success,marginTop:8}}>{fmtRM(svc.totalDeduction)}</div>
+                    <div style={{fontSize:9,color:T.muted,marginTop:2}}>Deduction (RM)</div>
                     <div style={{fontSize:9,color:svc.accent,marginTop:10,opacity:0.7,fontWeight:600}}>Hover to highlight →</div>
                   </div>
                 );
               })}
             </div>
 
-            {/* Charts Row */}
+            {/* ── Charts Row ── */}
             <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:14,marginBottom:16}}>
               <div style={{...card({padding:"16px"})}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
@@ -469,22 +485,29 @@ export default function DeductionDashboard(){
               </div>
             </div>
 
-            {/* Summary Table */}
+            {/* ── Summary Table ── */}
             <div style={{...card({padding:"16px"})}}>
               <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:12}}>Service Deduction Summary</div>
               <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-                <thead><tr>{["Service","% Deduction Overall","Indicators","Trend","Status"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead>
+                <thead>
+                  <tr>
+                    {["Service","% Deduction Overall","Deduction (RM)","Indicators","Trend","Status"].map(h=>(
+                      <th key={h} style={thStyle}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
                 <tbody>
                   {SERVICES.map(svc=>(
-                    <tr 
-                      key={svc.id} 
-                      style={{cursor:"pointer",background:highlightedService === svc.id ? svc.accent+"08" : "transparent",transition:"background 0.2s"}} 
+                    <tr
+                      key={svc.id}
+                      style={{cursor:"pointer",background:highlightedService === svc.id ? svc.accent+"08" : "transparent",transition:"background 0.2s"}}
                       onClick={()=>setActiveService(svc.id)}
                       onMouseEnter={()=>setHighlightedService(svc.id)}
                       onMouseLeave={()=>setHighlightedService(null)}
                     >
                       <td style={{...tdStyle,fontWeight:600,color:svc.accent}}>{svc.id}</td>
                       <td style={tdStyle}>{svc.overall.toFixed(2)}%</td>
+                      <td style={{...tdStyle,fontWeight:600,color:T.success}}>{fmtRM(svc.totalDeduction)}</td>
                       <td style={tdStyle}>{svc.indicators.length}</td>
                       <td style={tdStyle}>
                         <Badge color={svc.overall < 0.5 ? "green" : svc.overall < 1.0 ? "blue" : "warn"} T={T}>
@@ -498,13 +521,22 @@ export default function DeductionDashboard(){
                       </td>
                     </tr>
                   ))}
+                  {/* ── Totals row ── */}
+                  <tr style={{background:T.tableHeaderBg}}>
+                    <td style={{...tdStyle,fontWeight:800,color:T.text}}>TOTAL</td>
+                    <td style={{...tdStyle,fontWeight:800,color:T.danger}}>{overallTotalDeductionPct.toFixed(2)}%</td>
+                    <td style={{...tdStyle,fontWeight:800,color:T.success}}>{fmtRM(overallTotalDeductionRM)}</td>
+                    <td style={{...tdStyle,fontWeight:800,color:T.text}}>{totalIndicators}</td>
+                    <td style={tdStyle}></td>
+                    <td style={tdStyle}></td>
+                  </tr>
                 </tbody>
               </table>
             </div>
           </>
         )}
 
-        {/* SINGLE SERVICE DETAIL VIEW */}
+        {/* ═══ SINGLE SERVICE DETAIL VIEW ═══ */}
         {activeService !== "all" && currentService && (
           <>
             {/* Back button */}
@@ -523,7 +555,7 @@ export default function DeductionDashboard(){
               </div>
             </div>
 
-            {/* KPI Cards */}
+            {/* KPI Cards — service detail (4 cards) */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:12,marginBottom:16}}>
               <div style={{background:`linear-gradient(135deg,${currentService.accent}15,${currentService.accent}05)`,borderRadius:14,padding:"18px",textAlign:"center",border:`1px solid ${currentService.accent}25`}}>
                 <div style={{fontSize:11,color:currentService.accent,textTransform:"uppercase",marginBottom:8}}>% Deduction Overall</div>
@@ -539,16 +571,16 @@ export default function DeductionDashboard(){
               </div>
               <div style={{...card({padding:"18px",textAlign:"center"})}}>
                 <div style={{fontSize:11,color:T.muted,textTransform:"uppercase",marginBottom:8}}>Total Deduction</div>
-                <div style={{fontSize:28,fontWeight:800,color:T.success}}>RM {currentService.totalDeduction.toFixed(2)}</div>
+                <div style={{fontSize:26,fontWeight:800,color:T.success,lineHeight:1.2}}>{fmtRM(currentService.totalDeduction)}</div>
               </div>
             </div>
 
             {/* Indicator Cards */}
             <div style={{display:"grid",gridTemplateColumns:`repeat(${currentService.indicators.length},1fr)`,gap:12,marginBottom:16}}>
-              {currentService.indicators.map((ind,i)=>(
+              {currentService.indicators.map((ind)=>(
                 <div key={ind.label} style={{...card({padding:"14px",textAlign:"center",border:`1px solid ${ind.color}30`}),background:`linear-gradient(135deg,${ind.color}12,${ind.color}04)`}}>
                   <div style={{width:11,height:11,borderRadius:"50%",background:ind.color,display:"inline-block",marginBottom:8}} />
-                  <div style={{fontSize:18,fontWeight:800,color:ind.color}}>RM {ind.deduction.toFixed(2)}</div>
+                  <div style={{fontSize:18,fontWeight:800,color:ind.color}}>{fmtRM(ind.deduction)}</div>
                   <div style={{fontSize:12,color:T.muted,marginTop:4}}>{ind.label} — {ind.value}%</div>
                 </div>
               ))}
@@ -572,7 +604,7 @@ export default function DeductionDashboard(){
                   </div>
                 </div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:"4px 12px",marginTop:8}}>
-                  {currentService.indicators.map((ind,i)=>(
+                  {currentService.indicators.map((ind)=>(
                     <div key={ind.label} style={{display:"flex",alignItems:"center",gap:4}}>
                       <div style={{width:6,height:6,borderRadius:"50%",background:ind.color,flexShrink:0}} />
                       <span style={{fontSize:9,color:T.muted}}>{ind.label}: {ind.value}%</span>
@@ -586,9 +618,15 @@ export default function DeductionDashboard(){
             <div style={{...card({padding:"16px"})}}>
               <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:12}}>Indicator Details</div>
               <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-                <thead><tr>{["Indicator","% Weight","Deduction (RM)","Status"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead>
+                <thead>
+                  <tr>
+                    {["Indicator","% Weight","Deduction (RM)","Status"].map(h=>(
+                      <th key={h} style={thStyle}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
                 <tbody>
-                  {currentService.indicators.map((ind,i)=>(
+                  {currentService.indicators.map((ind)=>(
                     <tr key={ind.label}>
                       <td style={{...tdStyle,fontWeight:600}}>
                         <div style={{display:"flex",alignItems:"center",gap:6}}>
@@ -597,7 +635,7 @@ export default function DeductionDashboard(){
                         </div>
                       </td>
                       <td style={tdStyle}>{ind.value.toFixed(2)}%</td>
-                      <td style={tdStyle}>RM {ind.deduction.toFixed(2)}</td>
+                      <td style={{...tdStyle,fontWeight:600,color:ind.deduction > 0 ? T.warn : T.success}}>{fmtRM(ind.deduction)}</td>
                       <td style={tdStyle}>
                         <Badge color={ind.deduction === 0 ? "green" : "warn"} T={T}>
                           {ind.deduction === 0 ? "No Deduction" : "Has Deduction"}
@@ -605,10 +643,11 @@ export default function DeductionDashboard(){
                       </td>
                     </tr>
                   ))}
-                  <tr>
-                    <td style={{...tdStyle,fontWeight:700}}>Overall</td>
-                    <td style={{...tdStyle,fontWeight:700,color:currentService.accent}}>{currentService.overall.toFixed(2)}%</td>
-                    <td style={{...tdStyle,fontWeight:700,color:T.success}}>RM {currentService.totalDeduction.toFixed(2)}</td>
+                  {/* Totals row */}
+                  <tr style={{background:T.tableHeaderBg}}>
+                    <td style={{...tdStyle,fontWeight:800,color:T.text}}>Total</td>
+                    <td style={{...tdStyle,fontWeight:800,color:currentService.accent}}>{currentService.overall.toFixed(2)}%</td>
+                    <td style={{...tdStyle,fontWeight:800,color:T.success}}>{fmtRM(currentService.totalDeduction)}</td>
                     <td style={tdStyle}></td>
                   </tr>
                 </tbody>

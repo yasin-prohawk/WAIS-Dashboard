@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useDashboardNav } from "@/components/dashboard-nav-provider";
 
 declare global { interface Window { Chart: any; XLSX: any; } }
 
@@ -196,7 +197,7 @@ function PlaceholderPage({page,T}:{page:typeof NAV_PAGES[0];T:Theme}){
 
 /* ─── MAIN ──────────────────────────────────────── */
 export default function AWDashboard(){
-  const [navOpen,setNavOpen]=useState(false);
+  const { openSidebar } = useDashboardNav();
   const [activePage,setActivePage]=useState("additional");
   const [modal,setModal]=useState<string|null>(null);
   const [themeName,setThemeName]=useState<"dark"|"light">("light");
@@ -255,14 +256,14 @@ export default function AWDashboard(){
   const tdStyle:React.CSSProperties={padding:"10px 14px",borderBottom:`1px solid ${T.border}`,color:T.text};
 
   return(
-    <div style={{fontFamily:"'DM Sans',system-ui,sans-serif",background:T.bg,color:T.text,fontSize:15,height:"100vh",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+    <div className="dashboard-module-page" style={{fontFamily:"'DM Sans',system-ui,sans-serif",background:T.bg,color:T.text,fontSize:15,height:"100vh",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');*,::-webkit-scrollbar{scrollbar-width:thin;scrollbar-color:${T.scrollThumb} transparent}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:${T.scrollThumb};border-radius:99px}@page{size:A4 landscape;margin:10mm}@media print{body{-webkit-print-color-adjust:exact!important}.no-print{display:none!important}}`}</style>
 
       {/* TOP BAR */}
-      <div className="no-print" style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:HDR,borderBottom:`1px solid ${htc}15`,padding:"0 24px",height:62,flexShrink:0}}>
+      <div className="no-print dashboard-top-bar" style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:HDR,borderBottom:`1px solid ${htc}15`,padding:"0 24px",height:62,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:16}}>
-          <button onClick={()=>setNavOpen(o=>!o)} style={{background:"transparent",border:"none",color:htc,cursor:"pointer",fontSize:20,padding:"8px 11px",borderRadius:10}}><BIcon name="bi-list" size={22} color={htc} /></button>
+          <button onClick={openSidebar} style={{background:"transparent",border:"none",color:htc,cursor:"pointer",fontSize:20,padding:"8px 11px",borderRadius:10}}><BIcon name="bi-list" size={22} color={htc} /></button>
           <Link href="/" style={{display:"flex",alignItems:"center",gap:6,padding:"6px 14px",borderRadius:8,border:`1px solid ${htc}30`,color:htc,textDecoration:"none",fontSize:13,fontWeight:500}}><BIcon name="bi-arrow-left" size={16} color={htc} /><span>Back</span></Link>
           <div><div style={{fontSize:17,fontWeight:700,color:htc}}>{currentPage.label}</div><div style={{fontSize:11,color:htc,opacity:0.6}}>Monitoring implementation and request statistics</div></div>
         </div>
@@ -276,13 +277,11 @@ export default function AWDashboard(){
       </div>
 
       {/* SIDEBAR */}
-      {navOpen&&(<div onClick={e=>{if((e.target as HTMLElement).dataset.overlay)setNavOpen(false);}} data-overlay="1" className="no-print" style={{position:"fixed",inset:0,background:"rgba(0,0,0,.4)",zIndex:400}}><div style={{position:"absolute",left:0,top:0,bottom:0,width:320,background:HDR,display:"flex",flexDirection:"column"}}><div style={{padding:"20px 18px",borderBottom:`1px solid ${htc}15`,display:"flex",justifyContent:"space-between"}}><div><div style={{fontSize:16,fontWeight:700,color:htc}}>Dashboard Menu</div></div><button onClick={()=>setNavOpen(false)} style={{background:"rgba(255,255,255,0.08)",color:htc,width:34,height:34,borderRadius:8,cursor:"pointer",border:"none"}}><BIcon name="bi-x-lg" size={18} color={htc} /></button></div><div style={{flex:1,overflowY:"auto",padding:"8px 0"}}>{NAV_PAGES.map(p=>{const a=activePage===p.key;return(<Link key={p.key} href={p.href} onClick={()=>setNavOpen(false)} style={{padding:"12px 18px",cursor:"pointer",display:"flex",alignItems:"center",gap:12,background:a?T.accent+"10":"transparent",borderLeft:`3px solid ${a?T.accent:"transparent"}`,textDecoration:"none"}}><div style={{width:38,height:38,borderRadius:10,background:a?T.accent+"18":"rgba(255,255,255,0.04)",display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name={p.icon} size={18} color={a?T.accent:htc} /></div><div style={{fontSize:13,fontWeight:a?600:400,color:htc,opacity:a?1:0.65}}>{p.label}</div></Link>);})}</div></div></div>)}
-
       {activePage!=="additional"&&(<div style={{flex:1}}><PlaceholderPage page={currentPage} T={T} /></div>)}
 
       {activePage==="additional"&&(<>
         {/* FILTER BAR */}
-        <div className="no-print" style={{display:"flex",alignItems:"center",background:HDR,borderBottom:`1px solid ${htc}15`,padding:"0 22px",height:54,gap:16,flexShrink:0}}>
+        <div className="no-print dashboard-filter-bar" style={{display:"flex",alignItems:"center",background:HDR,borderBottom:`1px solid ${htc}15`,padding:"0 22px",height:54,gap:16,flexShrink:0}}>
           <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,fontWeight:600,color:"#fff"}}>Frequency</span><select value={frequency} onChange={e=>{setFrequency(e.target.value);setFrequencyKey("all");}} style={{background:"#fff",color:"#1a2636",padding:"6px 30px 6px 12px",borderRadius:8,fontSize:12,cursor:"pointer"}}><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="yearly">Yearly</option></select></div>
           <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,fontWeight:600,color:"#fff"}}>Frequency Key</span><select value={frequencyKey} onChange={e=>setFrequencyKey(e.target.value)} style={{background:"#fff",color:"#1a2636",padding:"6px 30px 6px 12px",borderRadius:8,fontSize:12,cursor:"pointer"}}><option value="all">All Months</option>{months.map(m=><option key={m} value={m.toLowerCase()}>{m}</option>)}</select></div>
           <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:12,fontWeight:600,color:"#fff"}}>Year</span><select value={selectedYear} onChange={e=>setSelectedYear(e.target.value)} style={{background:"#fff",color:"#1a2636",padding:"6px 30px 6px 12px",borderRadius:8,fontSize:12,cursor:"pointer"}}><option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option></select></div>

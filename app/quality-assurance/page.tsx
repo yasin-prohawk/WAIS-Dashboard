@@ -28,6 +28,7 @@ import {
   Legend,
 } from "recharts"
 import DashboardNav from "@/components/dashboard-nav"
+import { DashboardPage } from "@/components/dashboard-page"
 import {
   Filter,
   TrendingUp,
@@ -198,10 +199,10 @@ export default function QualityAssurancePage() {
   const [selectedQuarter, setSelectedQuarter] = useState("all")
 
   return (
-    <div className="min-h-screen bg-background">
+    <DashboardPage>
       <DashboardNav title="Quality Assurance Program" />
 
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto max-w-[1600px] space-y-4 sm:space-y-6">
 
         {/* ── FILTERS ──────────────────────────────────────────────────────── */}
         <Card className="border-primary/20">
@@ -270,7 +271,7 @@ export default function QualityAssurancePage() {
         </Card>
 
         {/* ── KPI CARDS ────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Card className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20">
             <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Audits Completed</CardTitle></CardHeader>
             <CardContent>
@@ -320,7 +321,7 @@ export default function QualityAssurancePage() {
         </div>
 
         {/* ── ROW 1: Audit Trend + Compliance Trend ────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-3">
           <Card className="xl:col-span-2">
             <CardHeader><CardTitle className="text-sm font-semibold">Audit Activity – Scheduled vs Completed vs Passed</CardTitle></CardHeader>
             <CardContent>
@@ -603,6 +604,6 @@ export default function QualityAssurancePage() {
         </Card>
 
       </div>
-    </div>
+    </DashboardPage>
   )
 }
