@@ -18,6 +18,14 @@ const CUSTOM_MODULE_PATHS = [
   '/waste-management',
   '/deduction',
   '/additional-works',
+  '/quality-assurance',
+  '/variation-management',
+  '/beyond-economic-repair',
+  '/reports',
+  '/general-master',
+  '/user-management',
+  '/finance',
+  '/bis',
 ]
 
 type DashboardHeaderProps = {
