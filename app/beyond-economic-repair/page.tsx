@@ -183,7 +183,7 @@ function exportExcelBER(service: typeof BER_SERVICES[0]) {
   if (!window.XLSX) return;
   const wb = window.XLSX.utils.book_new();
   const sheetData: any[][] = [
-    ["BER Dashboard - Tapah (PRK350)", "May 2026"],
+    ["BER Dashboard", "May 2026"],
     [],
     ["Service", "Total Assets", "Approved & Completed", "Completion Rate %"]
   ];
@@ -342,7 +342,7 @@ export default function BERDashboard() {
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, border: `1px solid ${htc}30`, color: htc, textDecoration: "none", fontSize: 13, fontWeight: 500 }}><BIcon name="bi-arrow-left" size={16} color={htc} /><span>Back</span></Link>
           <div>
             <div style={{ fontSize: 17, fontWeight: 700, color: htc }}>Beyond Economic Repair</div>
-            <div style={{ fontSize: 11, color: htc, opacity: 0.6 }}>BER Performance Dashboard — Tapah (PRK350)</div>
+            <div style={{ fontSize: 11, color: htc, opacity: 0.6 }}>BER Performance Dashboard</div>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -605,7 +605,7 @@ export default function BERDashboard() {
         {/* ── FOOTER ── */}
         <div style={{ marginTop: 20, fontSize: 11, color: T.muted, textAlign: "center", padding: "12px 0", borderTop: `1px solid ${T.border}` }}>
           <BIcon name="bi-database" size={12} style={{ marginRight: 6 }} />
-          Data based on BER assessment — Tapah (PRK350) · May 2026 cycle · ASIS QMS
+          Data based on BER assessment · May 2026 cycle · ASIS QMS
           <span style={{ margin: "0 12px" }}>|</span>
           <BIcon name="bi-clock" size={12} style={{ marginRight: 4 }} />
           Last updated: 25 Feb 2026
