@@ -14,6 +14,7 @@ const CUSTOM_MODULE_PATHS = [
   '/facility-engineering',
   '/biomedical-engineering',
   '/cleansing-services',
+  '/complaints',
   '/linen-laundry',
   '/waste-management',
   '/deduction',

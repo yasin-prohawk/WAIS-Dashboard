@@ -1,567 +1,749 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  LineChart,
-  Line,
-  Tooltip,
-  Legend,
-} from "recharts"
-import DashboardNav from "@/components/dashboard-nav"
-import { DashboardPage } from "@/components/dashboard-page"
-import { ResponsiveTable } from "@/components/responsive-table"
-import {
-  Filter,
-  TrendingUp,
-  TrendingDown,
-  CheckCircle2,
-  MapPin,
-  User,
-  MessageSquareWarning,
-} from "lucide-react"
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useDashboardNav } from "@/components/dashboard-nav-provider";
 
-// ── DATA ──────────────────────────────────────────────────────────────────────
-
-const complaintTrendData = [
-  { month: "Jan", received: 142, resolved: 130, overdue: 12 },
-  { month: "Feb", received: 158, resolved: 140, overdue: 18 },
-  { month: "Mar", received: 135, resolved: 128, overdue: 7 },
-  { month: "Apr", received: 172, resolved: 155, overdue: 17 },
-  { month: "May", received: 189, resolved: 164, overdue: 25 },
-  { month: "Jun", received: 161, resolved: 150, overdue: 11 },
-]
-
-const complaintStatusData = [
-  { name: "Resolved", value: 867, color: "#22c55e" },
-  { name: "In Progress", value: 213, color: "#3b82f6" },
-  { name: "Open / New", value: 98, color: "#f97316" },
-  { name: "Overdue", value: 90, color: "#ef4444" },
-  { name: "Closed (No Action)", value: 45, color: "#6b7280" },
-]
-
-const complaintCategoryData = [
-  { category: "HVAC / Air-Cond", count: 312 },
-  { category: "Plumbing", count: 248 },
-  { category: "Electrical", count: 201 },
-  { category: "Cleanliness", count: 178 },
-  { category: "Lift / Elevator", count: 134 },
-  { category: "Structural", count: 89 },
-  { category: "Pest Control", count: 67 },
-  { category: "Others", count: 54 },
-]
-
-const complaintByLocationData = [
-  { location: "Block A", open: 28, inProgress: 45, resolved: 210 },
-  { location: "Block B", open: 22, inProgress: 52, resolved: 195 },
-  { location: "Block C", open: 18, inProgress: 38, resolved: 162 },
-  { location: "Block D", open: 14, inProgress: 30, resolved: 140 },
-  { location: "Block E", open: 16, inProgress: 48, resolved: 160 },
-]
-
-const slaComplianceData = [
-  { month: "Jan", target: 95, actual: 91.5 },
-  { month: "Feb", target: 95, actual: 88.6 },
-  { month: "Mar", target: 95, actual: 94.8 },
-  { month: "Apr", target: 95, actual: 90.1 },
-  { month: "May", target: 95, actual: 86.8 },
-  { month: "Jun", target: 95, actual: 93.2 },
-]
-
-const resolutionTimeData = [
-  { month: "Jan", avgDays: 2.8 },
-  { month: "Feb", avgDays: 3.4 },
-  { month: "Mar", avgDays: 2.5 },
-  { month: "Apr", avgDays: 3.1 },
-  { month: "May", avgDays: 3.8 },
-  { month: "Jun", avgDays: 2.9 },
-]
-
-const ageingBucketData = [
-  { range: "0-1 Day", count: 38, color: "#22c55e" },
-  { range: "2-3 Days", count: 52, color: "#3b82f6" },
-  { range: "4-7 Days", count: 34, color: "#eab308" },
-  { range: "8-14 Days", count: 21, color: "#f97316" },
-  { range: ">14 Days", count: 18, color: "#ef4444" },
-]
-
-const technicianWorkloadData = [
-  { name: "Ahmad R.", assigned: 24, resolved: 21, overdue: 3 },
-  { name: "Lim WK", assigned: 19, resolved: 18, overdue: 1 },
-  { name: "Muthu S.", assigned: 22, resolved: 17, overdue: 5 },
-  { name: "Farah N.", assigned: 16, resolved: 15, overdue: 1 },
-  { name: "David C.", assigned: 21, resolved: 19, overdue: 2 },
-]
-
-const repeatComplaintData = [
-  { category: "HVAC / Air-Cond", firstTime: 260, repeat: 52 },
-  { category: "Plumbing", firstTime: 210, repeat: 38 },
-  { category: "Electrical", firstTime: 180, repeat: 21 },
-  { category: "Cleanliness", firstTime: 158, repeat: 20 },
-  { category: "Lift / Elevator", firstTime: 120, repeat: 14 },
-]
-
-const recentComplaints = [
-  { id: "CMP-1042", subject: "Water leaking from ceiling", category: "Plumbing", location: "Block A – Level 3, Unit 3-12", priority: "High", status: "In Progress", age: "2 days", assignee: "Ahmad R." },
-  { id: "CMP-1041", subject: "Air-cond not cooling", category: "HVAC / Air-Cond", location: "Block B – Level 5, Unit 5-08", priority: "Medium", status: "Open", age: "3 days", assignee: "Unassigned" },
-  { id: "CMP-1039", subject: "Elevator stuck on floor 2", category: "Lift / Elevator", location: "Block C – Main Lobby", priority: "Critical", status: "In Progress", age: "1 day", assignee: "David C." },
-  { id: "CMP-1037", subject: "Flickering lights in corridor", category: "Electrical", location: "Block D – Level 2 Corridor", priority: "Low", status: "Resolved", age: "5 days", assignee: "Lim WK" },
-  { id: "CMP-1035", subject: "Clogged drain in restroom", category: "Plumbing", location: "Block E – Level 1, Male Restroom", priority: "High", status: "Overdue", age: "9 days", assignee: "Muthu S." },
-  { id: "CMP-1033", subject: "Pest sighting (cockroach)", category: "Pest Control", location: "Block A – Level 1 Pantry", priority: "Medium", status: "Resolved", age: "4 days", assignee: "Farah N." },
-]
-
-const slaBreachData = [
-  { category: "HVAC / Air-Cond", breaches: 22, total: 312, rate: 7.1 },
-  { category: "Plumbing", breaches: 18, total: 248, rate: 7.3 },
-  { category: "Electrical", breaches: 12, total: 201, rate: 6.0 },
-  { category: "Lift / Elevator", breaches: 15, total: 134, rate: 11.2 },
-  { category: "Structural", breaches: 11, total: 89, rate: 12.4 },
-]
-
-const COLORS = ["#3b82f6", "#f97316", "#22c55e", "#eab308", "#8b5cf6", "#ec4899", "#ef4444", "#6b7280"]
-
-// ── HELPERS ───────────────────────────────────────────────────────────────────
-
-const PriorityBadge = ({ priority }: { priority: string }) => {
-  const map: Record<string, string> = {
-    Critical: "bg-red-500/20 text-red-400 border-red-500/30",
-    High: "bg-orange-500/20 text-orange-400 border-orange-500/30",
-    Medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    Low: "bg-green-500/20 text-green-400 border-green-500/30",
+declare global {
+  interface Window {
+    Chart: any;
+    XLSX: any;
   }
-  return (
-    <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${map[priority] ?? ""}`}>
-      {priority}
-    </span>
-  )
 }
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const map: Record<string, string> = {
-    Resolved: "bg-green-500/20 text-green-400 border-green-500/30",
-    "In Progress": "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    Open: "bg-orange-500/20 text-orange-400 border-orange-500/30",
-    Overdue: "bg-red-500/20 text-red-400 border-red-500/30",
-    "Closed (No Action)": "bg-gray-500/20 text-gray-400 border-gray-500/30",
-  }
-  return (
-    <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${map[status] ?? ""}`}>
-      {status}
-    </span>
-  )
+/* ─── COMPLAINT DATA ────────────────────────────── */
+const MONTHS_12 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const COMPLAINT_SERVICES = [
+  {
+    id: "FEMS",
+    accent: "#0EA5E9",
+    icon: "bi-tools",
+    totalComplaints: 156,
+    resolved: 142,
+    pending: 14,
+    resolutionRate: 91.03,
+    trend: [12, 15, 10, 14, 13, 16, 11, 9, 15, 13, 14, 14],
+    categories: [
+      { label: "Building Structure", count: 34, color: "#0EA5E9" },
+      { label: "Electrical Systems", count: 28, color: "#06B6D4" },
+      { label: "Plumbing", count: 25, color: "#3B82F6" },
+      { label: "HVAC", count: 22, color: "#6366F1" },
+      { label: "Fire Safety", count: 18, color: "#8B5CF6" },
+      { label: "Other", count: 29, color: "#A78BFA" },
+    ],
+    priority: [
+      { label: "Critical", count: 18, color: "#EF4444" },
+      { label: "High", count: 35, color: "#F97316" },
+      { label: "Medium", count: 52, color: "#F59E0B" },
+      { label: "Low", count: 51, color: "#10B981" },
+    ],
+    status: [
+      { label: "Open", count: 14, color: "#EF4444" },
+      { label: "In Progress", count: 28, color: "#F59E0B" },
+      { label: "Resolved", count: 114, color: "#10B981" },
+    ],
+    avgResolutionTime: 3.2,
+  },
+  {
+    id: "BEMS",
+    accent: "#F59E0B",
+    icon: "bi-heart-pulse",
+    totalComplaints: 89,
+    resolved: 76,
+    pending: 13,
+    resolutionRate: 85.39,
+    trend: [8, 6, 9, 7, 8, 10, 6, 5, 9, 8, 7, 6],
+    categories: [
+      { label: "Equipment Malfunction", count: 24, color: "#F59E0B" },
+      { label: "Calibration Issues", count: 18, color: "#F97316" },
+      { label: "Software Errors", count: 15, color: "#EF4444" },
+      { label: "User Training", count: 12, color: "#FB923C" },
+      { label: "Parts Replacement", count: 10, color: "#FCD34D" },
+      { label: "Other", count: 10, color: "#FDE68A" },
+    ],
+    priority: [
+      { label: "Critical", count: 12, color: "#EF4444" },
+      { label: "High", count: 22, color: "#F97316" },
+      { label: "Medium", count: 28, color: "#F59E0B" },
+      { label: "Low", count: 27, color: "#10B981" },
+    ],
+    status: [
+      { label: "Open", count: 13, color: "#EF4444" },
+      { label: "In Progress", count: 18, color: "#F59E0B" },
+      { label: "Resolved", count: 58, color: "#10B981" },
+    ],
+    avgResolutionTime: 4.5,
+  },
+  {
+    id: "CLS",
+    accent: "#10B981",
+    icon: "bi-droplet",
+    totalComplaints: 67,
+    resolved: 62,
+    pending: 5,
+    resolutionRate: 92.54,
+    trend: [6, 5, 4, 7, 6, 5, 8, 4, 6, 5, 6, 5],
+    categories: [
+      { label: "Cleaning Quality", count: 20, color: "#10B981" },
+      { label: "Waste Disposal", count: 15, color: "#34D399" },
+      { label: "Sanitation", count: 12, color: "#6EE7B7" },
+      { label: "Pest Control", count: 10, color: "#A7F3D0" },
+      { label: "Staff Behavior", count: 5, color: "#D1FAE5" },
+      { label: "Other", count: 5, color: "#ECFDF5" },
+    ],
+    priority: [
+      { label: "Critical", count: 8, color: "#EF4444" },
+      { label: "High", count: 15, color: "#F97316" },
+      { label: "Medium", count: 22, color: "#F59E0B" },
+      { label: "Low", count: 22, color: "#10B981" },
+    ],
+    status: [
+      { label: "Open", count: 5, color: "#EF4444" },
+      { label: "In Progress", count: 12, color: "#F59E0B" },
+      { label: "Resolved", count: 50, color: "#10B981" },
+    ],
+    avgResolutionTime: 2.8,
+  },
+  {
+    id: "LLS",
+    accent: "#8B5CF6",
+    icon: "bi-box-seam",
+    totalComplaints: 53,
+    resolved: 48,
+    pending: 5,
+    resolutionRate: 90.57,
+    trend: [5, 4, 6, 3, 5, 4, 5, 6, 4, 5, 3, 3],
+    categories: [
+      { label: "Linen Quality", count: 15, color: "#8B5CF6" },
+      { label: "Delivery Delay", count: 12, color: "#A78BFA" },
+      { label: "Incorrect Items", count: 10, color: "#C4B5FD" },
+      { label: "Stains/Damage", count: 8, color: "#DDD6FE" },
+      { label: "Quantity Issues", count: 5, color: "#EDE9FE" },
+      { label: "Other", count: 3, color: "#F5F3FF" },
+    ],
+    priority: [
+      { label: "Critical", count: 5, color: "#EF4444" },
+      { label: "High", count: 12, color: "#F97316" },
+      { label: "Medium", count: 18, color: "#F59E0B" },
+      { label: "Low", count: 18, color: "#10B981" },
+    ],
+    status: [
+      { label: "Open", count: 5, color: "#EF4444" },
+      { label: "In Progress", count: 10, color: "#F59E0B" },
+      { label: "Resolved", count: 38, color: "#10B981" },
+    ],
+    avgResolutionTime: 3.5,
+  },
+  {
+    id: "HWMS",
+    accent: "#6F42C1",
+    icon: "bi-recycle",
+    totalComplaints: 41,
+    resolved: 38,
+    pending: 3,
+    resolutionRate: 92.68,
+    trend: [4, 3, 5, 2, 4, 3, 4, 5, 3, 3, 3, 2],
+    categories: [
+      { label: "Waste Segregation", count: 12, color: "#6F42C1" },
+      { label: "Collection Schedule", count: 10, color: "#7C3AED" },
+      { label: "Container Issues", count: 8, color: "#8B5CF6" },
+      { label: "Staff Compliance", count: 6, color: "#A78BFA" },
+      { label: "Documentation", count: 3, color: "#C4B5FD" },
+      { label: "Other", count: 2, color: "#DDD6FE" },
+    ],
+    priority: [
+      { label: "Critical", count: 4, color: "#EF4444" },
+      { label: "High", count: 9, color: "#F97316" },
+      { label: "Medium", count: 14, color: "#F59E0B" },
+      { label: "Low", count: 14, color: "#10B981" },
+    ],
+    status: [
+      { label: "Open", count: 3, color: "#EF4444" },
+      { label: "In Progress", count: 8, color: "#F59E0B" },
+      { label: "Resolved", count: 30, color: "#10B981" },
+    ],
+    avgResolutionTime: 2.5,
+  },
+];
+
+/* ─── THEMES ────────────────────────────────────── */
+const THEMES = {
+  dark: {
+    bg: "#0d1520",
+    card: "#162233",
+    cardAlt: "#1a2a3f",
+    border: "#1e3248",
+    text: "#e0e7ff",
+    muted: "#8a9cb8",
+    accent: "#5a9fd4",
+    success: "#22c55e",
+    warn: "#f59e0b",
+    danger: "#ef4444",
+    gridColor: "rgba(255,255,255,0.07)",
+    tickColor: "#6b8099",
+    scrollThumb: "#2a3f55",
+    tableHeaderBg: "rgba(90,159,212,0.08)",
+  },
+  light: {
+    bg: "#f0f4f8",
+    card: "#ffffff",
+    cardAlt: "#f8fafc",
+    border: "#dde3ed",
+    text: "#1a2636",
+    muted: "#6b7fa3",
+    accent: "#1a6bb5",
+    success: "#16a34a",
+    warn: "#d97706",
+    danger: "#dc2626",
+    gridColor: "rgba(0,0,0,0.06)",
+    tickColor: "#8a9cb8",
+    scrollThumb: "#c5cfe0",
+    tableHeaderBg: "rgba(26,107,181,0.06)",
+  },
+};
+
+type Theme = typeof THEMES.dark;
+
+/* ─── CHART HELPERS ─────────────────────────────── */
+function drawChart(id: string, type: string, data: any, options: any) {
+  const c = document.getElementById(id) as HTMLCanvasElement | null;
+  if (!c) return;
+  if (!window.Chart) { setTimeout(() => drawChart(id, type, data, options), 150); return; }
+  const ctx = c.getContext("2d");
+  if (!ctx) return;
+  const ex = window.Chart.getChart(c);
+  if (ex) ex.destroy();
+  try {
+    new window.Chart(ctx, { type: type as any, data, options: { ...options, animation: false, responsive: true, maintainAspectRatio: false } });
+  } catch (e) { }
 }
 
-// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
+function mkBar(id: string, labels: string[], datasets: any[], T: Theme, extra?: any) {
+  const scales: any = {
+    x: { grid: { color: T.gridColor }, ticks: { color: T.tickColor, font: { size: 10 } }, border: { color: "transparent" } },
+    y: { grid: { color: T.gridColor }, ticks: { color: T.tickColor, font: { size: 10 } }, border: { color: "transparent" } }
+  };
+  drawChart(id, "bar", { labels, datasets }, {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: "bottom" as const,
+        labels: {
+          color: T.muted,
+          font: { size: 9 },
+          boxWidth: 10,
+          padding: 8,
+          usePointStyle: true
+        }
+      }
+    },
+    scales,
+    ...extra
+  });
+}
 
-export default function ComplaintModulePage() {
-  const [selectedYear, setSelectedYear] = useState("2025")
-  const [selectedMonth, setSelectedMonth] = useState("All")
-  const [selectedBlock, setSelectedBlock] = useState("all")
-  const [selectedCategory, setSelectedCategory] = useState("all")
+function mkLine(id: string, labels: string[], datasets: any[], T: Theme, extra?: any) {
+  const yticks: any = { color: T.tickColor, font: { size: 10 } };
+  const opts: any = {
+    plugins: {
+      legend: {
+        display: true,
+        position: "bottom" as const,
+        labels: {
+          color: T.muted,
+          font: { size: 9 },
+          boxWidth: 10,
+          padding: 8,
+          usePointStyle: true
+        }
+      }
+    },
+    scales: {
+      x: { grid: { color: T.gridColor }, ticks: { color: T.tickColor, font: { size: 10 } }, border: { color: "transparent" } },
+      y: { grid: { color: T.gridColor }, ticks: { color: T.tickColor, font: { size: 10 } }, border: { color: "transparent" } }
+    }
+  };
+  if (extra?.scales?.y?.callback) yticks.callback = extra.scales.y.callback;
+  opts.scales.y.ticks = yticks;
+  drawChart(id, "line", { labels, datasets: datasets.map((d: any) => ({ ...d, borderWidth: d.borderWidth || 2, pointRadius: d.pointRadius || 3, tension: d.tension || 0.35, fill: false })) }, opts);
+}
+
+function mkDoughnut(id: string, labels: string[], data: number[], colors: string[], T: Theme) {
+  drawChart(id, "doughnut", { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: T.card }] }, {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "60%",
+    plugins: {
+      legend: {
+        display: true,
+        position: "bottom" as const,
+        labels: {
+          color: T.muted,
+          font: { size: 9 },
+          boxWidth: 10,
+          padding: 8,
+          usePointStyle: true
+        }
+      }
+    }
+  });
+}
+
+/* ─── EXPORT ─────────────────────────────────────── */
+function exportExcelComplaint(service: typeof COMPLAINT_SERVICES[0], period: string) {
+  if (!window.XLSX) return;
+  const wb = window.XLSX.utils.book_new();
+  const sheetData: any[][] = [
+    ["Complaint Module Dashboard", period],
+    [],
+    ["Service", service.id],
+    ["Total Complaints", service.totalComplaints],
+    ["Resolved", service.resolved],
+    ["Pending", service.pending],
+    ["Resolution Rate", service.resolutionRate + "%"],
+    ["Average Resolution Time", service.avgResolutionTime + " days"],
+    [],
+    ["Category Breakdown"],
+    ["Category", "Count"],
+  ];
+  service.categories.forEach((c: any) => sheetData.push([c.label, c.count]));
+  sheetData.push([], ["Priority Breakdown"]);
+  sheetData.push(["Priority", "Count"]);
+  service.priority.forEach((p: any) => sheetData.push([p.label, p.count]));
+  sheetData.push([], ["Status Breakdown"]);
+  sheetData.push(["Status", "Count"]);
+  service.status.forEach((s: any) => sheetData.push([s.label, s.count]));
+  const ws = window.XLSX.utils.aoa_to_sheet(sheetData);
+  window.XLSX.utils.book_append_sheet(wb, ws, "Complaint_Summary");
+  window.XLSX.writeFile(wb, `Complaint_${service.id}_${period}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+}
+
+function printPage() {
+  const s = document.createElement('style');
+  s.id = 'ps';
+  s.textContent = '@page{size:A4 landscape;margin:10mm}@media print{body{-webkit-print-color-adjust:exact!important}.no-print{display:none!important}}';
+  document.head.appendChild(s);
+  window.print();
+  setTimeout(() => { const e = document.getElementById('ps'); if (e) e.remove(); }, 1000);
+}
+
+/* ─── COMPONENTS ────────────────────────────────── */
+function BIcon({ name, size = 16, color }: { name: string; size?: number; color?: string }) {
+  return <i className={`bi ${name}`} style={{ fontSize: size, color: color || "inherit", lineHeight: 1 }} />;
+}
+
+function Badge({ children, color = "green", T }: { children: string; color?: string; T: Theme }) {
+  const m: Record<string, string> = { green: "rgba(16,185,129,.12)", warn: "rgba(217,119,6,.12)", danger: "rgba(220,38,38,.12)", blue: "rgba(26,107,181,.12)" };
+  const tc: Record<string, string> = { green: T.success, warn: T.warn, danger: T.danger, blue: T.accent };
+  return <span style={{ background: m[color], color: tc[color], padding: "4px 12px", borderRadius: 24, fontSize: 11, fontWeight: 700 }}>{children}</span>;
+}
+
+function getContrastText(h: string) {
+  const r = parseInt(h.slice(1, 3), 16), g = parseInt(h.slice(3, 5), 16), b = parseInt(h.slice(5, 7), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 128 ? "#ffffff" : "#ffffff";
+}
+
+/* ─── MAIN ──────────────────────────────────────── */
+export default function ComplaintDashboard() {
+  const { openSidebar } = useDashboardNav();
+  const [themeName, setThemeName] = useState<"dark" | "light">("light");
+  const [frequency, setFrequency] = useState("monthly");
+  const [frequencyKey, setFrequencyKey] = useState("all");
+  const [selectedYear, setSelectedYear] = useState("2026");
+  const [activeService, setActiveService] = useState<string>("FEMS");
+  const [highlightedService, setHighlightedService] = useState<string | null>(null);
+  const T = THEMES[themeName];
+  const scriptsReady = useRef(false);
+  const chartsInited = useRef(false);
+  const HDR = "#0f172a";
+  const htc = getContrastText(HDR);
+
+  const years = ["2026", "2025", "2024", "2023", "2022"];
+  const frequencyKeys = frequency === "monthly" 
+    ? MONTHS_12.map(m => ({ value: m.toLowerCase(), label: m }))
+    : frequency === "halfYearly" 
+      ? [{ value: "H1", label: "H1 (Jan - Jun)" }, { value: "H2", label: "H2 (Jul - Dec)" }]
+      : [{ value: "all", label: "Full Year" }];
+
+  const currentService = COMPLAINT_SERVICES.find(s => s.id === activeService)!;
+  const periodLabel = frequencyKey === "all" ? `Full Year ${selectedYear}` : `${frequencyKey.toUpperCase()} - ${selectedYear}`;
+
+  useEffect(() => {
+    if (scriptsReady.current) return;
+    const load = (src: string, cb: () => void) => { const s = document.createElement("script"); s.src = src; s.onload = cb; document.head.appendChild(s); };
+    load("https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js", () => {
+      load("https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js", () => {
+        scriptsReady.current = true;
+        setTimeout(() => { initCharts(); chartsInited.current = true; }, 400);
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (scriptsReady.current && chartsInited.current) setTimeout(initCharts, 200);
+  }, [themeName, activeService, highlightedService, frequency, frequencyKey]);
+
+  const initCharts = () => {
+    if (!window.Chart) { setTimeout(initCharts, 200); return; }
+
+    ["complaintTrendChart", "complaintCategoryChart", "complaintPriorityChart", "complaintStatusChart"].forEach(id => {
+      const c = document.getElementById(id) as HTMLCanvasElement;
+      if (c) { const ex = window.Chart.getChart(c); if (ex) ex.destroy(); }
+    });
+
+    // Trend Chart - All Services
+    const trendDatasets = COMPLAINT_SERVICES.map(svc => {
+      const isHighlighted = highlightedService === svc.id;
+      const isDimmed = highlightedService && highlightedService !== svc.id;
+      return {
+        data: svc.trend,
+        borderColor: svc.accent,
+        backgroundColor: svc.accent + "22",
+        fill: true,
+        pointRadius: isHighlighted ? 5 : 3,
+        borderWidth: isHighlighted ? 3 : (isDimmed ? 1 : 2),
+        pointBackgroundColor: svc.accent,
+        pointBorderColor: "#fff",
+        pointBorderWidth: isHighlighted ? 2 : 1,
+        label: svc.id,
+        tension: 0.35,
+        borderDash: isDimmed ? [5, 5] : [],
+        opacity: isDimmed ? 0.3 : 1,
+      };
+    });
+
+    mkLine("complaintTrendChart", MONTHS_12, trendDatasets, T, {
+      plugins: {
+        legend: {
+          display: true,
+          position: "bottom",
+          labels: {
+            color: T.muted,
+            font: { size: 9 },
+            boxWidth: 10,
+            padding: 8,
+            usePointStyle: true,
+            pointStyleWidth: 8,
+          }
+        }
+      },
+      scales: { y: { ticks: { callback: (v: number) => v } } }
+    });
+
+    // Category Chart
+    mkBar("complaintCategoryChart",
+      currentService.categories.map(c => c.label),
+      currentService.categories.map(c => c.count),
+      currentService.categories.map(c => c.color),
+      T,
+      { indexAxis: "y" as const, borderRadius: 6 }
+    );
+
+    // Priority Doughnut
+    mkDoughnut("complaintPriorityChart",
+      currentService.priority.map(p => p.label),
+      currentService.priority.map(p => p.count),
+      currentService.priority.map(p => p.color),
+      T
+    );
+
+    // Status Doughnut
+    mkDoughnut("complaintStatusChart",
+      currentService.status.map(s => s.label),
+      currentService.status.map(s => s.count),
+      currentService.status.map(s => s.color),
+      T
+    );
+  };
+
+  const card = (e?: React.CSSProperties): React.CSSProperties => ({ background: T.card, border: `1px solid ${T.border}`, borderRadius: 16, ...e });
+  const thStyle: React.CSSProperties = { background: T.tableHeaderBg, color: T.accent, padding: "10px 14px", textAlign: "left", fontWeight: 700, fontSize: 12, borderBottom: `2px solid ${T.border}` };
+  const tdStyle: React.CSSProperties = { padding: "10px 14px", borderBottom: `1px solid ${T.border}`, color: T.text };
 
   return (
-    <DashboardPage>
-      <DashboardNav title="Complaint Management Module" />
+    <div className="dashboard-module-page" style={{ fontFamily: "'DM Sans',system-ui,sans-serif", background: T.bg, color: T.text, fontSize: 15, height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+        *, ::-webkit-scrollbar { scrollbar-width: thin; scrollbar-color: ${T.scrollThumb} transparent }
+        ::-webkit-scrollbar { width: 5px }
+        ::-webkit-scrollbar-track { background: transparent }
+        ::-webkit-scrollbar-thumb { background: ${T.scrollThumb}; border-radius: 99px }
+        @page { size: A4 landscape; margin: 10mm }
+        @media print { body { -webkit-print-color-adjust: exact !important } .no-print { display: none !important } }
+      `}</style>
 
-      <div className="container mx-auto max-w-[1600px] space-y-4 sm:space-y-6">
-
-        {/* ── FILTERS ──────────────────────────────────────────────────────── */}
-        <Card className="border-primary/20">
-          <CardContent className="pt-6">
-            <div className="flex flex-wrap items-center gap-6">
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-primary">SELECT DATE</Label>
-                <div className="flex items-center gap-2">
-                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="w-[140px] bg-background"><SelectValue placeholder="Month" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All">All Months</SelectItem>
-                      <SelectItem value="January">January</SelectItem>
-                      <SelectItem value="February">February</SelectItem>
-                      <SelectItem value="March">March</SelectItem>
-                      <SelectItem value="April">April</SelectItem>
-                      <SelectItem value="May">May</SelectItem>
-                      <SelectItem value="June">June</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger className="w-[110px] bg-background"><SelectValue placeholder="Year" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="2024">2024</SelectItem>
-                      <SelectItem value="2025">2025</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-primary">SELECT FACILITY</Label>
-                <Select value={selectedBlock} onValueChange={setSelectedBlock}>
-                  <SelectTrigger className="w-[140px] bg-background"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Blocks</SelectItem>
-                    <SelectItem value="a">Block A</SelectItem>
-                    <SelectItem value="b">Block B</SelectItem>
-                    <SelectItem value="c">Block C</SelectItem>
-                    <SelectItem value="d">Block D</SelectItem>
-                    <SelectItem value="e">Block E</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-primary">CATEGORY</Label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="w-[160px] bg-background"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="hvac">HVAC / Air-Cond</SelectItem>
-                    <SelectItem value="plumbing">Plumbing</SelectItem>
-                    <SelectItem value="electrical">Electrical</SelectItem>
-                    <SelectItem value="cleanliness">Cleanliness</SelectItem>
-                    <SelectItem value="lift">Lift / Elevator</SelectItem>
-                    <SelectItem value="structural">Structural</SelectItem>
-                    <SelectItem value="pest">Pest Control</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-primary">SELECT USER</Label>
-                <Select defaultValue="all">
-                  <SelectTrigger className="w-[140px] bg-background"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="ahmad">Ahmad R.</SelectItem>
-                    <SelectItem value="lim">Lim WK</SelectItem>
-                    <SelectItem value="muthu">Muthu S.</SelectItem>
-                    <SelectItem value="farah">Farah N.</SelectItem>
-                    <SelectItem value="david">David C.</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="ml-auto pt-5">
-                <Button variant="outline" size="sm">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Clear Filter
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* ── KPI CARDS ────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
-            <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Total Complaints</CardTitle></CardHeader>
-            <CardContent><div className="text-3xl font-bold">1,313</div><p className="text-xs text-muted-foreground mt-1">YTD {selectedYear}</p></CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-orange-500/10 to-orange-500/5 border-orange-500/20">
-            <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Open / New</CardTitle></CardHeader>
-            <CardContent><div className="text-3xl font-bold">98</div><p className="text-xs text-orange-500 mt-1">Awaiting assignment</p></CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/20">
-            <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground uppercase">In Progress</CardTitle></CardHeader>
-            <CardContent><div className="text-3xl font-bold">213</div><p className="text-xs text-muted-foreground mt-1">Being attended</p></CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20">
-            <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Resolved</CardTitle></CardHeader>
-            <CardContent><div className="text-3xl font-bold">867</div><p className="text-xs text-green-500 mt-1">66.0% resolution rate</p></CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-red-500/10 to-red-500/5 border-red-500/20">
-            <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Overdue</CardTitle></CardHeader>
-            <CardContent><div className="text-3xl font-bold">90</div><p className="text-xs text-red-500 mt-1">SLA breached</p></CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/20">
-            <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Avg Resolution</CardTitle></CardHeader>
-            <CardContent><div className="text-3xl font-bold">3.1</div><p className="text-xs text-muted-foreground mt-1">days avg</p></CardContent>
-          </Card>
+      {/* TOP BAR */}
+      <div className="no-print" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: HDR, borderBottom: `1px solid ${htc}15`, padding: "0 24px", height: 62, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <button onClick={openSidebar} style={{ background: "transparent", border: "none", color: htc, cursor: "pointer", fontSize: 20, padding: "8px 11px", borderRadius: 10 }}><BIcon name="bi-list" size={22} color={htc} /></button>
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, border: `1px solid ${htc}30`, color: htc, textDecoration: "none", fontSize: 13, fontWeight: 500 }}><BIcon name="bi-arrow-left" size={16} color={htc} /><span>Back</span></Link>
+          <div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: htc }}>Complaint Module</div>
+            <div style={{ fontSize: 11, color: htc, opacity: 0.6 }}>{currentService.id} · {periodLabel}</div>
+          </div>
         </div>
-
-        {/* ── ROW 1: Trend + Status ─────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-3">
-          <Card className="xl:col-span-2">
-            <CardHeader><CardTitle className="text-sm font-semibold">Monthly Complaint Volume – Received vs Resolved vs Overdue</CardTitle></CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={complaintTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="month" stroke="#9ca3af" fontSize={11} />
-                  <YAxis stroke="#9ca3af" fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Area type="monotone" dataKey="received" name="Received" stackId="1" fill="#3b82f6" stroke="#3b82f6" fillOpacity={0.5} />
-                  <Area type="monotone" dataKey="resolved" name="Resolved" stackId="2" fill="#22c55e" stroke="#22c55e" fillOpacity={0.5} />
-                  <Area type="monotone" dataKey="overdue" name="Overdue" stackId="3" fill="#ef4444" stroke="#ef4444" fillOpacity={0.5} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-sm font-semibold">Complaint Status Distribution</CardTitle></CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={175}>
-                <PieChart>
-                  <Pie data={complaintStatusData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={2} dataKey="value">
-                    {complaintStatusData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                  </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="space-y-1 mt-2">
-                {complaintStatusData.map((item) => (
-                  <div key={item.name} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-                      <span className="text-muted-foreground">{item.name}</span>
-                    </div>
-                    <span className="font-medium">{item.value}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => exportExcelComplaint(currentService, periodLabel)} title="Export" style={{ background: T.success + "12", border: `1px solid ${T.success}25`, color: T.success, width: 34, height: 34, borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><BIcon name="bi-download" size={15} color={T.success} /></button>
+            <button onClick={printPage} title="Print" style={{ background: T.accent + "12", border: `1px solid ${T.accent}25`, color: T.accent, width: 34, height: 34, borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><BIcon name="bi-printer" size={15} color={T.accent} /></button>
+          </div>
+          <div style={{ width: 1, height: 28, background: htc, opacity: 0.12 }} />
+          <button onClick={() => setThemeName(n => n === "dark" ? "light" : "dark")} style={{ background: "transparent", border: `1px solid ${htc}20`, color: htc, borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 14 }}><BIcon name={themeName === "dark" ? "bi-sun-fill" : "bi-moon-fill"} size={15} color={htc} /></button>
+          <span style={{ fontSize: 13, color: htc, opacity: 0.7 }}>18 May 2026</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 12px 4px 4px", background: htc + "08", borderRadius: 24, border: `1px solid ${htc}20` }}>
+            <div style={{ width: 30, height: 30, borderRadius: "50%", background: "linear-gradient(135deg,#0EA5E9,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff" }}><BIcon name="bi-person-fill" size={13} color="#fff" /></div>
+            <span style={{ fontSize: 13, fontWeight: 600, color: htc }}>Admin</span>
+          </div>
         </div>
-
-        {/* ── ROW 2: Category + Ageing + Resolution Time ───────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader><CardTitle className="text-sm font-semibold">Complaint Count by Category</CardTitle></CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={complaintCategoryData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis type="number" stroke="#9ca3af" fontSize={11} />
-                  <YAxis dataKey="category" type="category" stroke="#9ca3af" width={100} fontSize={10} />
-                  <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }} />
-                  <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                    {complaintCategoryData.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-sm font-semibold">Open Complaints by Ageing Bucket</CardTitle></CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={ageingBucketData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis type="number" stroke="#9ca3af" fontSize={11} />
-                  <YAxis dataKey="range" type="category" stroke="#9ca3af" width={72} fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }} />
-                  <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                    {ageingBucketData.map((entry) => <Cell key={entry.range} fill={entry.color} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-sm font-semibold">Avg Resolution Time (Days)</CardTitle></CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={resolutionTimeData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="month" stroke="#9ca3af" fontSize={11} />
-                  <YAxis stroke="#9ca3af" fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }} />
-                  <Line type="monotone" dataKey="avgDays" name="Avg Days" stroke="#a78bfa" strokeWidth={2} dot={{ r: 4, fill: "#a78bfa" }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* ── ROW 3: Location + Repeat Complaints ──────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          <Card className="xl:col-span-2">
-            <CardHeader><CardTitle className="text-sm font-semibold">Complaint Count by Block – Open vs In Progress vs Resolved</CardTitle></CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={complaintByLocationData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="location" stroke="#9ca3af" fontSize={11} />
-                  <YAxis stroke="#9ca3af" fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="resolved" name="Resolved" fill="#22c55e" stackId="a" />
-                  <Bar dataKey="inProgress" name="In Progress" fill="#3b82f6" stackId="a" />
-                  <Bar dataKey="open" name="Open" fill="#f97316" radius={[4, 4, 0, 0]} stackId="a" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-sm font-semibold">First-Time vs Repeat Complaints</CardTitle></CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={repeatComplaintData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis type="number" stroke="#9ca3af" fontSize={11} />
-                  <YAxis dataKey="category" type="category" stroke="#9ca3af" width={100} fontSize={10} />
-                  <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="firstTime" name="First-Time" fill="#3b82f6" stackId="a" />
-                  <Bar dataKey="repeat" name="Repeat" fill="#f97316" radius={[0, 4, 4, 0]} stackId="a" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* ── ROW 4: SLA + Technician ───────────────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-400" />
-                SLA Performance Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-3">
-                  <div className="text-xs text-muted-foreground font-semibold uppercase">SLA Rate</div>
-                  <div className="text-2xl font-bold mt-1">90.8%</div>
-                  <div className="flex items-center gap-1 text-xs text-red-400 mt-0.5"><TrendingDown className="h-3 w-3" />-2.1%</div>
-                </div>
-                <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3">
-                  <div className="text-xs text-muted-foreground font-semibold uppercase">Breaches</div>
-                  <div className="text-2xl font-bold mt-1">90</div>
-                  <div className="flex items-center gap-1 text-xs text-red-400 mt-0.5"><TrendingUp className="h-3 w-3" />+8 cases</div>
-                </div>
-                <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-3">
-                  <div className="text-xs text-muted-foreground font-semibold uppercase">Target</div>
-                  <div className="text-2xl font-bold mt-1">95%</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">Contractual</div>
-                </div>
-                <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 p-3">
-                  <div className="text-xs text-muted-foreground font-semibold uppercase">On-Target</div>
-                  <div className="text-2xl font-bold mt-1">2/6</div>
-                  <div className="text-xs text-orange-400 mt-0.5">Months met</div>
-                </div>
-              </div>
-              <table className="w-full text-xs mt-1">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-1 text-muted-foreground font-semibold uppercase tracking-wide">Category</th>
-                    <th className="text-right py-1 text-muted-foreground font-semibold uppercase tracking-wide">Breach Rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {slaBreachData.map((row) => (
-                    <tr key={row.category} className="border-b border-border/50">
-                      <td className="py-1.5">{row.category}</td>
-                      <td className={`py-1.5 text-right font-semibold ${row.rate > 10 ? "text-red-400" : row.rate > 7 ? "text-orange-400" : "text-green-400"}`}>{row.rate}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-sm font-semibold">SLA Compliance Rate vs Target</CardTitle></CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={slaComplianceData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="month" stroke="#9ca3af" fontSize={11} />
-                  <YAxis stroke="#9ca3af" fontSize={11} domain={[80, 100]} unit="%" />
-                  <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }} formatter={(value: number) => [`${value}%`, ""]} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Line type="monotone" dataKey="target" name="Target (95%)" stroke="#eab308" strokeWidth={2} strokeDasharray="6 3" dot={false} />
-                  <Line type="monotone" dataKey="actual" name="Actual" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4, fill: "#3b82f6" }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <User className="h-4 w-4 text-blue-400" />
-                Technician Workload
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={technicianWorkloadData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="name" stroke="#9ca3af" fontSize={10} />
-                  <YAxis stroke="#9ca3af" fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8 }} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="resolved" name="Resolved" fill="#22c55e" stackId="a" />
-                  <Bar dataKey="overdue" name="Overdue" fill="#ef4444" radius={[4, 4, 0, 0]} stackId="a" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* ── RECENT COMPLAINTS TABLE ───────────────────────────────────────── */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <MessageSquareWarning className="h-4 w-4 text-orange-400" />
-              Recent Complaints
-            </CardTitle>
-            <span className="text-xs text-muted-foreground">Showing latest 6 records</span>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide">ID</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide">Subject</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide">Category</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide">Location</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide">Priority</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide">Status</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide">Age</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground font-semibold uppercase tracking-wide">Assignee</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentComplaints.map((c) => (
-                    <tr key={c.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                      <td className="py-2.5 px-3 font-mono text-muted-foreground">{c.id}</td>
-                      <td className="py-2.5 px-3 font-medium max-w-[180px] truncate">{c.subject}</td>
-                      <td className="py-2.5 px-3 text-muted-foreground">{c.category}</td>
-                      <td className="py-2.5 px-3 text-muted-foreground">
-                        <span className="flex items-center gap-1"><MapPin className="h-3 w-3 flex-shrink-0" />{c.location}</span>
-                      </td>
-                      <td className="py-2.5 px-3"><PriorityBadge priority={c.priority} /></td>
-                      <td className="py-2.5 px-3"><StatusBadge status={c.status} /></td>
-                      <td className="py-2.5 px-3 text-muted-foreground">{c.age}</td>
-                      <td className="py-2.5 px-3">{c.assignee}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-
       </div>
-    </DashboardPage>
-  )
+
+      {/* FILTER BAR */}
+      <div className="no-print" style={{ display: "flex", alignItems: "center", background: HDR, borderBottom: `1px solid ${htc}15`, padding: "0 22px", height: 54, gap: 16, flexShrink: 0, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 12, fontWeight: 600, color: "#fff" }}>Level</span>
+          <select style={{ background: "#fff", color: "#1a2636", padding: "6px 30px 6px 12px", borderRadius: 8, fontSize: 12, cursor: "pointer" }}>
+            <option>All Levels</option>
+            <option>Critical</option>
+            <option>Non-Critical</option>
+          </select>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 12, fontWeight: 600, color: "#fff" }}>Frequency</span>
+          <select value={frequency} onChange={e => { setFrequency(e.target.value); setFrequencyKey("all"); }} style={{ background: "#fff", color: "#1a2636", padding: "6px 30px 6px 12px", borderRadius: 8, fontSize: 12, cursor: "pointer" }}>
+            <option value="monthly">Monthly</option>
+            <option value="halfYearly">Half Yearly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 12, fontWeight: 600, color: "#fff" }}>Frequency Key</span>
+          <select value={frequencyKey} onChange={e => setFrequencyKey(e.target.value)} style={{ background: "#fff", color: "#1a2636", padding: "6px 30px 6px 12px", borderRadius: 8, fontSize: 12, cursor: "pointer" }}>
+            {frequencyKeys.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 12, fontWeight: 600, color: "#fff" }}>Year</span>
+          <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)} style={{ background: "#fff", color: "#1a2636", padding: "6px 30px 6px 12px", borderRadius: 8, fontSize: 12, cursor: "pointer" }}>
+            {years.map(year => <option key={year} value={year}>{year}</option>)}
+          </select>
+        </div>
+        <div style={{ width: 1, height: 28, background: "rgba(255,255,255,0.15)" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "#fff" }}>Service</span>
+          <select 
+            value={activeService} 
+            onChange={e => { setActiveService(e.target.value); setHighlightedService(null); }}
+            style={{ background: "#fff", color: "#1a2636", padding: "6px 34px 6px 14px", borderRadius: 8, fontSize: 12, cursor: "pointer", fontWeight: 600, appearance: "none", backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a2636' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center", backgroundSize: "10px" }}
+          >
+            {COMPLAINT_SERVICES.map(svc => (
+              <option key={svc.id} value={svc.id}>{svc.id}</option>
+            ))}
+          </select>
+        </div>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, paddingLeft: 16, borderLeft: "1px solid rgba(255,255,255,0.15)" }}>
+          <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Period</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#fff" }}>{periodLabel}</span>
+        </div>
+      </div>
+
+      {/* CONTENT */}
+      <div style={{ flex: 1, overflow: "auto", padding: "20px 24px" }}>
+
+        {/* ── KPI CARDS ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 24 }}>
+          <div style={{ ...card({ padding: "18px 20px" }), borderLeft: `4px solid ${currentService.accent}`, background: `linear-gradient(135deg, ${currentService.accent}08, ${T.card})` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ fontSize: 11, color: T.muted, textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.3px" }}>Total Complaints</div>
+                <div style={{ fontSize: 34, fontWeight: 800, color: currentService.accent, marginTop: 4 }}>{currentService.totalComplaints}</div>
+              </div>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: `${currentService.accent}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <BIcon name="bi-chat-dots" size={20} color={currentService.accent} />
+              </div>
+            </div>
+          </div>
+          <div style={{ ...card({ padding: "18px 20px" }), borderLeft: `4px solid #10B981` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ fontSize: 11, color: T.muted, textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.3px" }}>Resolved</div>
+                <div style={{ fontSize: 34, fontWeight: 800, color: "#10B981", marginTop: 4 }}>{currentService.resolved}</div>
+              </div>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: "#10B98115", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <BIcon name="bi-check-circle" size={20} color="#10B981" />
+              </div>
+            </div>
+          </div>
+          <div style={{ ...card({ padding: "18px 20px" }), borderLeft: `4px solid #F59E0B` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ fontSize: 11, color: T.muted, textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.3px" }}>Pending</div>
+                <div style={{ fontSize: 34, fontWeight: 800, color: "#F59E0B", marginTop: 4 }}>{currentService.pending}</div>
+              </div>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: "#F59E0B15", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <BIcon name="bi-clock" size={20} color="#F59E0B" />
+              </div>
+            </div>
+          </div>
+          <div style={{ ...card({ padding: "18px 20px" }), borderLeft: `4px solid ${currentService.resolutionRate >= 90 ? '#10B981' : currentService.resolutionRate >= 80 ? '#F59E0B' : '#EF4444'}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ fontSize: 11, color: T.muted, textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.3px" }}>Resolution Rate</div>
+                <div style={{ fontSize: 34, fontWeight: 800, color: currentService.resolutionRate >= 90 ? '#10B981' : currentService.resolutionRate >= 80 ? '#F59E0B' : '#EF4444', marginTop: 4 }}>{currentService.resolutionRate.toFixed(1)}%</div>
+              </div>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: `${currentService.resolutionRate >= 90 ? '#10B981' : currentService.resolutionRate >= 80 ? '#F59E0B' : '#EF4444'}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <BIcon name="bi-graph-up" size={20} color={currentService.resolutionRate >= 90 ? '#10B981' : currentService.resolutionRate >= 80 ? '#F59E0B' : '#EF4444'} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── SERVICE CARDS ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 12, marginBottom: 24 }}>
+          {COMPLAINT_SERVICES.map(svc => {
+            const isActive = activeService === svc.id;
+            const isHighlighted = highlightedService === svc.id;
+            return (
+              <div
+                key={svc.id}
+                onClick={() => setActiveService(svc.id)}
+                onMouseEnter={() => setHighlightedService(svc.id)}
+                onMouseLeave={() => setHighlightedService(null)}
+                style={{
+                  ...card({ padding: "14px", textAlign: "center", cursor: "pointer" }),
+                  background: isActive ? `linear-gradient(135deg, ${svc.accent}15, ${T.card})` : T.card,
+                  border: isActive ? `2px solid ${svc.accent}` : `1px solid ${T.border}`,
+                  transform: isActive || isHighlighted ? "scale(1.03)" : "scale(1)",
+                  transition: "all 0.25s ease",
+                  boxShadow: isActive ? `0 4px 20px ${svc.accent}25` : "none",
+                  opacity: highlightedService && highlightedService !== svc.id ? 0.5 : 1,
+                }}
+              >
+                <div style={{ fontSize: 24, marginBottom: 4 }}>
+                  <BIcon name={svc.icon} size={24} color={svc.accent} />
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: isActive ? svc.accent : T.text }}>{svc.id}</div>
+                <div style={{ fontSize: 10, color: T.muted, marginTop: 2 }}>{svc.totalComplaints} complaints</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: svc.resolutionRate >= 90 ? '#10B981' : svc.resolutionRate >= 80 ? '#F59E0B' : '#EF4444', marginTop: 6 }}>{svc.resolutionRate.toFixed(1)}%</div>
+                <div style={{ fontSize: 9, color: T.muted }}>Resolution Rate</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── CHARTS ROW ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 16, marginBottom: 24 }}>
+          <div style={card({ padding: "18px" })}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <div>
+                <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Complaint Trend</span>
+                <div style={{ fontSize: 10, color: T.muted, marginTop: 2 }}>Monthly complaint volume</div>
+              </div>
+              {highlightedService && (
+                <button onClick={() => setHighlightedService(null)} style={{ background: "transparent", border: "none", color: T.accent, cursor: "pointer", fontSize: 10, fontWeight: 600 }}>
+                  Reset highlight
+                </button>
+              )}
+            </div>
+            <div style={{ position: "relative", height: 300 }}><canvas id="complaintTrendChart" /></div>
+          </div>
+          <div style={card({ padding: "18px" })}>
+            <div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Category Breakdown</span>
+              <div style={{ fontSize: 10, color: T.muted, marginTop: 2 }}>{currentService.id}</div>
+            </div>
+            <div style={{ position: "relative", height: 280, marginTop: 8 }}><canvas id="complaintCategoryChart" /></div>
+          </div>
+        </div>
+
+        {/* ── PRIORITY & STATUS CHARTS ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+          <div style={card({ padding: "18px" })}>
+            <div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Priority Distribution</span>
+              <div style={{ fontSize: 10, color: T.muted, marginTop: 2 }}>{currentService.id}</div>
+            </div>
+            <div style={{ position: "relative", height: 260, marginTop: 8 }}><canvas id="complaintPriorityChart" /></div>
+          </div>
+          <div style={card({ padding: "18px" })}>
+            <div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Status Distribution</span>
+              <div style={{ fontSize: 10, color: T.muted, marginTop: 2 }}>{currentService.id}</div>
+            </div>
+            <div style={{ position: "relative", height: 260, marginTop: 8 }}><canvas id="complaintStatusChart" /></div>
+          </div>
+        </div>
+
+        {/* ── DETAIL TABLE ── */}
+        <div style={card({ padding: "18px" })}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Complaint Breakdown</span>
+              <span style={{ fontSize: 10, color: T.muted, marginLeft: 12 }}>{currentService.id} · {periodLabel}</span>
+            </div>
+            <Badge color="blue" T={T}>Total: {currentService.totalComplaints} Complaints</Badge>
+          </div>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr>
+                  {["Category", "Count", "% of Total", "Priority Level", "Status", "Resolution Time"].map(h => (
+                    <th key={h} style={thStyle}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {currentService.categories.map((c) => {
+                  const priority = currentService.priority.find(p => p.label === "Medium") || { label: "Medium", color: "#F59E0B" };
+                  const status = currentService.status.find(s => s.label === "Resolved") || { label: "Resolved", color: "#10B981" };
+                  const pct = ((c.count / currentService.totalComplaints) * 100);
+                  return (
+                    <tr key={c.label} style={{ borderBottom: `1px solid ${T.border}`, transition: "background 0.15s" }} onMouseEnter={(e) => e.currentTarget.style.background = T.tableHeaderBg} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                      <td style={{ ...tdStyle, fontWeight: 600 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <div style={{ width: 10, height: 10, borderRadius: "50%", background: c.color }} />
+                          {c.label}
+                        </div>
+                      </td>
+                      <td style={{ ...tdStyle, fontWeight: 700 }}>{c.count}</td>
+                      <td style={tdStyle}>{pct.toFixed(1)}%</td>
+                      <td style={tdStyle}>
+                        <Badge color={c.count > 20 ? "danger" : c.count > 10 ? "warn" : "green"} T={T}>
+                          {c.count > 20 ? "High" : c.count > 10 ? "Medium" : "Low"}
+                        </Badge>
+                      </td>
+                      <td style={tdStyle}>
+                        <Badge color={currentService.resolutionRate >= 90 ? "green" : "warn"} T={T}>
+                          {currentService.resolutionRate >= 90 ? "Resolved" : "In Progress"}
+                        </Badge>
+                      </td>
+                      <td style={tdStyle}>{currentService.avgResolutionTime} days</td>
+                    </tr>
+                  );
+                })}
+                <tr style={{ background: T.tableHeaderBg }}>
+                  <td style={{ ...tdStyle, fontWeight: 800, color: T.text }}>TOTAL</td>
+                  <td style={{ ...tdStyle, fontWeight: 800, color: T.accent }}>{currentService.totalComplaints}</td>
+                  <td style={{ ...tdStyle, fontWeight: 800 }}>100%</td>
+                  <td style={tdStyle}></td>
+                  <td style={tdStyle}></td>
+                  <td style={tdStyle}></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* ── FOOTER ── */}
+        <div style={{ marginTop: 20, fontSize: 11, color: T.muted, textAlign: "center", padding: "12px 0", borderTop: `1px solid ${T.border}` }}>
+          <BIcon name="bi-database" size={12} style={{ marginRight: 6 }} />
+          Complaint data based on reported issues · {currentService.id} · {periodLabel} · ASIS QMS
+          <span style={{ margin: "0 12px" }}>|</span>
+          <BIcon name="bi-clock" size={12} style={{ marginRight: 4 }} />
+          Last updated: 18 May 2026
+        </div>
+      </div>
+    </div>
+  );
 }
