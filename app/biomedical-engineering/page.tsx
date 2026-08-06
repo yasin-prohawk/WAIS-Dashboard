@@ -16,6 +16,23 @@ const SR_CRITICAL = 0;
 const SR_OUTSTANDING = 78;
 const SR_DONE = 528;
 
+const SR_BY_TYPE = [
+  { label: "Additional Work (AW)", count: 86, percentage: 14.2, color: "#007BFF" },
+  { label: "Advisory Services (TA)", count: 64, percentage: 10.6, color: "#22c55e" },
+  { label: "Incident (IR)", count: 57, percentage: 9.4, color: "#ef4444" },
+  { label: "BER", count: 33, percentage: 5.5, color: "#eab308" },
+  { label: "Non-conformance (NCR)", count: 53, percentage: 8.8, color: "#86efac" },
+  { label: "T&C", count: 78, percentage: 12.9, color: "#15803d" },
+  { label: "Unschedule Maintenance", count: 100, percentage: 16.5, color: "#60a5fa" },
+  { label: "User Request", count: 125, percentage: 20.6, color: "#1e40af" },
+  { label: "User Training", count: 42, percentage: 6.9, color: "#b91c1c" },
+];
+
+const SR_STATUS = [
+  { label: "Closed", count: 42, color: "#22c55e" },
+  { label: "Open", count: 4, color: "#ef4444" },
+];
+
 const NCR_TOTAL = 62;
 const NCR_OPEN = 43;
 const NCR_CLOSED = 19;
@@ -301,11 +318,14 @@ export default function BEMSDashboard(){
 
   const initBaseCharts=()=>{
     if(!window.Chart){setTimeout(initBaseCharts,200);return;}
-    ["deductionLine","financeChart","deductIndicatorPie","assetPie","assetBar","assetUptimeChart","unschedPie","schedPie"].forEach(id=>{const c=document.getElementById(id) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
+    ["deductionLine","financeChart","deductIndicatorPie","assetPie","assetBar","assetUptimeChart","srPie","srStatusPie"].forEach(id=>{const c=document.getElementById(id) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
     mkLineChart("deductionLine",["Jul","Aug","Sep","Oct","Nov","Dec"],[{data:DEDUCTION_BY_MONTH,borderColor:"#3b82f6",backgroundColor:"#3b82f622",fill:true}],T,{callback:(v:number)=>v+"%"});
     mkLineChart("financeChart",FINM,[{data:FINANCE_INVOICE,borderColor:T.accent,backgroundColor:T.accent+"22",fill:true},{data:FINANCE_PENALTY,borderColor:T.danger,backgroundColor:T.danger+"18",fill:true}],T,{callback:(v:number)=>"RM "+(v>=1000?(v/1000).toFixed(0)+"k":v)});
     mkPieChart("deductIndicatorPie",B_LABELS,B_VALUES,B_COLORS,"50%");
-    if(activeTab==="general"){mkPieChart("unschedPie",UNSCHEDULE_CATEGORIES.map(c=>c.label),UNSCHEDULE_CATEGORIES.map(c=>c.total),UNSCHEDULE_CATEGORIES.map(c=>c.color),"55%");mkPieChart("schedPie",SCHEDULE_CATEGORIES.map(c=>c.label),SCHEDULE_CATEGORIES.map(c=>c.total),SCHEDULE_CATEGORIES.map(c=>c.color),"55%");}
+    // SR Pie Chart - By Type
+    mkPieChart("srPie", SR_BY_TYPE.map(s=>s.label), SR_BY_TYPE.map(s=>s.count), SR_BY_TYPE.map(s=>s.color), "50%");
+    // SR Pie Chart - By Status (Closed/Open)
+    mkPieChart("srStatusPie", SR_STATUS.map(s=>s.label), SR_STATUS.map(s=>s.count), SR_STATUS.map(s=>s.color), "50%");
     if(activeTab==="assetStatus"){mkPieChart("assetPie",["Active","Inactive"],[ASSET_ACTIVE,ASSET_INACTIVE],["#22c55e","#ef4444"],"55%");mkBarChart("assetBar",ASSET_BY_TYPE.map(a=>a.type),ASSET_BY_TYPE.map(a=>a.active),Array(5).fill("#22c55e"),T,true);}
     if(activeTab==="assetUptime"){mkLineChart("assetUptimeChart",MONTHS_12,[{data:ASSET_UPTIME,borderColor:"#22c55e",backgroundColor:"#22c55e22",fill:true},{data:Array(12).fill(95),borderColor:"#ef4444",borderDash:[4,3],borderWidth:2,pointRadius:0}],T,{min:93,max:100.5,callback:(v:number)=>v+"%"});}
   };
@@ -409,10 +429,49 @@ export default function BEMSDashboard(){
                 <div style={{flex:1,overflow:"auto",padding:"14px"}}>
                   {activeTab==="general"&&(<div style={{display:"flex",flexDirection:"column",gap:12}}>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>{[{l:"Total SR",v:SR_TOTAL.toLocaleString(),c:T.accent},{l:"% Deduction",v:OVERALL_DEDUCTION+"%",c:"#3b82f6"},{l:"Total Assets",v:TOTAL_ASSETS.toLocaleString(),c:"#22c55e"},{l:"Active Assets",v:ASSET_ACTIVE.toLocaleString(),c:"#22c55e"}].map((s,i)=>(<div key={i} style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>{s.l}</div><div style={{fontSize:24,fontWeight:800,color:s.c}}>{s.v}</div></div>))}</div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-                      <div style={{...panel({padding:"12px"})}}><div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8}}>Unschedule Work Orders</div><div style={{display:"flex",alignItems:"center",gap:12}}><div style={{position:"relative",width:140,height:140,flexShrink:0}}><canvas id="unschedPie" style={{width:"100%",height:"100%"}} /></div><div style={{flex:1}}>{UNSCHEDULE_CATEGORIES.map(c=>(<div key={c.key} style={{marginBottom:6}}><div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:"50%",background:c.color}} /><span style={{fontSize:11,color:T.muted}}>{c.label}</span></div><div style={{fontSize:14,fontWeight:700,color:T.text,marginLeft:12}}>{c.total}</div></div>))}</div></div></div>
-                      <div style={{...panel({padding:"12px"})}}><div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8}}>Schedule Work Orders</div><div style={{display:"flex",alignItems:"center",gap:12}}><div style={{position:"relative",width:140,height:140,flexShrink:0}}><canvas id="schedPie" style={{width:"100%",height:"100%"}} /></div><div style={{flex:1}}>{SCHEDULE_CATEGORIES.map(c=>(<div key={c.key} style={{marginBottom:6}}><div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:"50%",background:c.color}} /><span style={{fontSize:11,color:T.muted}}>{c.label}</span></div><div style={{fontSize:14,fontWeight:700,color:T.text,marginLeft:12}}>{c.total}</div></div>))}</div></div></div>
+                    
+                    {/* SR Pie Charts Section */}
+                    <div style={{...panel({padding:"14px"})}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                        <span style={{fontSize:13,fontWeight:700,color:T.text}}>Service Request Overview</span>
+                        <span style={{fontSize:11,fontWeight:600,padding:"4px 12px",borderRadius:24,background:"rgba(59,130,246,.12)",color:"#3b82f6",border:"1px solid rgba(59,130,246,.25)"}}>Total: {SR_TOTAL}</span>
+                      </div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+                        {/* SR by Type of Request */}
+                        <div>
+                          <div style={{fontSize:12,fontWeight:600,color:T.muted,textAlign:"center",marginBottom:8}}>SR by Type of Request</div>
+                          <div style={{display:"flex",alignItems:"center",gap:12}}>
+                            <div style={{position:"relative",width:140,height:140,flexShrink:0}}>
+                              <canvas id="srPie" style={{width:"100%",height:"100%"}} />
+                            </div>
+                            <div style={{flex:1,display:"flex",flexDirection:"column",gap:2}}>
+                              {SR_BY_TYPE.map((s,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,fontSize:10}}>
+                                <span style={{width:8,height:8,borderRadius:"50%",background:s.color,display:"inline-block",flexShrink:0}} />
+                                <span style={{color:T.muted}}>{s.label}</span>
+                                <span style={{marginLeft:"auto",color:T.text,fontWeight:600}}>{s.count}</span>
+                              </div>))}
+                            </div>
+                          </div>
+                        </div>
+                        {/* SR Status by Category (Closed/Open) */}
+                        <div>
+                          <div style={{fontSize:12,fontWeight:600,color:T.muted,textAlign:"center",marginBottom:8}}>SR Status by Category</div>
+                          <div style={{display:"flex",alignItems:"center",gap:12}}>
+                            <div style={{position:"relative",width:140,height:140,flexShrink:0}}>
+                              <canvas id="srStatusPie" style={{width:"100%",height:"100%"}} />
+                            </div>
+                            <div style={{flex:1,display:"flex",flexDirection:"column",gap:2}}>
+                              {SR_STATUS.map((s,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,fontSize:10}}>
+                                <span style={{width:8,height:8,borderRadius:"50%",background:s.color,display:"inline-block",flexShrink:0}} />
+                                <span style={{color:T.muted}}>{s.label}</span>
+                                <span style={{marginLeft:"auto",color:T.text,fontWeight:600}}>{s.count}</span>
+                              </div>))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
+
                     {/* User Training Schedule */}
                     <div style={{...panel({padding:"14px",overflowX:"auto"})}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
