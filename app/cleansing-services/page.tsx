@@ -8,13 +8,13 @@ declare global { interface Window { Chart: any; XLSX: any; } }
 
 /* ─── DATA ─────────────────────────────────────── */
 const M6    = ["Sep '25","Oct '25","Nov '25","Dec '25","Jan '26","Feb '26"];
-const FINM  = ["Aug '25","Sep '25","Oct '25","Nov '25","Dec '25","Jan '26"];
 const DM    = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct"];
 const DV    = [0.49,0.47,0.42,0.38,0.45,0.48,0.37,0.36,0.45,0.48];
 const JIO   = [99.42,99.18,99.55,99.31,99.63,99.27,99.48,99.36,99.51,99.44];
 const CI    = ["% C1","% C2","% C3","% C4","% C5","% C6"];
 const CV    = [74.73,16.58,7.41,0.78,0.00,0.50];
 const CC    = ["#7c3aed","#0891b2","#0d9488","#dc2626","#9333ea","#64748b"];
+const OVERALL_DEDUCTION = "0.44";
 
 const C = {
   primary1:  "#A05AFF",
@@ -54,11 +54,8 @@ const NAV_PAGES = [
 ];
 
 const CLS_TABS = [
-  { key:"ji", label:"Percentage JI" },
-  { key:"area", label:"Total Cleanable Area" },
-  { key:"consumable", label:"Consumable Adequacy" },
+  { key:"general", label:"General" },
   { key:"waste", label:"Waste Collection" },
-  { key:"manpower", label:"Manpower Efficiency" },
 ];
 
 /* ─── CHART HELPERS ─────────────────────────────── */
@@ -151,9 +148,8 @@ function PlaceholderPage({page,T}:{page:typeof NAV_PAGES[0];T:Theme}){
 export default function CLSDashboard(){
   const { openSidebar } = useDashboardNav();
   const [activePage,setActivePage]=useState("cls");
-  const [activeTab,setActiveTab]=useState("ji");
+  const [activeTab,setActiveTab]=useState("general");
   const [modal,setModal]=useState<string|null>(null);
-  const [penTab,setPenTab]=useState("critical");
   const [themeName,setThemeName]=useState<"dark"|"light">("light");
   const [frequency,setFrequency]=useState("monthly");
   const [frequencyKey,setFrequencyKey]=useState("all");
@@ -171,7 +167,6 @@ export default function CLSDashboard(){
   const HDR="#0f172a";
   const htc=getContrastText(HDR);
 
-  const financeCallback = (v: number) => {if(v>=1000)return"RM "+(v/1000).toFixed(0)+"k";return"RM "+v;};
   const pctCallback = (v: number) => v+"%";
 
   useEffect(()=>{
@@ -179,25 +174,27 @@ export default function CLSDashboard(){
     const load=(src:string,cb:()=>void)=>{const s=document.createElement("script");s.src=src;s.onload=cb;document.head.appendChild(s);};
     load("https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",()=>{load("https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js",()=>{scriptsReady.current=true;setTimeout(()=>{initBase();baseChartsInited.current=true;},400);});});
   },[]);
-  useEffect(()=>{if(scriptsReady.current&&baseChartsInited.current){setTimeout(initBase,200);if(activeTab!=="ji")setTimeout(()=>initTab(activeTab),250);}},[themeName,activeTab,startDate,endDate]);
+  useEffect(()=>{if(scriptsReady.current&&baseChartsInited.current){setTimeout(initBase,200);setTimeout(()=>initTab(activeTab),250);}},[themeName,activeTab,startDate,endDate]);
 
   const initBase=()=>{
     if(!window.Chart){setTimeout(initBase,200);return;}
-    ["jiDonutMain","jiMonthChart","jiItemChart","jiWeeklyChart","financeChart"].forEach(id=>{const c=document.getElementById(id) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
+    ["jiDonutMain","jiMonthChart","jiItemChart","jiWeeklyChart","deductIndicatorPie"].forEach(id=>{const c=document.getElementById(id) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
     mkPieChart("jiDonutMain",["Satisfactory","Unsatisfactory"],[99.38,0.62],[C.primary2,T.border],T,"65%");
     mkLineChart("jiMonthChart",M6,[{data:[99.40,99.43,99.45,99.47,99.47,99.55],borderColor:T.accent,backgroundColor:T.accent+"22",fill:true,pointRadius:5,borderWidth:3},{data:[95,95,95,95,95,95],borderColor:T.danger,borderDash:[4,3],borderWidth:2.5,pointRadius:0}],T,{min:94,max:100.5,callback:pctCallback});
     mkBar("jiItemChart",["Floor","Walls","Ceiling","Win & Doors","Receptacles","Furnitures"],[99.3,99.83,99.68,99.56,99.98,99.1],Array(6).fill(C.primary2),T);
     mkBar("jiWeeklyChart",["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],[99.5,99.2,99.7,99.1,99.4,99.6,99.3],Array(7).fill(C.primary2),T);
-    mkLineChart("financeChart",FINM,[{data:[20105,19326,34552,40710,0,0],borderColor:T.accent,backgroundColor:T.accent+"22",fill:true,pointRadius:5,borderWidth:3},{data:[0,0,0,0,0,175],borderColor:T.danger,backgroundColor:T.danger+"18",fill:true,pointRadius:5,borderWidth:3}],T,{callback:financeCallback});
+    mkPieChart("deductIndicatorPie",CI,CV,CC,T,"62%");
   };
 
   const initTab=(tab:string)=>{
     if(!window.Chart){setTimeout(()=>initTab(tab),200);return;}
-    ["srTypePie","top5Chart","jiOverallChart","consumChart","wasteChart","manChart"].forEach(id=>{const c=document.getElementById(id) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
-    if(tab==="area"){mkPieChart("srTypePie",["User Request","Non Conformance","Incident"],[14944,7195,1],[C.primary1,C.primary2,C.support2],T,"55%");mkBar("top5Chart",["LOC-001","LOC-002","LOC-003","LOC-004","LOC-005"],[842,715,634,521,489],[C.primary1,C.primary2,C.support1,C.support2,C.support3],T);mkBar("jiOverallChart",DM,JIO,JIO.map(v=>v>=99.5?C.primary2:v>=99.2?C.support1:C.primary1),T,{indexAxis:"y"});}
-    if(tab==="consumable")mkLineChart("consumChart",M6,[{data:[98.1,98.4,99.0,98.7,98.9,98.7],borderColor:C.primary2,backgroundColor:C.primary2+"22",fill:true,pointRadius:5,borderWidth:3},{data:[95,95,95,95,95,95],borderColor:T.danger,borderDash:[4,3],borderWidth:2.5,pointRadius:0}],T,{min:93,max:101,callback:pctCallback});
+    ["srTypePie","top5Chart","jiOverallChart","wasteChart"].forEach(id=>{const c=document.getElementById(id) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
+    if(tab==="general"){
+      mkPieChart("srTypePie",["User Request","Non Conformance","Incident"],[14944,7195,1],[C.primary1,C.primary2,C.support2],T,"55%");
+      mkBar("top5Chart",["LOC-001","LOC-002","LOC-003","LOC-004","LOC-005"],[842,715,634,521,489],[C.primary1,C.primary2,C.support1,C.support2,C.support3],T);
+      mkBar("jiOverallChart",DM,JIO,JIO.map(v=>v>=99.5?C.primary2:v>=99.2?C.support1:C.primary1),T,{indexAxis:"y"});
+    }
     if(tab==="waste")mkLineChart("wasteChart",M6,[{data:[99.2,98.9,99.3,99.0,99.4,99.1],borderColor:C.primary2,backgroundColor:C.primary2+"22",fill:true,pointRadius:5,borderWidth:3},{data:[95,95,95,95,95,95],borderColor:T.danger,borderDash:[4,3],borderWidth:2.5,pointRadius:0}],T,{min:93,max:101,callback:pctCallback});
-    if(tab==="manpower")mkLineChart("manChart",M6,[{data:[93.1,94.0,93.8,94.5,94.1,94.3],borderColor:T.accent,backgroundColor:T.accent+"22",fill:true,pointRadius:5,borderWidth:3}],T,{min:90,max:97,callback:pctCallback});
   };
 
   const openModal=(id:string)=>{
@@ -207,11 +204,10 @@ export default function CLSDashboard(){
     setModalYear("2025");
     setModalMonth("all");
     setTimeout(()=>{
-      ["m-srBar","m-ncrBar","m-cBar","m-deductLine","m-finLine","m-jiDonut"].forEach(i=>{const c=document.getElementById(i) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
+      ["m-srBar","m-ncrBar","m-cBar","m-deductLine","m-jiDonut"].forEach(i=>{const c=document.getElementById(i) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
       if(id==="sr")mkBar("m-srBar",["Total","Normal","Outstanding","Done","Critical"],[274,274,235,39,0],[T.accent,T.success,T.warn,T.success,T.danger],T);
       if(id==="ncr")mkBar("m-ncrBar",M6,[45,62,38,71,55,108],Array(6).fill(T.warn),T);
       if(id==="deduct"){mkBar("m-cBar",CI,CV,CC,T,{indexAxis:"y"});mkLineChart("m-deductLine",DM,[{data:DV,borderColor:C.support2,backgroundColor:C.support2+"22",fill:true,pointRadius:5,borderWidth:3}],T,{callback:pctCallback});}
-      if(id==="finance")mkLineChart("m-finLine",FINM,[{data:[20105,19326,34552,40710,0,0],borderColor:T.accent,backgroundColor:T.accent+"22",fill:true,pointRadius:6,borderWidth:3,label:"Invoice"},{data:[0,0,0,0,0,175],borderColor:T.danger,backgroundColor:T.danger+"18",fill:true,pointRadius:6,borderWidth:3,label:"Penalty"}],T,{callback:financeCallback,showLegend:true});
       if(id==="jiKpi")mkPieChart("m-jiDonut",["Satisfactory","Unsatisfactory"],[99.38,0.62],[C.primary2,T.border],T,"60%");
     },200);
   };
@@ -268,15 +264,6 @@ export default function CLSDashboard(){
     ["C.4","0.78%","RM 0.00"],
     ["C.5","0.00%","RM 0.00"],
     ["C.6","0.50%","RM 0.00"],
-  ];
-
-  const financeTableData: string[][] = [
-    ["Aug '25","20,105.45","0.00"],
-    ["Sep '25","19,326.36","0.00"],
-    ["Oct '25","34,551.95","0.00"],
-    ["Nov '25","40,709.76","0.00"],
-    ["Dec '25","0.00","0.00"],
-    ["Jan '26","0.00","175.19"],
   ];
 
   const jiTableData: string[][] = DM.map((m,i)=>[m,DV[i].toFixed(2)+"%",JIO[i].toFixed(2)+"%"]);
@@ -365,44 +352,97 @@ export default function CLSDashboard(){
               </div>
             </div>
 
-            {/* PERFORMANCE CARD - rest remains the same */}
+            {/* PERFORMANCE CARD */}
             <div style={{...card({overflow:"hidden",display:"flex",flexDirection:"column"}),flex:1,minHeight:0}}>
               <div style={{padding:"14px 18px",borderBottom:`1px solid ${T.border}`,flexShrink:0}}><span style={{fontSize:15,fontWeight:700,color:T.text}}>Overall CLS Performance <span style={{fontSize:12,color:T.muted}}>— {CLS_TABS.find(t=>t.key===activeTab)?.label}</span></span></div>
               <div style={{flex:1,display:"flex",overflow:"hidden",minHeight:0}}>
                 <div className="no-print" style={{width:180,flexShrink:0,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",padding:"10px 7px",gap:4,overflowY:"auto",background:themeName==="light"?"#f8fafc":T.panel}}>{CLS_TABS.map(t=>{const a=activeTab===t.key;return(<button key={t.key} onClick={()=>setActiveTab(t.key)} style={{width:"100%",padding:"11px 12px",borderRadius:9,fontSize:11,fontWeight:a?600:400,border:`1px solid ${a?T.accent:T.border}`,background:a?T.accent+"12":"transparent",color:a?T.accent:T.muted,cursor:"pointer",textAlign:"left",borderLeft:`3px solid ${a?T.accent:"transparent"}`}}>{t.label}</button>);})}</div>
                 <div style={{flex:1,overflow:"auto",padding:"14px"}}>
-                  {activeTab==="ji"&&(<div style={{display:"flex",gap:14}}><div style={{width:230,flexShrink:0,display:"flex",flexDirection:"column",gap:12}}><div style={{...panel({padding:"14px"})}}><div style={{fontSize:11,fontWeight:700,color:T.muted,textTransform:"uppercase",marginBottom:10}}>Percentage JI</div><div style={{display:"flex",alignItems:"center",gap:12}}><div style={{position:"relative",width:60,height:60}}><canvas id="jiDonutMain" width={60} height={60} /></div><div><div style={{fontSize:24,fontWeight:800,color:C.primary2}}>99.38%</div><div style={{fontSize:10,color:T.muted,marginTop:4}}>Target: 95.00%</div></div></div></div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                    <div style={{padding:"10px",background:T.panel,borderRadius:10,border:`1px solid ${T.border}`}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:3}}>Total Count</div><div style={{fontSize:16,fontWeight:800,color:T.text}}>44,046</div></div>
-                    <div style={{padding:"10px",background:T.panel,borderRadius:10,border:`1px solid ${T.border}`}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:3}}>Satisfactory</div><div style={{fontSize:16,fontWeight:800,color:C.primary2}}>43,849</div></div>
-                    <div style={{padding:"10px",background:T.panel,borderRadius:10,border:`1px solid ${T.border}`}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:3}}>Unsatisfactory</div><div style={{fontSize:16,fontWeight:800,color:T.danger}}>197</div></div>
-                    <div style={{padding:"10px",background:T.panel,borderRadius:10,border:`1px solid ${T.border}`}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:3}}>Not Applicable</div><div style={{fontSize:16,fontWeight:800,color:T.muted}}>5,052</div></div>
-                  </div></div><div style={{flex:1,display:"flex",flexDirection:"column",gap:10}}>
-                    <div style={{...panel({padding:"10px 12px",flex:1,display:"flex",flexDirection:"column"})}}><div style={{marginBottom:6}}><div style={{fontSize:12,fontWeight:700,color:T.text}}>JI Weekly Performance</div><div style={{fontSize:10,color:T.muted}}>Current Week</div></div><div style={{position:"relative",flex:1,minHeight:72}}><canvas id="jiWeeklyChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} /></div></div>
-                    <div style={{...panel({padding:"10px 12px",flex:1,display:"flex",flexDirection:"column"})}}><div style={{marginBottom:6}}><div style={{fontSize:12,fontWeight:700,color:T.text}}>JI Performance Trend</div><div style={{fontSize:10,color:T.muted}}>Previous 6 Months</div></div><div style={{position:"relative",flex:1,minHeight:72}}><canvas id="jiMonthChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} /></div><div style={{display:"flex",gap:14,marginTop:6}}><div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:T.accent}} />Performance</div><div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}><div style={{width:12,height:0,borderTop:`2px dashed ${T.danger}`}} />Target</div></div></div>
-                    <div style={{...panel({padding:"10px 12px",flex:1,display:"flex",flexDirection:"column"})}}><div style={{marginBottom:6}}><div style={{fontSize:12,fontWeight:700,color:T.text}}>JI Performance by Item</div><div style={{fontSize:10,color:T.muted}}>By Item Inspected</div></div><div style={{position:"relative",flex:1,minHeight:72}}><canvas id="jiItemChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} /></div></div>
-                  </div></div>)}
-                  {activeTab==="area"&&(<div style={{display:"flex",flexDirection:"column",gap:10}}><div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-                    <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Total User Areas</div><div style={{fontSize:22,fontWeight:800,color:C.primary1}}>2,293</div></div>
-                    <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Cleanable Areas</div><div style={{fontSize:22,fontWeight:800,color:C.primary2}}>1,847</div></div>
-                    <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Non-Cleanable</div><div style={{fontSize:22,fontWeight:800,color:C.support1}}>446</div></div>
-                  </div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><div style={{...panel({padding:"12px"})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Total SR by Type of Request</div><div style={{display:"flex",alignItems:"center",gap:14}}><div style={{position:"relative",width:90,height:90}}><canvas id="srTypePie" /></div><div>{srTypeData.map((it,i)=>(<div key={i} style={{marginBottom:7}}><div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:7,height:7,borderRadius:"50%",background:it.c}} /><span style={{fontSize:10,color:T.muted}}>{it.l}</span></div><div style={{fontSize:14,fontWeight:700,color:T.text}}>{it.v} <span style={{fontSize:9,color:T.muted}}>({it.p})</span></div></div>))}</div></div></div><div style={{...panel({padding:"12px"})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Percentage JI Overall</div><div style={{position:"relative",height:110}}><canvas id="jiOverallChart" /></div></div></div><div style={{...panel({padding:"12px"})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Top 5 Location 'N' — Monthly</div><div style={{position:"relative",height:110}}><canvas id="top5Chart" /></div></div></div>)}
-                  {(["consumable","waste","manpower"] as const).map(tab=>activeTab===tab&&(<div key={tab} style={{display:"flex",flexDirection:"column",gap:10}}><div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-                    {tab==="consumable"&&<>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Adequacy Rate</div><div style={{fontSize:22,fontWeight:800,color:C.primary2}}>98.7%</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Shortfall Items</div><div style={{fontSize:22,fontWeight:800,color:T.warn}}>12</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Target</div><div style={{fontSize:22,fontWeight:800,color:T.accent}}>95%</div></div>
-                    </>}
-                    {tab==="waste"&&<>
+                  {activeTab==="general"&&(<div style={{display:"flex",flexDirection:"column",gap:22}}>
+
+                    {/* SECTION: PERCENTAGE JI */}
+                    <div>
+                      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+                        <BIcon name="bi-clipboard2-check" size={13} color={T.accent} />
+                        <span style={{fontSize:12,fontWeight:700,color:T.text,textTransform:"uppercase",letterSpacing:".5px"}}>Percentage JI</span>
+                        <div style={{flex:1,height:1,background:T.border}} />
+                      </div>
+                      <div style={{display:"flex",gap:12}}>
+                        <div style={{width:220,flexShrink:0,display:"flex",flexDirection:"column",gap:10}}>
+                          <div style={{...panel({padding:"16px"})}}>
+                            <div style={{display:"flex",alignItems:"center",gap:12}}>
+                              <div style={{position:"relative",width:64,height:64,flexShrink:0}}><canvas id="jiDonutMain" width={64} height={64} /></div>
+                              <div><div style={{fontSize:24,fontWeight:800,color:C.primary2,lineHeight:1.1}}>99.38%</div><div style={{fontSize:10,color:T.muted,marginTop:4}}>Target: 95.00%</div></div>
+                            </div>
+                          </div>
+                          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                            <div style={{padding:"10px",background:T.panel,borderRadius:10,border:`1px solid ${T.border}`}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:3}}>Total Count</div><div style={{fontSize:15,fontWeight:800,color:T.text}}>44,046</div></div>
+                            <div style={{padding:"10px",background:T.panel,borderRadius:10,border:`1px solid ${T.border}`}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:3}}>Satisfactory</div><div style={{fontSize:15,fontWeight:800,color:C.primary2}}>43,849</div></div>
+                            <div style={{padding:"10px",background:T.panel,borderRadius:10,border:`1px solid ${T.border}`}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:3}}>Unsatisfactory</div><div style={{fontSize:15,fontWeight:800,color:T.danger}}>197</div></div>
+                            <div style={{padding:"10px",background:T.panel,borderRadius:10,border:`1px solid ${T.border}`}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:3}}>N/A</div><div style={{fontSize:15,fontWeight:800,color:T.muted}}>5,052</div></div>
+                          </div>
+                        </div>
+                        <div style={{flex:1,display:"grid",gridTemplateColumns:"1.4fr 1fr",gap:10}}>
+                          <div style={{...panel({padding:"12px 14px",display:"flex",flexDirection:"column"})}}>
+                            <div style={{marginBottom:8}}><div style={{fontSize:12,fontWeight:700,color:T.text}}>JI Performance Trend</div><div style={{fontSize:10,color:T.muted}}>Previous 6 Months</div></div>
+                            <div style={{position:"relative",flex:1,minHeight:150}}><canvas id="jiMonthChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} /></div>
+                            <div style={{display:"flex",gap:14,marginTop:8}}><div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:T.accent}} />Performance</div><div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}><div style={{width:12,height:0,borderTop:`2px dashed ${T.danger}`}} />Target</div></div>
+                          </div>
+                          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                            <div style={{...panel({padding:"10px 12px",flex:1,display:"flex",flexDirection:"column"})}}>
+                              <div style={{fontSize:11,fontWeight:700,color:T.text,marginBottom:6}}>Weekly Performance</div>
+                              <div style={{position:"relative",flex:1,minHeight:64}}><canvas id="jiWeeklyChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} /></div>
+                            </div>
+                            <div style={{...panel({padding:"10px 12px",flex:1,display:"flex",flexDirection:"column"})}}>
+                              <div style={{fontSize:11,fontWeight:700,color:T.text,marginBottom:6}}>By Item Inspected</div>
+                              <div style={{position:"relative",flex:1,minHeight:64}}><canvas id="jiItemChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} /></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* SECTION: CLEANABLE AREA */}
+                    <div>
+                      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+                        <BIcon name="bi-buildings" size={13} color={T.accent} />
+                        <span style={{fontSize:12,fontWeight:700,color:T.text,textTransform:"uppercase",letterSpacing:".5px"}}>Cleanable Area Overview</span>
+                        <div style={{flex:1,height:1,background:T.border}} />
+                      </div>
+                      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+                          <div style={{...panel({padding:"14px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:5}}>Total User Areas</div><div style={{fontSize:22,fontWeight:800,color:C.primary1}}>2,293</div></div>
+                          <div style={{...panel({padding:"14px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:5}}>Cleanable Areas</div><div style={{fontSize:22,fontWeight:800,color:C.primary2}}>1,847</div></div>
+                          <div style={{...panel({padding:"14px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:5}}>Non-Cleanable</div><div style={{fontSize:22,fontWeight:800,color:C.support1}}>446</div></div>
+                        </div>
+                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                          <div style={{...panel({padding:"14px"})}}>
+                            <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:10}}>Total SR by Type of Request</div>
+                            <div style={{display:"flex",alignItems:"center",gap:16}}>
+                              <div style={{position:"relative",width:88,height:88,flexShrink:0}}><canvas id="srTypePie" /></div>
+                              <div style={{flex:1}}>{srTypeData.map((it,i)=>(<div key={i} style={{marginBottom:i<srTypeData.length-1?8:0}}><div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:7,height:7,borderRadius:"50%",background:it.c}} /><span style={{fontSize:10,color:T.muted}}>{it.l}</span></div><div style={{fontSize:14,fontWeight:700,color:T.text}}>{it.v} <span style={{fontSize:9,color:T.muted}}>({it.p})</span></div></div>))}</div>
+                            </div>
+                          </div>
+                          <div style={{...panel({padding:"14px"})}}>
+                            <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:10}}>Percentage JI Overall</div>
+                            <div style={{position:"relative",height:120}}><canvas id="jiOverallChart" /></div>
+                          </div>
+                        </div>
+                        <div style={{...panel({padding:"14px"})}}>
+                          <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:10}}>Top 5 Location 'N' — Monthly</div>
+                          <div style={{position:"relative",height:120}}><canvas id="top5Chart" /></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>)}
+                  {activeTab==="waste"&&(<div style={{display:"flex",flexDirection:"column",gap:10}}>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
                       <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Collection Rate</div><div style={{fontSize:22,fontWeight:800,color:C.primary2}}>99.1%</div></div>
                       <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Missed Collections</div><div style={{fontSize:22,fontWeight:800,color:T.danger}}>3</div></div>
                       <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Target</div><div style={{fontSize:22,fontWeight:800,color:T.accent}}>95%</div></div>
-                    </>}
-                    {tab==="manpower"&&<>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Efficiency Rate</div><div style={{fontSize:22,fontWeight:800,color:C.primary2}}>94.3%</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Total Staff</div><div style={{fontSize:22,fontWeight:800,color:C.primary1}}>1,247</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Absent Today</div><div style={{fontSize:22,fontWeight:800,color:T.warn}}>72</div></div>
-                    </>}
-                  </div><div style={{...panel({padding:"12px",flex:1})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>{tab==="consumable"?"Consumable Adequacy — Previous 6 Months":tab==="waste"?"Waste Collection — Previous 6 Months":"Manpower Efficiency — Previous 6 Months"}</div><div style={{position:"relative",height:160}}><canvas id={tab==="consumable"?"consumChart":tab==="waste"?"wasteChart":"manChart"} /></div><div style={{display:"flex",gap:14,marginTop:8}}><div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:C.primary2}} />Performance</div>{tab!=="manpower"&&<div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}><div style={{width:12,height:0,borderTop:`2px dashed ${T.danger}`}} />Target</div>}</div></div></div>))}
+                    </div>
+                    <div style={{...panel({padding:"12px",flex:1})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Waste Collection — Previous 6 Months</div><div style={{position:"relative",height:160}}><canvas id="wasteChart" /></div><div style={{display:"flex",gap:14,marginTop:8}}><div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:C.primary2}} />Performance</div><div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}><div style={{width:12,height:0,borderTop:`2px dashed ${T.danger}`}} />Target</div></div></div>
+                  </div>)}
                 </div>
               </div>
             </div>
@@ -410,23 +450,36 @@ export default function CLSDashboard(){
 
           {/* RIGHT COLUMN */}
           <div style={{width:300,flexShrink:0,display:"flex",flexDirection:"column",gap:14,overflow:"hidden"}}>
-            <div style={{...card({display:"flex",flexDirection:"column",minHeight:0,overflow:"hidden"}),flex:1}}>
-              <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",justifyContent:"space-between",flexShrink:0}}><div><div style={{fontSize:14,fontWeight:700,color:T.text}}>Deduction by Indicator</div><div style={{fontSize:10,color:T.muted}}>{startDate} to {endDate}</div></div><button className="no-print" onClick={()=>openModal("deduct")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button></div>
-              <div style={{padding:"10px 14px",borderBottom:`1px solid ${T.border}`,display:"flex",gap:16}}><div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>% Deduction</div><div style={{fontSize:18,fontWeight:800,color:C.primary1}}>0.44%</div></div><div style={{width:1,background:T.border}} /><div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>Total</div><div style={{fontSize:18,fontWeight:800,color:T.green}}>RM 0.00</div></div></div>
-              <div style={{flex:1,padding:"10px 12px",display:"flex",flexDirection:"column",gap:6,overflowY:"auto"}}>{["C.1","C.2","C.3","C.4","C.5","C.6"].map((c,i)=>(<div key={c} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 12px",background:T.panel,borderRadius:9,border:`1px solid ${T.border}`}}><div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:9,height:9,borderRadius:3,background:CC[i]}} /><span style={{fontSize:13,fontWeight:600,color:T.text}}>{c}</span><span style={{fontSize:10,color:T.muted}}>{CV[i].toFixed(2)}%</span></div><div style={{textAlign:"right"}}><span style={{fontSize:13,fontWeight:700,color:T.success}}>RM 0.00</span></div></div>))}</div>
-            </div>
-            <div style={{...card({display:"flex",flexDirection:"column",minHeight:0,overflow:"hidden"}),flex:1}}>
-              <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",justifyContent:"space-between",flexShrink:0}}><div><div style={{fontSize:14,fontWeight:700,color:T.text}}>Penalty by Criteria</div><div style={{fontSize:10,color:T.muted}}>{startDate} to {endDate}</div></div><button className="no-print" onClick={()=>openModal("penalty")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button></div>
-              <div className="no-print" style={{padding:"8px 14px",display:"flex",gap:7}}>{["critical","value"].map(t=>(<button key={t} onClick={()=>setPenTab(t)} style={{fontSize:11,padding:"5px 13px",borderRadius:20,border:`1px solid ${penTab===t?T.accent:T.border}`,background:penTab===t?T.accent+"12":"transparent",color:penTab===t?T.accent:T.muted,cursor:"pointer",fontWeight:penTab===t?700:400}}>{t==="critical"?"Critical Events":"Penalty Value"}</button>))}</div>
-              <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:10}}><BIcon name="bi-check-circle" size={40} color={T.success} /><div style={{fontSize:12,color:T.muted}}>No Data</div><Badge color="green" T={T}>All KPIs Met</Badge></div>
-            </div>
-            <div style={{...card({display:"flex",flexDirection:"column",minHeight:0,overflow:"hidden"}),flex:1}}>
-              <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",justifyContent:"space-between",flexShrink:0}}><div><div style={{fontSize:14,fontWeight:700,color:T.text}}>Finance</div><div style={{fontSize:10,color:T.muted}}>{startDate} to {endDate}</div></div><button className="no-print" onClick={()=>openModal("finance")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button></div>
-              <div style={{padding:"8px 14px",display:"flex",gap:14}}>
-                <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:T.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:T.accent}} />Invoice</div>
-                <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:T.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:T.danger}} />Penalty</div>
+            <div style={{...card({display:"flex",flexDirection:"column",overflow:"hidden"}),flex:1,position:"relative",minHeight:0}}>
+              <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",justifyContent:"space-between",flexShrink:0}}>
+                <div>
+                  <div style={{fontSize:14,fontWeight:700,color:T.text}}>Deduction by Indicator</div>
+                  <div style={{fontSize:10,color:T.muted}}>{startDate} to {endDate}</div>
+                </div>
+                <button className="no-print" onClick={()=>openModal("deduct")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button>
               </div>
-              <div style={{flex:1,padding:"0 12px 12px",position:"relative",minHeight:0}}><canvas id="financeChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} /></div>
+              {/* Summary row */}
+              <div style={{padding:"10px 14px",borderBottom:`1px solid ${T.border}`,display:"flex",gap:16,flexShrink:0}}>
+                <div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>% Deduction</div><div style={{fontSize:18,fontWeight:800,color:C.primary1}}>{OVERALL_DEDUCTION}%</div></div>
+                <div style={{width:1,background:T.border}} />
+                <div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>Total</div><div style={{fontSize:18,fontWeight:800,color:T.success}}>RM 0.00</div></div>
+              </div>
+              {/* Pie chart — takes remaining space, no HC label rows below */}
+              <div style={{flex:1,padding:"12px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:0}}>
+                <div style={{position:"relative",width:"100%",flex:1,minHeight:0}}>
+                  <canvas id="deductIndicatorPie" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
+                </div>
+                {/* Compact legend — dot + label only, no rows */}
+                <div style={{display:"flex",flexWrap:"wrap",gap:"6px 14px",justifyContent:"center",paddingTop:10,flexShrink:0}}>
+                  {CI.map((l,i)=>(
+                    <div key={l} style={{display:"flex",alignItems:"center",gap:5}}>
+                      <div style={{width:8,height:8,borderRadius:"50%",background:CC[i],flexShrink:0}} />
+                      <span style={{fontSize:10,color:T.muted,fontWeight:600}}>{l}</span>
+                      <span style={{fontSize:10,color:T.text,fontWeight:700}}>{CV[i]}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -461,31 +514,6 @@ export default function CLSDashboard(){
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:20}}>{["C.1","C.2","C.3","C.4","C.5","C.6"].map((c,i)=>(<div key={c} style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{width:11,height:11,borderRadius:"50%",background:CC[i],display:"inline-block",marginBottom:8}} /><div style={{fontSize:18,fontWeight:800,color:CC[i]}}>RM 0.00</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>{c} — {CV[i]}%</div></div>))}</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}><div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>% C1–C6 Distribution</div><div style={{position:"relative",height:220}}><canvas id="m-cBar" /></div></div><div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>% Deduction Trend (Jan–Oct)</div><div style={{position:"relative",height:220}}><canvas id="m-deductLine" /></div></div></div>
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,marginTop:18}}><thead><tr>{["Indicator","% Weight","Deduction (RM)"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{deductTableData.map((r,i)=><tr key={i}>{r.map((cell,j)=><td key={j} style={tdStyle}>{renderTableCell(cell)}</td>)}</tr>)}</tbody></table></Modal>)}
-
-        {/* PENALTY MODAL */}
-        {modal==="penalty"&&(<Modal title="Penalty by Criteria — Feb'26" onClose={()=>setModal(null)} T={T} onPrint={printPage}>
-          <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} />
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:22,fontWeight:800,color:T.success}}>0</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Critical Events</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:22,fontWeight:800,color:T.success}}>RM 0.00</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Total Penalty</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:22,fontWeight:800,color:T.success}}>0</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>C1 Events</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:22,fontWeight:800,color:T.success}}>0</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>C2 Events</div></div>
-          </div>
-          <div style={{background:T.success+"05",border:`1px solid ${T.success}20`,borderRadius:14,padding:24,textAlign:"center"}}><BIcon name="bi-check-circle-fill" size={40} color={T.success} /><div style={{fontSize:16,fontWeight:700,color:T.success,marginBottom:6}}>No Penalty Events Recorded</div><div style={{fontSize:13,color:T.muted}}>All KPI thresholds met.</div></div></Modal>)}
-
-        {/* FINANCE MODAL */}
-        {modal==="finance"&&(<Modal title="Finance — Aug'25 to Jan'26" onClose={()=>setModal(null)} T={T} onPrint={printPage}>
-          <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} showMonth={true} T={T} />
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:20}}>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.accent}}>RM 20,105</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Aug Invoice</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.accent}}>RM 19,326</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Sep Invoice</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.accent}}>RM 34,552</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Oct Invoice</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.accent}}>RM 40,710</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Nov Invoice</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.muted}}>RM 0</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Dec Invoice</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.danger}}>RM 175</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Jan Penalty</div></div>
-          </div>
-          <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>Finance Overview</div><div style={{position:"relative",height:260}}><canvas id="m-finLine" /></div>
-          <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,marginTop:18}}><thead><tr>{["Month","Invoice (RM)","Penalty (RM)"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{financeTableData.map((r,i)=><tr key={i}>{r.map((cell,j)=><td key={j} style={tdStyle}>{renderTableCell(cell)}</td>)}</tr>)}</tbody></table></Modal>)}
 
         {/* JI KPI MODAL */}
         {modal==="jiKpi"&&(<Modal title="Percentage JI KPI Detail" onClose={()=>setModal(null)} T={T} onPrint={printPage}>

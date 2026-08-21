@@ -7,7 +7,6 @@ import { useDashboardNav } from "@/components/dashboard-nav-provider";
 declare global { interface Window { Chart: any; XLSX: any; } }
 
 /* ─── BEMS DATA ─────────────────────────────────── */
-const FINM = ["Jul '25","Aug '25","Sep '25","Oct '25","Nov '25","Dec '25"];
 const MONTHS_12 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const SR_TOTAL = 606;
@@ -29,14 +28,29 @@ const SR_BY_TYPE = [
 ];
 
 const SR_STATUS = [
-  { label: "Closed", count: 42, color: "#22c55e" },
-  { label: "Open", count: 4, color: "#ef4444" },
+  { label: "Closed", count: 528, color: "#22c55e" },
+  { label: "Open", count: 78, color: "#ef4444" },
 ];
 
 const NCR_TOTAL = 62;
 const NCR_OPEN = 43;
 const NCR_CLOSED = 19;
 const NCR_CLOSURE_RATE = 30.6;
+const NCR_BY_MONTH = [
+  { month: "NCR 1.1", open: 5, closed: 2 },
+  { month: "NCR 1.2", open: 4, closed: 1 },
+  { month: "NCR 1.3", open: 6, closed: 2 },
+  { month: "NCR 1.4", open: 3, closed: 2 },
+  { month: "NCR 1.5", open: 5, closed: 1 },
+  { month: "NCR 1.6", open: 4, closed: 2 },
+  { month: "NCR 1.7", open: 3, closed: 2 },
+  { month: "NCR 1.8", open: 4, closed: 1 },
+  { month: "NCR 1.9", open: 2, closed: 2 },
+  { month: "NCR 1.10", open: 3, closed: 2 },
+  { month: "NCR 1.11", open: 2, closed: 1 },
+  { month: "NCR 1.12", open: 2, closed: 1 },
+];
+const NCR_MONTH_COLORS = ["#3b82f6","#8b5cf6","#22d3ee","#0e7490","#0ea5e9","#ef4444","#f97316","#eab308","#22c55e","#14b8a6","#a855f7","#f43f5e"];
 
 const OVERALL_DEDUCTION = 8.72;
 const DEDUCTION_BY_MONTH = [8.80, 7.95, 9.10, 8.40, 9.35, 8.72];
@@ -48,17 +62,10 @@ const B_VALUES = [12.34, 8.45, 5.67, 15.89, 4.23, 38.10, 15.32];
 const B_COLORS = ["#007BFF","#6F42C1","#00CCCC","#17A2B8","#0DCAF0","#ef4444","#f97316"];
 const B_DEDUCTIONS = [0, 0, 0, 0, 0, 1200.50, 0];
 
-const FINANCE_INVOICE = [120000, 115000, 130000, 125000, 118000, 112000];
-const FINANCE_PENALTY = [0, 0, 0, 300, 0, 1200.50];
-const FINANCE_2024_INVOICE = [95000, 92000, 105000, 98000, 100000, 96000];
-const FINANCE_2024_PENALTY = [0, 0, 200, 0, 0, 500];
-const FINANCE_2026_INVOICE = [130000, 128000, 135000, 132000, 140000, 138000];
-const FINANCE_2026_PENALTY = [0, 100, 0, 0, 0, 0];
-
 const ASSET_ACTIVE = 1215;
 const ASSET_INACTIVE = 32;
 const TOTAL_ASSETS = 1247;
-const HOSPITAL_NAME = "Hospital: Grik (PRK333)";
+const HOSPITAL_NAME = "Hospital: HTA";
 
 const ASSET_BY_TYPE = [
   { type: "Life Support", active: 440, inactive: 8 },
@@ -68,7 +75,22 @@ const ASSET_BY_TYPE = [
   { type: "Surgical", active: 89, inactive: 1 },
 ];
 
-const ASSET_UPTIME = [99.1, 98.7, 99.3, 98.9, 99.5, 98.8, 99.2, 99.0, 98.6, 99.4, 98.5, 99.1];
+const ASSET_LIFESPAN = {
+  groups: [
+    { group: "0-5 Years", count: 310, color: "#22c55e" },
+    { group: "5-10 Years", count: 420, color: "#3b82f6" },
+    { group: "10-15 Years", count: 330, color: "#f97316" },
+    { group: "15-30 Years", count: 150, color: "#ef4444" },
+    { group: "30+ Years", count: 37, color: "#8b5cf6" },
+  ],
+  withinLifespan: 980,
+  exceedLifespan: 267,
+  serviceByGroup: [
+    { group: "Life Support", aging: { "0-5": 95, "5-10": 130, "10-15": 105, "15-30": 55, "30+": 12 } },
+    { group: "Imaging", aging: { "0-5": 60, "5-10": 85, "10-15": 65, "15-30": 30, "30+": 8 } },
+    { group: "Monitoring", aging: { "0-5": 80, "5-10": 110, "10-15": 90, "15-30": 40, "30+": 10 } },
+  ]
+};
 
 const TRAINING_SCHEDULE = [
   { id:"TR-01", topic:"Medical Equipment Safety & Handling",   month:"Feb", date:"2026-02-12", status:"Completed" },
@@ -100,6 +122,7 @@ const UNSCHEDULE_CATEGORIES = [
 const UNSCHEDULE_TOTAL = 392;
 const UNSCHEDULE_OPEN = 50;
 const UNSCHEDULE_COMPLETED = 266;
+const UNSCHEDULE_STATUS_TOTALS = UNSCHEDULE_CATEGORIES.reduce((acc,c)=>{acc.open+=c.open;acc.wip+=c.wip;acc.completed+=c.completed;acc.cancel+=c.cancel;acc.rfCancel+=c.rfCancel;acc.notDoneClosed+=c.notDoneClosed;return acc;},{open:0,wip:0,completed:0,cancel:0,rfCancel:0,notDoneClosed:0});
 
 const SCHEDULE_CATEGORIES = [
   { key: "ppm", label: "PPM", color: "#3b82f6", total: 124, open: 10, wip: 8, completed: 58, cancel: 4, rfCancel: 1, notDoneClosed: 1 },
@@ -110,6 +133,7 @@ const SCHEDULE_CATEGORIES = [
 const SCHEDULE_TOTAL = 329;
 const SCHEDULE_OPEN = 28;
 const SCHEDULE_COMPLETED = 154;
+const SCHEDULE_STATUS_TOTALS = SCHEDULE_CATEGORIES.reduce((acc,c)=>{acc.open+=c.open;acc.wip+=c.wip;acc.completed+=c.completed;acc.cancel+=c.cancel;acc.rfCancel+=c.rfCancel;acc.notDoneClosed+=c.notDoneClosed;return acc;},{open:0,wip:0,completed:0,cancel:0,rfCancel:0,notDoneClosed:0});
 
 const getYearData = (year:string, data2025:any[])=>{
   if(year==="2024") return data2025.map((d:any)=>({...d,completedWithin:Math.round(d.completedWithin*0.85),completedNotTo:Math.round(d.completedNotTo*1.2),remaining:Math.round(d.remaining*0.8),notDone:Math.round(d.notDone*1.3)}));
@@ -182,8 +206,7 @@ const NAV_PAGES = [
 const BEMS_TABS = [
   { key:"general", label:"General" },
   { key:"assetStatus", label:"Asset Status" },
-  { key:"assetMaintenance", label:"Asset Maintenance" },
-  { key:"assetUptime", label:"Asset Uptime" },
+  { key:"assetLifespan", label:"Asset Lifespan" },
 ];
 
 /* ─── CHART HELPERS ─────────────────────────────── */
@@ -274,6 +297,13 @@ function StatCards({data,T}:{data:any[],T:Theme}){
   return(<div style={{display:"grid",gridTemplateColumns:`repeat(${data.length},1fr)`,gap:12,marginBottom:20}}>{data.map((s,i)=>(<div key={i} style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:28,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:11,color:T.muted,marginTop:4}}>{s.l}</div></div>))}</div>);
 }
 
+function MiniStat({label,value,color,T}:{label:string;value:string|number;color:string;T:Theme}){
+  return(<div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 6px",textAlign:"center"}}>
+    <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>{label}</div>
+    <div style={{fontSize:18,fontWeight:700,color}}>{value}</div>
+  </div>);
+}
+
 /* ─── EXPORT ─────────────────────────────────────── */
 function exportExcelAll(){if(!window.XLSX)return;const wb=window.XLSX.utils.book_new();[{name:"Summary",data:[["BEMS Dashboard"],["Metric","Value"],["Total SR",SR_TOTAL],["Total NCR",NCR_TOTAL],["Unschedule WO",UNSCHEDULE_TOTAL],["Schedule WO",SCHEDULE_TOTAL]]}].forEach(s=>{const ws=window.XLSX.utils.aoa_to_sheet(s.data);window.XLSX.utils.book_append_sheet(wb,ws,s.name);});window.XLSX.writeFile(wb,"BEMS_Dashboard_Export.xlsx");}
 function exportModalData(modalId:string,yr:string,getData:any){
@@ -282,7 +312,6 @@ function exportModalData(modalId:string,yr:string,getData:any){
   else if(modalId==="sr"){rows=[["Status","Count"],["Total",SR_TOTAL],["Normal",SR_NORMAL],["Outstanding",SR_OUTSTANDING],["Done",SR_DONE]];}
   else if(modalId==="ncr"){rows=[["Status","Count"],["Total",NCR_TOTAL],["Open",NCR_OPEN],["Closed",NCR_CLOSED]];}
   else if(modalId==="deduction"){rows=[["Indicator","%","Deduction (RM)"],...B_LABELS.map((l,i)=>[l,B_VALUES[i].toFixed(2)+"%","RM "+B_DEDUCTIONS[i].toFixed(2)])];}
-  else if(modalId==="finance"){rows=[["Month","Invoice","Penalty","Net"],...FINM.map((m,i)=>[m,FINANCE_INVOICE[i],FINANCE_PENALTY[i],FINANCE_INVOICE[i]-FINANCE_PENALTY[i]])];}
   if(!rows.length)return;const wb=window.XLSX.utils.book_new();const ws=window.XLSX.utils.aoa_to_sheet(rows);window.XLSX.utils.book_append_sheet(wb,ws,"Detail");window.XLSX.writeFile(wb,`BEMS_${modalId}_${yr}.xlsx`);
 }
 function printPage(){const s=document.createElement('style');s.id='ps';s.textContent='@page{size:A4 landscape;margin:10mm}@media print{body{-webkit-print-color-adjust:exact!important}.no-print{display:none!important}}';document.head.appendChild(s);window.print();setTimeout(()=>{const e=document.getElementById('ps');if(e)e.remove();},1000);}
@@ -300,8 +329,6 @@ export default function BEMSDashboard(){
   const [modalStartDate,setModalStartDate]=useState("2025-01-01");
   const [modalEndDate,setModalEndDate]=useState("2025-12-31");
   const [modalDeductYear,setModalDeductYear]=useState("2025");
-  const [modalFinanceYear,setModalFinanceYear]=useState("2025");
-  const [modalFinanceMonth,setModalFinanceMonth]=useState("all");
   const T=THEMES[themeName];const scriptsReady=useRef(false);const baseChartsInited=useRef(false);
   const currentPage=NAV_PAGES.find(p=>p.key===activePage)||NAV_PAGES[0];const HDR="#0f172a";const htc=getContrastText(HDR);
 
@@ -311,44 +338,59 @@ export default function BEMSDashboard(){
     load("https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",()=>{load("https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js",()=>{scriptsReady.current=true;setTimeout(()=>{initBaseCharts();baseChartsInited.current=true;},400);});});
   },[]);
   useEffect(()=>{if(scriptsReady.current&&baseChartsInited.current)setTimeout(initBaseCharts,200);},[activeTab,themeName,startDate,endDate]);
-  useEffect(()=>{if(modal&&scriptsReady.current&&baseChartsInited.current)setTimeout(()=>initModalCharts(modal),300);},[modal,modalYear,modalMonth,modalDeductYear,modalFinanceYear,modalFinanceMonth,modalStartDate,modalEndDate]);
+  useEffect(()=>{if(modal&&scriptsReady.current&&baseChartsInited.current)setTimeout(()=>initModalCharts(modal),300);},[modal,modalYear,modalMonth,modalDeductYear,modalStartDate,modalEndDate]);
 
   const getUnschedData=useMemo(()=>getYearData(modalYear,UNSCHEDULE_TABLE_DATA_2025),[modalYear]);
   const getSchedData=useMemo(()=>getYearData(modalYear,SCHEDULE_TABLE_DATA_2025),[modalYear]);
 
   const initBaseCharts=()=>{
     if(!window.Chart){setTimeout(initBaseCharts,200);return;}
-    ["deductionLine","financeChart","deductIndicatorPie","assetPie","assetBar","assetUptimeChart","srPie","srStatusPie"].forEach(id=>{const c=document.getElementById(id) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
-    mkLineChart("deductionLine",["Jul","Aug","Sep","Oct","Nov","Dec"],[{data:DEDUCTION_BY_MONTH,borderColor:"#3b82f6",backgroundColor:"#3b82f622",fill:true}],T,{callback:(v:number)=>v+"%"});
-    mkLineChart("financeChart",FINM,[{data:FINANCE_INVOICE,borderColor:T.accent,backgroundColor:T.accent+"22",fill:true},{data:FINANCE_PENALTY,borderColor:T.danger,backgroundColor:T.danger+"18",fill:true}],T,{callback:(v:number)=>"RM "+(v>=1000?(v/1000).toFixed(0)+"k":v)});
+    ["deductIndicatorPie","assetPie","assetBar","assetLifespanPie","assetLifespanDonut","assetServiceBar","srPie","srStatusPie"].forEach(id=>{const c=document.getElementById(id) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
     mkPieChart("deductIndicatorPie",B_LABELS,B_VALUES,B_COLORS,"50%");
-    // SR Pie Chart - By Type
     mkPieChart("srPie", SR_BY_TYPE.map(s=>s.label), SR_BY_TYPE.map(s=>s.count), SR_BY_TYPE.map(s=>s.color), "50%");
-    // SR Pie Chart - By Status (Closed/Open)
     mkPieChart("srStatusPie", SR_STATUS.map(s=>s.label), SR_STATUS.map(s=>s.count), SR_STATUS.map(s=>s.color), "50%");
     if(activeTab==="assetStatus"){mkPieChart("assetPie",["Active","Inactive"],[ASSET_ACTIVE,ASSET_INACTIVE],["#22c55e","#ef4444"],"55%");mkBarChart("assetBar",ASSET_BY_TYPE.map(a=>a.type),ASSET_BY_TYPE.map(a=>a.active),Array(5).fill("#22c55e"),T,true);}
-    if(activeTab==="assetUptime"){mkLineChart("assetUptimeChart",MONTHS_12,[{data:ASSET_UPTIME,borderColor:"#22c55e",backgroundColor:"#22c55e22",fill:true},{data:Array(12).fill(95),borderColor:"#ef4444",borderDash:[4,3],borderWidth:2,pointRadius:0}],T,{min:93,max:100.5,callback:(v:number)=>v+"%"});}
+    if(activeTab==="assetLifespan"){
+      const lifespanLabels = ASSET_LIFESPAN.groups.map(g => g.group);
+      const lifespanValues = ASSET_LIFESPAN.groups.map(g => g.count);
+      const lifespanColors = ASSET_LIFESPAN.groups.map(g => g.color);
+      mkPieChart("assetLifespanPie", lifespanLabels, lifespanValues, lifespanColors, "50%");
+      mkPieChart("assetLifespanDonut", ["Within Lifespan", "Exceed Lifespan"], [ASSET_LIFESPAN.withinLifespan, ASSET_LIFESPAN.exceedLifespan], ["#22c55e", "#ef4444"], "60%");
+
+      const groupLabels = ASSET_LIFESPAN.serviceByGroup.map(g => g.group);
+      const agingKeys = ["0-5", "5-10", "10-15", "15-30", "30+"];
+      const agingColors = ["#22c55e", "#3b82f6", "#f97316", "#ef4444", "#8b5cf6"];
+      const datasets = agingKeys.map((key, idx) => ({
+        label: key + " Years",
+        data: ASSET_LIFESPAN.serviceByGroup.map(g => (g.aging as any)[key] || 0),
+        backgroundColor: agingColors[idx]
+      }));
+      mkStackedBarChart("assetServiceBar", groupLabels, datasets, T);
+    }
   };
 
   const initModalCharts=(id:string)=>{
     if(!window.Chart){setTimeout(()=>initModalCharts(id),200);return;}
-    if(id==="sr"){mkBarChart("modalSRChart",["Total","Normal","Outstanding","Done","Critical"],[SR_TOTAL,SR_NORMAL,SR_OUTSTANDING,SR_DONE,SR_CRITICAL],[T.accent,T.green,T.warn,T.green,T.danger],T);}
-    if(id==="ncr"){mkBarChart("modalNCRChart",["Total","Open","Closed"],[NCR_TOTAL,NCR_OPEN,NCR_CLOSED],[T.warn,T.danger,T.success],T);}
+    if(id==="sr"){
+      mkPieChart("modalSRPie", SR_BY_TYPE.map(s=>s.label), SR_BY_TYPE.map(s=>s.count), SR_BY_TYPE.map(s=>s.color), "50%");
+      mkPieChart("modalSRStatusPie", SR_STATUS.map(s=>s.label), SR_STATUS.map(s=>s.count), SR_STATUS.map(s=>s.color), "50%");
+    }
+    if(id==="ncr"){mkBarChart("modalNCRMonthly", NCR_BY_MONTH.map(d=>d.month), NCR_BY_MONTH.map(d=>d.open), NCR_MONTH_COLORS, T, true);}
     if(id==="deduction"){mkBarChart("modalDeductBar",B_LABELS,B_VALUES,B_COLORS,T,true);const dd=modalDeductYear==="2024"?DEDUCTION_2024:modalDeductYear==="2026"?DEDUCTION_2026:DEDUCTION_BY_MONTH;mkLineChart("modalDeductLine",["Jul","Aug","Sep","Oct","Nov","Dec"],[{data:dd,borderColor:"#3b82f6",backgroundColor:"#3b82f622",fill:true}],T,{callback:(v:number)=>v+"%"});}
-    if(id==="finance"){const fd=modalFinanceYear==="2024"?{i:FINANCE_2024_INVOICE,p:FINANCE_2024_PENALTY}:modalFinanceYear==="2026"?{i:FINANCE_2026_INVOICE,p:FINANCE_2026_PENALTY}:{i:FINANCE_INVOICE,p:FINANCE_PENALTY};mkLineChart("modalFinanceChart",["Jul","Aug","Sep","Oct","Nov","Dec"],[{data:fd.i,borderColor:T.accent,backgroundColor:T.accent+"22",fill:true,label:"Invoice"},{data:fd.p,borderColor:T.danger,backgroundColor:T.danger+"18",fill:true,label:"Penalty"}],T,{callback:(v:number)=>"RM "+(v>=1000?(v/1000).toFixed(0)+"k":v)});}
     if(id==="unschedule"){const ud=getUnschedData;mkStackedBarChart("modalUnschedStacked",ud.map((d:any)=>d.m),[{label:"Completed Within Schedule",data:ud.map((d:any)=>d.completedWithin),backgroundColor:"#22c55e"},{label:"Completed Not to Schedule",data:ud.map((d:any)=>d.completedNotTo),backgroundColor:"#f97316"},{label:"Remaining",data:ud.map((d:any)=>d.remaining),backgroundColor:"#3b82f6"},{label:"Not Done",data:ud.map((d:any)=>d.notDone),backgroundColor:"#ef4444"}],T);UNSCHEDULE_CATEGORIES.forEach((cat,i)=>{const keys=["open","wip","completed","cancel","rfCancel","notDoneClosed"];const st=keys.map(k=>({k,v:(cat as any)[k]||0})).filter(s=>s.v>0);mkPieChart(`unschedCatPie${i}`,st.map(s=>STATUS_LABELS[s.k]),st.map(s=>s.v),st.map(s=>STATUS_COLORS[s.k]),"55%");});}
     if(id==="schedule"){const sd=getSchedData;mkStackedBarChart("modalSchedStacked",sd.map((d:any)=>d.m),[{label:"Completed Within Schedule",data:sd.map((d:any)=>d.completedWithin),backgroundColor:"#22c55e"},{label:"Completed Not to Schedule",data:sd.map((d:any)=>d.completedNotTo),backgroundColor:"#f97316"},{label:"Remaining",data:sd.map((d:any)=>d.remaining),backgroundColor:"#3b82f6"},{label:"Not Done",data:sd.map((d:any)=>d.notDone),backgroundColor:"#ef4444"}],T);SCHEDULE_CATEGORIES.forEach((cat,i)=>{const keys=["open","wip","completed","cancel","rfCancel","notDoneClosed"];const st=keys.map(k=>({k,v:(cat as any)[k]||0})).filter(s=>s.v>0);mkPieChart(`schedCatPie${i}`,st.map(s=>STATUS_LABELS[s.k]),st.map(s=>s.v),st.map(s=>STATUS_COLORS[s.k]),"55%");});}
   };
 
-  const openModal=(id:string)=>{setModal(id);setModalYear("2025");setModalMonth("all");setModalStartDate("2025-01-01");setModalEndDate("2025-12-31");setModalDeductYear("2025");setModalFinanceYear("2025");setModalFinanceMonth("all");};
+  const openModal=(id:string)=>{setModal(id);setModalYear("2025");setModalMonth("all");setModalStartDate("2025-01-01");setModalEndDate("2025-12-31");setModalDeductYear("2025");};
   const card=(e?:React.CSSProperties):React.CSSProperties=>({background:T.card,border:`1px solid ${T.border}`,borderRadius:16,...e});
   const panel=(e?:React.CSSProperties):React.CSSProperties=>({background:T.panel,border:`1px solid ${T.border}`,borderRadius:12,...e});
 
-  const topCards=[
-    {title:"Service Request",total:SR_TOTAL.toLocaleString(),totalColor:T.text,items:[{l:"Normal",v:SR_NORMAL,max:SR_TOTAL,c:T.green},{l:"Outstanding",v:SR_OUTSTANDING,max:SR_TOTAL,c:T.warn}],modalId:"sr"},
-    {title:"NCR",total:NCR_TOTAL.toString(),totalColor:T.text,items:[{l:"Open",v:NCR_OPEN,max:NCR_TOTAL,c:T.danger,suffix:`(${((NCR_OPEN/NCR_TOTAL)*100).toFixed(1)}%)`},{l:"Closed",v:NCR_CLOSED,max:NCR_TOTAL,c:T.success,suffix:`(${((NCR_CLOSED/NCR_TOTAL)*100).toFixed(1)}%)`}],modalId:"ncr"},
-    {title:"Unschedule WO",total:UNSCHEDULE_TOTAL.toString(),totalColor:"#ef4444",items:[{l:"Open",v:UNSCHEDULE_OPEN,max:UNSCHEDULE_TOTAL,c:"#ef4444"},{l:"Completed",v:UNSCHEDULE_COMPLETED,max:UNSCHEDULE_TOTAL,c:"#22c55e"}],modalId:"unschedule",borderLeft:"3px solid #ef4444"},
-    {title:"Schedule WO",total:SCHEDULE_TOTAL.toString(),totalColor:"#3b82f6",items:[{l:"Open",v:SCHEDULE_OPEN,max:SCHEDULE_TOTAL,c:"#ef4444"},{l:"Completed",v:SCHEDULE_COMPLETED,max:SCHEDULE_TOTAL,c:"#22c55e"}],modalId:"schedule",borderLeft:"3px solid #3b82f6"},
+  // FEMS-style compact top header cards (4-up grid)
+  const topHeaderCards = [
+    { title:"Unschedule WO", total:UNSCHEDULE_TOTAL, color:"#ef4444", items:[{label:"Open",value:UNSCHEDULE_OPEN,color:"#ef4444"},{label:"Completed",value:UNSCHEDULE_COMPLETED,color:"#22c55e"}], modalId:"unschedule", borderLeft:"3px solid #ef4444" },
+    { title:"Schedule WO", total:SCHEDULE_TOTAL, color:"#3b82f6", items:[{label:"Open",value:SCHEDULE_OPEN,color:"#ef4444"},{label:"Completed",value:SCHEDULE_COMPLETED,color:"#22c55e"}], modalId:"schedule", borderLeft:"3px solid #3b82f6" },
+    { title:"Service Request", total:SR_TOTAL, color:T.text, items:[{label:"Normal",value:SR_NORMAL,color:"#22c55e"},{label:"Outstanding",value:SR_OUTSTANDING,color:"#f59e0b"}], modalId:"sr" },
+    { title:"NCR", total:NCR_TOTAL, color:T.text, items:[{label:"Open",value:NCR_OPEN,color:"#ef4444",suffix:`(${((NCR_OPEN/NCR_TOTAL)*100).toFixed(1)}%)`},{label:"Closed",value:NCR_CLOSED,color:"#22c55e",suffix:`(${((NCR_CLOSED/NCR_TOTAL)*100).toFixed(1)}%)`}], modalId:"ncr" },
   ];
 
   const trainingUpcoming = TRAINING_SCHEDULE.filter(t=>t.status==="Upcoming").length;
@@ -388,7 +430,6 @@ export default function BEMSDashboard(){
         </div>
       </div>
 
-      {/* SIDEBAR NAVIGATION */}
       {activePage!=="bem"&&(<div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column" as const,gap:20,color:T.muted}}><BIcon name="bi-heart-pulse" size={56} color={T.muted} /><div style={{fontSize:24,fontWeight:700,color:T.text}}>{currentPage.label}</div></div>)}
 
       {activePage==="bem"&&(<>
@@ -414,10 +455,19 @@ export default function BEMSDashboard(){
         <div className="dashboard-main-columns" style={{flex:1,display:"flex",overflow:"hidden",padding:"16px",gap:16}}>
           {/* LEFT COLUMN */}
           <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",gap:14}}>
-            <div style={{display:"flex",gap:14,flexShrink:0}}>
-              {topCards.map((crd,i)=>(<div key={i} style={{...card({flex:1,padding:"16px 18px"}),...(crd.borderLeft?{borderLeft:crd.borderLeft}:{})}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><span style={{fontSize:14,fontWeight:700,color:T.text}}>{crd.title}</span><button className="no-print" onClick={()=>openModal(crd.modalId)} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button></div>
-                <div style={{display:"flex",gap:12,alignItems:"flex-start"}}><div style={{textAlign:"center"}}><div style={{fontSize:34,fontWeight:800,color:crd.totalColor}}>{crd.total}</div><div style={{fontSize:10,color:T.muted,marginTop:2}}>Total {crd.title.includes("WO")?"WO":crd.title}</div></div><div style={{flex:1,display:"flex",flexDirection:"column",gap:6,paddingTop:2}}>{crd.items.map((s:any,j:number)=>(<div key={j}><div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><span style={{fontSize:11,color:T.muted}}>{s.l}</span><span style={{fontSize:12,fontWeight:700,color:s.c}}>{s.v}{s.suffix||""}</span></div><ProgressBar value={s.v} max={s.max} color={s.c} T={T} /></div>))}</div></div>
+            {/* TOP HEADER CARDS — compact 4-up grid (FEMS style) */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,flexShrink:0}}>
+              {topHeaderCards.map((crd,i)=>(<div key={i} style={{...card({padding:"12px 14px"}),...(crd.borderLeft?{borderLeft:crd.borderLeft}:{})}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                  <span style={{fontSize:12,fontWeight:700,color:T.text}}>{crd.title}</span>
+                  <button className="no-print" onClick={()=>openModal(crd.modalId)} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:22,height:22,borderRadius:5,cursor:"pointer",fontSize:10,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={10} color={T.muted} /></button>
+                </div>
+                <div style={{display:"flex",gap:10,alignItems:"center"}}>
+                  <div style={{textAlign:"center"}}><div style={{fontSize:24,fontWeight:800,color:crd.color}}>{crd.total}</div><div style={{fontSize:8,color:T.muted}}>Total</div></div>
+                  <div style={{flex:1,display:"flex",flexDirection:"column",gap:3}}>
+                    {crd.items.map((s:any,j:number)=>(<div key={j}><div style={{display:"flex",justifyContent:"space-between",fontSize:10}}><span style={{color:T.muted}}>{s.label}</span><span style={{color:s.color,fontWeight:600}}>{s.value}{s.suffix||""}</span></div><ProgressBar value={s.value} max={crd.total} color={s.color} T={T} /></div>))}
+                  </div>
+                </div>
               </div>))}
             </div>
 
@@ -428,16 +478,13 @@ export default function BEMSDashboard(){
                 <div className="no-print" style={{width:185,flexShrink:0,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",padding:"10px 7px",gap:3,overflowY:"auto",background:themeName==="light"?"#f8fafc":T.panel}}>{BEMS_TABS.map(t=>{const a=activeTab===t.key;return(<button key={t.key} onClick={()=>setActiveTab(t.key)} style={{width:"100%",padding:"11px 12px",borderRadius:9,fontSize:11,fontWeight:a?600:400,border:`1px solid ${a?T.accent:T.border}`,background:a?T.accent+"12":"transparent",color:a?T.accent:T.muted,cursor:"pointer",textAlign:"left",borderLeft:`3px solid ${a?T.accent:"transparent"}`}}>{t.label}</button>);})}</div>
                 <div style={{flex:1,overflow:"auto",padding:"14px"}}>
                   {activeTab==="general"&&(<div style={{display:"flex",flexDirection:"column",gap:12}}>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>{[{l:"Total SR",v:SR_TOTAL.toLocaleString(),c:T.accent},{l:"% Deduction",v:OVERALL_DEDUCTION+"%",c:"#3b82f6"},{l:"Total Assets",v:TOTAL_ASSETS.toLocaleString(),c:"#22c55e"},{l:"Active Assets",v:ASSET_ACTIVE.toLocaleString(),c:"#22c55e"}].map((s,i)=>(<div key={i} style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>{s.l}</div><div style={{fontSize:24,fontWeight:800,color:s.c}}>{s.v}</div></div>))}</div>
-                    
-                    {/* SR Pie Charts Section */}
+                    {/* Service Request Overview */}
                     <div style={{...panel({padding:"14px"})}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
                         <span style={{fontSize:13,fontWeight:700,color:T.text}}>Service Request Overview</span>
                         <span style={{fontSize:11,fontWeight:600,padding:"4px 12px",borderRadius:24,background:"rgba(59,130,246,.12)",color:"#3b82f6",border:"1px solid rgba(59,130,246,.25)"}}>Total: {SR_TOTAL}</span>
                       </div>
                       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
-                        {/* SR by Type of Request */}
                         <div>
                           <div style={{fontSize:12,fontWeight:600,color:T.muted,textAlign:"center",marginBottom:8}}>SR by Type of Request</div>
                           <div style={{display:"flex",alignItems:"center",gap:12}}>
@@ -453,9 +500,8 @@ export default function BEMSDashboard(){
                             </div>
                           </div>
                         </div>
-                        {/* SR Status by Category (Closed/Open) */}
                         <div>
-                          <div style={{fontSize:12,fontWeight:600,color:T.muted,textAlign:"center",marginBottom:8}}>SR Status by Category</div>
+                          <div style={{fontSize:12,fontWeight:600,color:T.muted,textAlign:"center",marginBottom:8}}>SR Status Overview</div>
                           <div style={{display:"flex",alignItems:"center",gap:12}}>
                             <div style={{position:"relative",width:140,height:140,flexShrink:0}}>
                               <canvas id="srStatusPie" style={{width:"100%",height:"100%"}} />
@@ -490,14 +536,35 @@ export default function BEMSDashboard(){
                         </tbody>
                       </table>
                     </div>
+
+                    {/* Calibration Due + Licence Expiring */}
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
                       <div style={{...panel({padding:"14px"})}}><div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8}}>Calibration Due</div><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr style={{borderBottom:`2px solid ${T.border}`}}>{["No","Category","Expiry","Days"].map(h=><th key={h} style={{padding:"8px 10px",textAlign:"left",color:T.muted,fontWeight:600,fontSize:10,textTransform:"uppercase"}}>{h}</th>)}</tr></thead><tbody>{CALIBRATION_DATA.map((l,i)=>(<tr key={i} style={{borderBottom:`1px solid ${T.border}`}}><td style={{padding:"8px 10px",color:T.muted}}>{l.no}</td><td style={{padding:"8px 10px",color:T.text,fontWeight:500}}>{l.category}</td><td style={{padding:"8px 10px",color:T.text}}>{l.expiry}</td><td style={{padding:"8px 10px"}}><DaysBadge days={l.daysLeft} /></td></tr>))}</tbody></table></div>
                       <div style={{...panel({padding:"14px"})}}><div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8}}>Licence Expiring</div><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr style={{borderBottom:`2px solid ${T.border}`}}>{["No","Category","Expiry","Days"].map(h=><th key={h} style={{padding:"8px 10px",textAlign:"left",color:T.muted,fontWeight:600,fontSize:10,textTransform:"uppercase"}}>{h}</th>)}</tr></thead><tbody>{LICENSE_DATA.map((l,i)=>(<tr key={i} style={{borderBottom:`1px solid ${T.border}`}}><td style={{padding:"8px 10px",color:T.muted}}>{l.no}</td><td style={{padding:"8px 10px",color:T.text,fontWeight:500}}>{l.category}</td><td style={{padding:"8px 10px",color:T.text}}>{l.expiry}</td><td style={{padding:"8px 10px"}}><DaysBadge days={l.daysLeft} /></td></tr>))}</tbody></table></div>
                     </div>
                   </div>)}
                   {activeTab==="assetStatus"&&(<div style={{display:"flex",flexDirection:"column",gap:12}}><div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>{[{l:"Total",v:TOTAL_ASSETS.toLocaleString(),c:T.accent},{l:"Active",v:ASSET_ACTIVE.toLocaleString(),c:"#22c55e"},{l:"Inactive",v:ASSET_INACTIVE.toLocaleString(),c:"#ef4444"}].map((s,i)=>(<div key={i} style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>{s.l}</div><div style={{fontSize:24,fontWeight:800,color:s.c}}>{s.v}</div></div>))}</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,flex:1}}><div style={{...panel({padding:"12px"})}}><div style={{fontSize:12,color:T.muted,marginBottom:8}}>{HOSPITAL_NAME}</div><div style={{display:"flex",alignItems:"center",gap:12,height:200}}><div style={{position:"relative",width:160,height:160,flexShrink:0}}><canvas id="assetPie" style={{width:"100%",height:"100%"}} /></div><div style={{flex:1}}><Badge color="green" T={T}>Active: {ASSET_ACTIVE}</Badge><div style={{marginTop:10}}><Badge color="danger" T={T}>Inactive: {ASSET_INACTIVE}</Badge></div></div></div></div><div style={{...panel({padding:"12px"})}}><div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8}}>Asset by Type</div><div style={{position:"relative",height:240}}><canvas id="assetBar" style={{width:"100%",height:"100%"}} /></div></div></div></div>)}
-                  {activeTab==="assetUptime"&&(<div style={{display:"flex",flexDirection:"column",gap:12}}><div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>{[{l:"Avg Uptime",v:"99.0%",c:"#22c55e"},{l:"Target",v:"95%",c:T.accent},{l:"Lowest",v:"Oct (98.5%)",c:T.warn}].map((s,i)=>(<div key={i} style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>{s.l}</div><div style={{fontSize:24,fontWeight:800,color:s.c}}>{s.v}</div></div>))}</div><div style={{...panel({padding:"12px",flex:1})}}><div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8}}>Asset Uptime % by Month</div><div style={{position:"relative",height:260}}><canvas id="assetUptimeChart" style={{width:"100%",height:"100%"}} /></div></div></div>)}
-                  {activeTab==="assetMaintenance"&&(<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",color:T.muted,fontSize:16,flexDirection:"column",gap:10}}><BIcon name="bi-gear" size={48} color={T.muted} /><div style={{fontSize:18,fontWeight:600}}>Asset Maintenance</div><div style={{fontSize:13}}>Coming soon</div></div>)}
+                  {activeTab==="assetLifespan"&&(<div style={{display:"flex",flexDirection:"column",gap:12}}>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Total Assets</div><div style={{fontSize:24,fontWeight:800,color:T.accent}}>{TOTAL_ASSETS}</div></div>
+                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Within Lifespan</div><div style={{fontSize:24,fontWeight:800,color:"#22c55e"}}>{ASSET_LIFESPAN.withinLifespan}</div></div>
+                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Exceed Lifespan</div><div style={{fontSize:24,fontWeight:800,color:"#ef4444"}}>{ASSET_LIFESPAN.exceedLifespan}</div></div>
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,flex:1}}>
+                      <div style={{...panel({padding:"12px"})}}>
+                        <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8,textAlign:"center"}}>Asset Aging</div>
+                        <div style={{position:"relative",height:220}}><canvas id="assetLifespanPie" style={{width:"100%",height:"100%"}} /></div>
+                      </div>
+                      <div style={{...panel({padding:"12px"})}}>
+                        <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8,textAlign:"center"}}>Lifespan Status</div>
+                        <div style={{position:"relative",height:220}}><canvas id="assetLifespanDonut" style={{width:"100%",height:"100%"}} /></div>
+                      </div>
+                      <div style={{...panel({padding:"12px"})}}>
+                        <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8,textAlign:"center"}}>Service by Group (Aging)</div>
+                        <div style={{position:"relative",height:220}}><canvas id="assetServiceBar" style={{width:"100%",height:"100%"}} /></div>
+                      </div>
+                    </div>
+                  </div>)}
                 </div>
               </div>
             </div>
@@ -505,33 +572,124 @@ export default function BEMSDashboard(){
 
           {/* RIGHT COLUMN */}
           <div style={{width:300,flexShrink:0,display:"flex",flexDirection:"column",gap:14,overflow:"hidden"}}>
+            {/* Deduction by Indicator — FEMS-style compact legend under chart */}
             <div style={{...card({display:"flex",flexDirection:"column",minHeight:0,overflow:"hidden"}),flex:1}}>
-              <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontSize:14,fontWeight:700,color:T.text}}>Deduction by Indicator</div><div style={{fontSize:10,color:T.muted}}>{startDate} to {endDate}</div></div><button className="no-print" onClick={()=>openModal("deduction")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button></div>
-              <div style={{padding:"8px 14px",borderBottom:`1px solid ${T.border}`,display:"flex",gap:16}}><div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>% Deduction</div><div style={{fontSize:18,fontWeight:800,color:"#ef4444"}}>{OVERALL_DEDUCTION}%</div></div><div style={{width:1,background:T.border}} /><div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>Total</div><div style={{fontSize:18,fontWeight:800,color:T.green}}>RM {B_DEDUCTIONS.reduce((a,b)=>a+b,0).toFixed(0)}</div></div></div>
-              <div style={{flex:1,padding:"10px 12px",display:"flex",flexDirection:"column",gap:5,overflowY:"auto"}}><div style={{position:"relative",height:120,flexShrink:0}}><canvas id="deductIndicatorPie" style={{width:"100%",height:"100%"}} /></div>{B_LABELS.map((l,i)=>(<div key={l} style={{display:"flex",justifyContent:"space-between",padding:"7px 10px",background:T.panel,borderRadius:8,border:`1px solid ${T.border}`}}><div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:8,height:8,borderRadius:2,background:B_COLORS[i]}} /><span style={{fontSize:12,fontWeight:600,color:T.text}}>{l}</span></div><div><span style={{fontSize:11,color:T.muted}}>{B_VALUES[i].toFixed(1)}%</span><span style={{fontSize:11,fontWeight:700,color:B_DEDUCTIONS[i]>0?T.danger:T.success,marginLeft:8}}>RM {B_DEDUCTIONS[i].toFixed(0)}</span></div></div>))}</div>
+              <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div><div style={{fontSize:14,fontWeight:700,color:T.text}}>Deduction by Indicator</div><div style={{fontSize:10,color:T.muted}}>{startDate} to {endDate}</div></div>
+                <button className="no-print" onClick={()=>openModal("deduction")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button>
+              </div>
+              <div style={{padding:"10px 14px",borderBottom:`1px solid ${T.border}`,display:"flex",gap:16,flexShrink:0}}>
+                <div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>% Deduction</div><div style={{fontSize:18,fontWeight:800,color:"#ef4444"}}>{OVERALL_DEDUCTION}%</div></div>
+                <div style={{width:1,background:T.border}} />
+                <div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>Total</div><div style={{fontSize:18,fontWeight:800,color:"#22c55e"}}>RM {B_DEDUCTIONS.reduce((a,b)=>a+b,0).toFixed(0)}</div></div>
+              </div>
+              <div style={{flex:1,padding:"12px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:0}}>
+                <div style={{position:"relative",width:"100%",flex:1,minHeight:0}}>
+                  <canvas id="deductIndicatorPie" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
+                </div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:"6px 14px",justifyContent:"center",paddingTop:10,flexShrink:0}}>
+                  {B_LABELS.map((l,i)=>(
+                    <div key={l} style={{display:"flex",alignItems:"center",gap:5}}>
+                      <div style={{width:8,height:8,borderRadius:"50%",background:B_COLORS[i],flexShrink:0}} />
+                      <span style={{fontSize:10,color:T.muted,fontWeight:600}}>{l}</span>
+                      <span style={{fontSize:10,color:T.text,fontWeight:700}}>{B_VALUES[i].toFixed(1)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div style={{...card({display:"flex",flexDirection:"column"}),flex:0.7,minHeight:0}}><div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`}}><div style={{fontSize:14,fontWeight:700,color:T.text}}>% Deduction by Month</div></div><div style={{flex:1,padding:"8px 10px",position:"relative"}}><canvas id="deductionLine" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} /></div></div>
-            <div style={{...card({display:"flex",flexDirection:"column"}),flex:0.7,minHeight:0}}><div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontSize:14,fontWeight:700,color:T.text}}>Finance</div><div style={{fontSize:10,color:T.muted}}>{startDate} to {endDate}</div></div><button className="no-print" onClick={()=>openModal("finance")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button></div><div style={{padding:"6px 12px",display:"flex",gap:14}}>{[{c:T.accent,l:"Invoice"},{c:T.danger,l:"Penalty"}].map((it,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:T.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:it.c}} />{it.l}</div>))}</div><div style={{flex:1,padding:"0 10px 10px",position:"relative"}}><canvas id="financeChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} /></div></div>
           </div>
         </div>
 
-        {/* SR MODAL */}
-        {modal==="sr"&&(<Modal title="Service Request" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("sr","",null)} onPrint={printPage}><FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} /><StatCards data={[{v:SR_TOTAL.toLocaleString(),l:"Total",c:T.accent},{v:SR_NORMAL.toLocaleString(),l:"Normal",c:T.success},{v:SR_OUTSTANDING.toLocaleString(),l:"Outstanding",c:T.warn},{v:SR_DONE.toLocaleString(),l:"Done",c:T.success}]} T={T} /><div style={{position:"relative",height:300,marginBottom:20}}><canvas id="modalSRChart" style={{width:"100%",height:"100%"}} /></div><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr>{["Status","Count","%"].map(h=><th key={h} style={{background:T.accent+"10",color:T.accent,padding:"10px 12px",textAlign:"left",fontWeight:700,fontSize:12,borderBottom:`2px solid ${T.border}`}}>{h}</th>)}</tr></thead><tbody>{[{l:"Total",v:SR_TOTAL},{l:"Normal",v:SR_NORMAL},{l:"Outstanding",v:SR_OUTSTANDING},{l:"Done",v:SR_DONE}].map((s,i)=>(<tr key={i}><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text,fontWeight:600}}>{s.l}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text}}>{s.v.toLocaleString()}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.muted}}>{((s.v/SR_TOTAL)*100).toFixed(1)}%</td></tr>))}</tbody></table></Modal>)}
+        {/* SR MODAL — FEMS-style compact stat grid */}
+        {modal==="sr"&&(<Modal title="Service Request" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("sr","",null)} onPrint={printPage}>
+          <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} />
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:20}}>
+            <MiniStat label="Total" value={SR_TOTAL.toLocaleString()} color={T.accent} T={T} />
+            <MiniStat label="Normal" value={SR_NORMAL.toLocaleString()} color={T.success} T={T} />
+            <MiniStat label="Outstanding" value={SR_OUTSTANDING.toLocaleString()} color={T.warn} T={T} />
+            <MiniStat label="Done" value={SR_DONE.toLocaleString()} color={T.success} T={T} />
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginBottom:20}}>
+            <div>
+              <div style={{fontSize:12,fontWeight:600,color:T.muted,textAlign:"center",marginBottom:8}}>SR by Type of Request</div>
+              <div style={{display:"flex",alignItems:"center",gap:12}}>
+                <div style={{position:"relative",width:140,height:140,flexShrink:0}}><canvas id="modalSRPie" style={{width:"100%",height:"100%"}} /></div>
+                <div style={{flex:1,display:"flex",flexDirection:"column",gap:2}}>
+                  {SR_BY_TYPE.map((s,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,fontSize:10}}>
+                    <span style={{width:8,height:8,borderRadius:"50%",background:s.color,display:"inline-block",flexShrink:0}} />
+                    <span style={{color:T.muted}}>{s.label}</span>
+                    <span style={{marginLeft:"auto",color:T.text,fontWeight:600}}>{s.count}</span>
+                  </div>))}
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style={{fontSize:12,fontWeight:600,color:T.muted,textAlign:"center",marginBottom:8}}>SR Status Overview</div>
+              <div style={{display:"flex",alignItems:"center",gap:12}}>
+                <div style={{position:"relative",width:140,height:140,flexShrink:0}}><canvas id="modalSRStatusPie" style={{width:"100%",height:"100%"}} /></div>
+                <div style={{flex:1,display:"flex",flexDirection:"column",gap:2}}>
+                  {SR_STATUS.map((s,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,fontSize:10}}>
+                    <span style={{width:8,height:8,borderRadius:"50%",background:s.color,display:"inline-block",flexShrink:0}} />
+                    <span style={{color:T.muted}}>{s.label}</span>
+                    <span style={{marginLeft:"auto",color:T.text,fontWeight:600}}>{s.count}</span>
+                  </div>))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Modal>)}
 
-        {/* NCR MODAL */}
-        {modal==="ncr"&&(<Modal title="NCR" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("ncr","",null)} onPrint={printPage}><FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} /><StatCards data={[{v:NCR_TOTAL.toString(),l:"Total",c:T.warn},{v:NCR_OPEN.toString(),l:"Open",c:T.danger},{v:NCR_CLOSED.toString(),l:"Closed",c:T.success},{v:NCR_CLOSURE_RATE+"%",l:"Closure Rate",c:T.accent}]} T={T} /><div style={{position:"relative",height:300,marginBottom:20}}><canvas id="modalNCRChart" style={{width:"100%",height:"100%"}} /></div><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr>{["Status","Count","%"].map(h=><th key={h} style={{background:T.accent+"10",color:T.accent,padding:"10px 12px",textAlign:"left",fontWeight:700,fontSize:12,borderBottom:`2px solid ${T.border}`}}>{h}</th>)}</tr></thead><tbody>{[{l:"Total",v:NCR_TOTAL},{l:"Open",v:NCR_OPEN},{l:"Closed",v:NCR_CLOSED}].map((s,i)=>(<tr key={i}><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text,fontWeight:600}}>{s.l}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text}}>{s.v}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.muted}}>{((s.v/NCR_TOTAL)*100).toFixed(1)}%</td></tr>))}</tbody></table></Modal>)}
+        {/* NCR MODAL — FEMS-style compact stat grid */}
+        {modal==="ncr"&&(<Modal title="NCR" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("ncr","",null)} onPrint={printPage}>
+          <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} />
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:20}}>
+            <MiniStat label="Total" value={NCR_TOTAL} color={T.warn} T={T} />
+            <MiniStat label={`Open (${((NCR_OPEN/NCR_TOTAL)*100).toFixed(1)}%)`} value={NCR_OPEN} color={T.danger} T={T} />
+            <MiniStat label={`Closed (${((NCR_CLOSED/NCR_TOTAL)*100).toFixed(1)}%)`} value={NCR_CLOSED} color={T.success} T={T} />
+            <MiniStat label="Closure Rate" value={NCR_CLOSURE_RATE+"%"} color={T.accent} T={T} />
+          </div>
+          <div>
+            <div style={{fontSize:12,fontWeight:600,color:T.muted,marginBottom:8}}>NCR Open by Month</div>
+            <div style={{position:"relative",height:340,width:"100%"}}><canvas id="modalNCRMonthly" style={{width:"100%",height:"100%"}} /></div>
+          </div>
+        </Modal>)}
 
         {/* DEDUCTION MODAL */}
         {modal==="deduction"&&(<Modal title="Deduction by Indicator" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("deduction",modalDeductYear,null)} onPrint={printPage}><FilterRow year={modalDeductYear} setYear={setModalDeductYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} showMonth={false} T={T} /><StatCards data={[{v:OVERALL_DEDUCTION+"%",l:"% Deduction",c:"#ef4444"},{v:"7",l:"Indicators",c:T.accent},{v:"RM 1,200",l:"Total Deduction",c:T.danger},{v:"B11",l:"Highest",c:"#ef4444"}]} T={T} /><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginBottom:20}}><div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>% by Indicator</div><div style={{position:"relative",height:300}}><canvas id="modalDeductBar" style={{width:"100%",height:"100%"}} /></div></div><div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>% Deduction Trend ({modalDeductYear})</div><div style={{position:"relative",height:300}}><canvas id="modalDeductLine" style={{width:"100%",height:"100%"}} /></div></div></div><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr>{["Indicator","%","Deduction (RM)"].map(h=><th key={h} style={{background:T.accent+"10",color:T.accent,padding:"10px 12px",textAlign:"left",fontWeight:700,fontSize:12,borderBottom:`2px solid ${T.border}`}}>{h}</th>)}</tr></thead><tbody>{B_LABELS.map((l,i)=>(<tr key={l}><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:B_COLORS[i],fontWeight:600}}>{l}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text}}>{B_VALUES[i].toFixed(2)}%</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:B_DEDUCTIONS[i]>0?T.danger:T.success,fontWeight:600}}>RM {B_DEDUCTIONS[i].toFixed(2)}</td></tr>))}</tbody></table></Modal>)}
 
         {/* FINANCE MODAL */}
-        {modal==="finance"&&(<Modal title="Finance" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("finance",modalFinanceYear,null)} onPrint={printPage}><FilterRow year={modalFinanceYear} setYear={setModalFinanceYear} month={modalFinanceMonth} setMonth={setModalFinanceMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} showMonth={true} T={T} />{(()=>{const fd=modalFinanceYear==="2024"?{i:FINANCE_2024_INVOICE,p:FINANCE_2024_PENALTY}:modalFinanceYear==="2026"?{i:FINANCE_2026_INVOICE,p:FINANCE_2026_PENALTY}:{i:FINANCE_INVOICE,p:FINANCE_PENALTY};const ti=fd.i.reduce((a:number,b:number)=>a+b,0);const tp=fd.p.reduce((a:number,b:number)=>a+b,0);return(<StatCards data={[{v:"RM "+(ti/6/1000).toFixed(0)+"k",l:"Avg Invoice",c:T.accent},{v:"RM "+Math.round(tp/6),l:"Avg Penalty",c:T.danger},{v:"RM "+Math.round((ti-tp)/6),l:"Avg Net",c:T.success}]} T={T} />);})()}<div style={{position:"relative",height:300,marginBottom:20}}><canvas id="modalFinanceChart" style={{width:"100%",height:"100%"}} /></div>{(()=>{const fd=modalFinanceYear==="2024"?{i:FINANCE_2024_INVOICE,p:FINANCE_2024_PENALTY}:modalFinanceYear==="2026"?{i:FINANCE_2026_INVOICE,p:FINANCE_2026_PENALTY}:{i:FINANCE_INVOICE,p:FINANCE_PENALTY};return(<table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr>{["Month","Invoice","Penalty","Net"].map(h=><th key={h} style={{background:T.accent+"10",color:T.accent,padding:"10px 12px",textAlign:"left",fontWeight:700,fontSize:12,borderBottom:`2px solid ${T.border}`}}>{h}</th>)}</tr></thead><tbody>{FINM.map((m,i)=>{const net=fd.i[i]-fd.p[i];return(<tr key={m}><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text,fontWeight:600}}>{m}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.accent}}>RM {fd.i[i].toLocaleString()}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.danger}}>RM {fd.p[i].toLocaleString()}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:net>=0?T.success:T.danger,fontWeight:600}}>RM {net.toLocaleString()}</td></tr>);})}</tbody></table>);})()}</Modal>)}
+        {/* UNSCHEDULE MODAL — FEMS-style compact stat grid at top */}
+        {modal==="unschedule"&&(<Modal title="Unschedule Work Order" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("unschedule",modalYear,()=>getUnschedData)} onPrint={printPage}>
+          <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} />
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:8,marginBottom:20}}>
+            <MiniStat label="Total" value={UNSCHEDULE_TOTAL} color="#3b82f6" T={T} />
+            <MiniStat label="Open" value={UNSCHEDULE_STATUS_TOTALS.open} color="#ef4444" T={T} />
+            <MiniStat label="WIP" value={UNSCHEDULE_STATUS_TOTALS.wip} color="#f97316" T={T} />
+            <MiniStat label="Completed" value={UNSCHEDULE_STATUS_TOTALS.completed} color="#22c55e" T={T} />
+            <MiniStat label="Cancel" value={UNSCHEDULE_STATUS_TOTALS.cancel} color="#9ca3af" T={T} />
+            <MiniStat label="Req. Cancel" value={UNSCHEDULE_STATUS_TOTALS.rfCancel} color="#eab308" T={T} />
+            <MiniStat label="Not Done" value={UNSCHEDULE_STATUS_TOTALS.notDoneClosed} color="#8b5cf6" T={T} />
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>{UNSCHEDULE_CATEGORIES.map((cat,i)=>{const st=["open","wip","completed","cancel","rfCancel","notDoneClosed"].map(k=>({k,v:(cat as any)[k]||0})).filter(s=>s.v>0);return(<div key={cat.key} style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px"}}><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}><span style={{fontSize:13,fontWeight:700,textTransform:"uppercase",color:cat.color}}>{cat.label}</span><span style={{fontSize:11,color:T.muted,marginLeft:"auto"}}>Total: <strong style={{color:T.text}}>{cat.total}</strong></span></div><div style={{display:"flex",alignItems:"center",gap:12}}><div style={{position:"relative",width:80,height:80,flexShrink:0}}><canvas id={`unschedCatPie${i}`} width={80} height={80} style={{width:80,height:80}} /></div><div style={{flex:1,display:"flex",flexDirection:"column",gap:4}}>{st.map(s=>{const pct=Math.round((s.v/cat.total)*100);return(<div key={s.k} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{width:7,height:7,borderRadius:"50%",background:STATUS_COLORS[s.k],display:"inline-block"}} /><span style={{fontSize:11,color:T.muted}}>{STATUS_LABELS[s.k]}</span></div><div><span style={{fontSize:12,fontWeight:600,color:STATUS_COLORS[s.k]}}>{s.v}</span><span style={{fontSize:10,color:T.muted,marginLeft:6}}>({pct}%)</span></div></div>);})}</div></div></div>);})}</div>
+          <div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>Unschedule WO by Month — {modalYear}</div><div style={{position:"relative",height:300}}><canvas id="modalUnschedStacked" style={{width:"100%",height:"100%"}} /></div><div style={{display:"flex",flexWrap:"wrap",gap:14,marginTop:8}}>{[{l:"Completed Within Schedule",c:"#22c55e"},{l:"Completed Not to Schedule",c:"#f97316"},{l:"Remaining",c:"#3b82f6"},{l:"Not Done",c:"#ef4444"}].map(l=>(<div key={l.l} style={{display:"flex",alignItems:"center",gap:4,fontSize:11,color:T.muted}}><span style={{width:8,height:8,borderRadius:2,background:l.c,display:"inline-block"}} />{l.l}</div>))}</div></div>
+        </Modal>)}
 
-        {/* UNSCHEDULE MODAL */}
-        {modal==="unschedule"&&(<Modal title="Unschedule Work Order" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("unschedule",modalYear,()=>getUnschedData)} onPrint={printPage}><FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} /><StatCards data={[{v:getUnschedData.reduce((a:number,b:any)=>a+b.completedWithin,0).toString(),l:"Completed Within Schedule",c:"#22c55e"},{v:getUnschedData.reduce((a:number,b:any)=>a+b.completedNotTo,0).toString(),l:"Completed Not to Schedule",c:"#f97316"},{v:getUnschedData.reduce((a:number,b:any)=>a+b.remaining,0).toString(),l:"Remaining",c:"#3b82f6"},{v:getUnschedData.reduce((a:number,b:any)=>a+b.notDone,0).toString(),l:"Not Done",c:"#ef4444"}]} T={T} /><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>{UNSCHEDULE_CATEGORIES.map((cat,i)=>{const st=["open","wip","completed","cancel","rfCancel","notDoneClosed"].map(k=>({k,v:(cat as any)[k]||0})).filter(s=>s.v>0);return(<div key={cat.key} style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px"}}><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}><span style={{fontSize:13,fontWeight:700,textTransform:"uppercase",color:cat.color}}>{cat.label}</span><span style={{fontSize:11,color:T.muted,marginLeft:"auto"}}>Total: <strong style={{color:T.text}}>{cat.total}</strong></span></div><div style={{display:"flex",alignItems:"center",gap:12}}><div style={{position:"relative",width:80,height:80,flexShrink:0}}><canvas id={`unschedCatPie${i}`} width={80} height={80} style={{width:80,height:80}} /></div><div style={{flex:1,display:"flex",flexDirection:"column",gap:4}}>{st.map(s=>{const pct=Math.round((s.v/cat.total)*100);return(<div key={s.k} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{width:7,height:7,borderRadius:"50%",background:STATUS_COLORS[s.k],display:"inline-block"}} /><span style={{fontSize:11,color:T.muted}}>{STATUS_LABELS[s.k]}</span></div><div><span style={{fontSize:12,fontWeight:600,color:STATUS_COLORS[s.k]}}>{s.v}</span><span style={{fontSize:10,color:T.muted,marginLeft:6}}>({pct}%)</span></div></div>);})}</div></div></div>);})}</div><div style={{marginBottom:20}}><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>Unschedule WO by Month — {modalYear}</div><div style={{position:"relative",height:300}}><canvas id="modalUnschedStacked" style={{width:"100%",height:"100%"}} /></div><div style={{display:"flex",flexWrap:"wrap",gap:14,marginTop:8}}>{[{l:"Completed Within Schedule",c:"#22c55e"},{l:"Completed Not to Schedule",c:"#f97316"},{l:"Remaining",c:"#3b82f6"},{l:"Not Done",c:"#ef4444"}].map(l=>(<div key={l.l} style={{display:"flex",alignItems:"center",gap:4,fontSize:11,color:T.muted}}><span style={{width:8,height:8,borderRadius:2,background:l.c,display:"inline-block"}} />{l.l}</div>))}</div></div><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr>{["Month","Completed Within Schedule","Completed Not to Schedule","Remaining","Not Done"].map(h=><th key={h} style={{background:T.accent+"10",color:T.accent,padding:"10px 12px",textAlign:"left",fontWeight:700,fontSize:12,borderBottom:`2px solid ${T.border}`}}>{h}</th>)}</tr></thead><tbody>{getUnschedData.map((d:any,i:number)=>(<tr key={i}><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text,fontWeight:600}}>{d.m}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:"#22c55e"}}>{d.completedWithin}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:"#f97316"}}>{d.completedNotTo}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:"#3b82f6"}}>{d.remaining}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:"#ef4444"}}>{d.notDone}</td></tr>))}</tbody></table></Modal>)}
-
-        {/* SCHEDULE MODAL */}
-        {modal==="schedule"&&(<Modal title="Schedule Work Order" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("schedule",modalYear,()=>getSchedData)} onPrint={printPage}><FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} /><StatCards data={[{v:getSchedData.reduce((a:number,b:any)=>a+b.completedWithin,0).toLocaleString(),l:"Completed Within Schedule",c:"#22c55e"},{v:getSchedData.reduce((a:number,b:any)=>a+b.completedNotTo,0).toString(),l:"Completed Not to Schedule",c:"#f97316"},{v:getSchedData.reduce((a:number,b:any)=>a+b.remaining,0).toString(),l:"Remaining",c:"#3b82f6"},{v:getSchedData.reduce((a:number,b:any)=>a+b.notDone,0).toString(),l:"Not Done",c:"#ef4444"}]} T={T} /><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>{SCHEDULE_CATEGORIES.map((cat,i)=>{const st=["open","wip","completed","cancel","rfCancel","notDoneClosed"].map(k=>({k,v:(cat as any)[k]||0})).filter(s=>s.v>0);return(<div key={cat.key} style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px"}}><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}><span style={{fontSize:13,fontWeight:700,textTransform:"uppercase",color:cat.color}}>{cat.label}</span><span style={{fontSize:11,color:T.muted,marginLeft:"auto"}}>Total: <strong style={{color:T.text}}>{cat.total}</strong></span></div><div style={{display:"flex",alignItems:"center",gap:12}}><div style={{position:"relative",width:80,height:80,flexShrink:0}}><canvas id={`schedCatPie${i}`} width={80} height={80} style={{width:80,height:80}} /></div><div style={{flex:1,display:"flex",flexDirection:"column",gap:4}}>{st.map(s=>{const pct=Math.round((s.v/cat.total)*100);return(<div key={s.k} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{width:7,height:7,borderRadius:"50%",background:STATUS_COLORS[s.k],display:"inline-block"}} /><span style={{fontSize:11,color:T.muted}}>{STATUS_LABELS[s.k]}</span></div><div><span style={{fontSize:12,fontWeight:600,color:STATUS_COLORS[s.k]}}>{s.v}</span><span style={{fontSize:10,color:T.muted,marginLeft:6}}>({pct}%)</span></div></div>);})}</div></div></div>);})}</div><div style={{marginBottom:20}}><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>Schedule WO by Month — {modalYear}</div><div style={{position:"relative",height:300}}><canvas id="modalSchedStacked" style={{width:"100%",height:"100%"}} /></div><div style={{display:"flex",flexWrap:"wrap",gap:14,marginTop:8}}>{[{l:"Completed Within Schedule",c:"#22c55e"},{l:"Completed Not to Schedule",c:"#f97316"},{l:"Remaining",c:"#3b82f6"},{l:"Not Done",c:"#ef4444"}].map(l=>(<div key={l.l} style={{display:"flex",alignItems:"center",gap:4,fontSize:11,color:T.muted}}><span style={{width:8,height:8,borderRadius:2,background:l.c,display:"inline-block"}} />{l.l}</div>))}</div></div><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr>{["Month","Completed Within Schedule","Completed Not to Schedule","Remaining","Not Done"].map(h=><th key={h} style={{background:T.accent+"10",color:T.accent,padding:"10px 12px",textAlign:"left",fontWeight:700,fontSize:12,borderBottom:`2px solid ${T.border}`}}>{h}</th>)}</tr></thead><tbody>{getSchedData.map((d:any,i:number)=>(<tr key={i}><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text,fontWeight:600}}>{d.m}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:"#22c55e"}}>{d.completedWithin}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:"#f97316"}}>{d.completedNotTo}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:"#3b82f6"}}>{d.remaining}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:"#ef4444"}}>{d.notDone}</td></tr>))}</tbody></table></Modal>)}
+        {/* SCHEDULE MODAL — FEMS-style compact stat grid at top */}
+        {modal==="schedule"&&(<Modal title="Schedule Work Order" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("schedule",modalYear,()=>getSchedData)} onPrint={printPage}>
+          <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} />
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:8,marginBottom:20}}>
+            <MiniStat label="Total" value={SCHEDULE_TOTAL} color="#3b82f6" T={T} />
+            <MiniStat label="Open" value={SCHEDULE_STATUS_TOTALS.open} color="#ef4444" T={T} />
+            <MiniStat label="WIP" value={SCHEDULE_STATUS_TOTALS.wip} color="#f97316" T={T} />
+            <MiniStat label="Completed" value={SCHEDULE_STATUS_TOTALS.completed} color="#22c55e" T={T} />
+            <MiniStat label="Cancel" value={SCHEDULE_STATUS_TOTALS.cancel} color="#9ca3af" T={T} />
+            <MiniStat label="Req. Cancel" value={SCHEDULE_STATUS_TOTALS.rfCancel} color="#eab308" T={T} />
+            <MiniStat label="Not Done" value={SCHEDULE_STATUS_TOTALS.notDoneClosed} color="#8b5cf6" T={T} />
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>{SCHEDULE_CATEGORIES.map((cat,i)=>{const st=["open","wip","completed","cancel","rfCancel","notDoneClosed"].map(k=>({k,v:(cat as any)[k]||0})).filter(s=>s.v>0);return(<div key={cat.key} style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px"}}><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}><span style={{fontSize:13,fontWeight:700,textTransform:"uppercase",color:cat.color}}>{cat.label}</span><span style={{fontSize:11,color:T.muted,marginLeft:"auto"}}>Total: <strong style={{color:T.text}}>{cat.total}</strong></span></div><div style={{display:"flex",alignItems:"center",gap:12}}><div style={{position:"relative",width:80,height:80,flexShrink:0}}><canvas id={`schedCatPie${i}`} width={80} height={80} style={{width:80,height:80}} /></div><div style={{flex:1,display:"flex",flexDirection:"column",gap:4}}>{st.map(s=>{const pct=Math.round((s.v/cat.total)*100);return(<div key={s.k} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{width:7,height:7,borderRadius:"50%",background:STATUS_COLORS[s.k],display:"inline-block"}} /><span style={{fontSize:11,color:T.muted}}>{STATUS_LABELS[s.k]}</span></div><div><span style={{fontSize:12,fontWeight:600,color:STATUS_COLORS[s.k]}}>{s.v}</span><span style={{fontSize:10,color:T.muted,marginLeft:6}}>({pct}%)</span></div></div>);})}</div></div></div>);})}</div>
+          <div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>Schedule WO by Month — {modalYear}</div><div style={{position:"relative",height:300}}><canvas id="modalSchedStacked" style={{width:"100%",height:"100%"}} /></div><div style={{display:"flex",flexWrap:"wrap",gap:14,marginTop:8}}>{[{l:"Completed Within Schedule",c:"#22c55e"},{l:"Completed Not to Schedule",c:"#f97316"},{l:"Remaining",c:"#3b82f6"},{l:"Not Done",c:"#ef4444"}].map(l=>(<div key={l.l} style={{display:"flex",alignItems:"center",gap:4,fontSize:11,color:T.muted}}><span style={{width:8,height:8,borderRadius:2,background:l.c,display:"inline-block"}} />{l.l}</div>))}</div></div>
+        </Modal>)}
       </>)}
     </div>
   );

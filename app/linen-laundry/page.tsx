@@ -8,7 +8,6 @@ declare global { interface Window { Chart: any; XLSX: any; } }
 
 /* ─── LLS DATA ─────────────────────────────────── */
 const M6    = ["Sep '25","Oct '25","Nov '25","Dec '25","Jan '26","Feb '26"];
-const FINM  = ["Aug '25","Sep '25","Oct '25","Nov '25","Dec '25","Jan '26"];
 const MONTHS_12 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const SUPPLY_PCT = 99.83;
@@ -23,10 +22,7 @@ const SUPPLY_BY_ITEM = [
   { item: "Staff Uniforms", supply: 99.85, reject: 0.15, volume: 5420 },
 ];
 
-const SUPPLY_TREND = [99.80, 99.82, 99.78, 99.85, 99.81, 99.83];
 const REJECT_TREND = [0.12, 0.11, 0.10, 0.09, 0.09, 0.09];
-
-const SHORTFALL_PCT = [1.23, 0.82, 1.44, 1.28, 7.30, 6.09, 16.70, 1.02, 0.0, 0.0, 0.0, 0.0];
 
 const SOILED_COLLECTION = [1433, 1484, 1540, 1554, 1500, 1490, 1520, 850, 1480, 1500, 0, 0];
 
@@ -37,9 +33,6 @@ const LC = ["#219EBC","#FB8500","#FFB703","#8ECAE6","#023047","#6b7280"];
 const OVERALL_DEDUCTION_PCT = 1.03;
 
 const DEDUCTION_BY_MONTH = [1.58, 1.35, 1.37, 0.65, 0.46, 0.54, 0.86, 1.32, 0.46, 0.0];
-
-const FINANCE_INVOICE = [120105, 119326, 134552, 140710, 0, 0];
-const FINANCE_PENALTY = [0, 0, 0, 0, 0, 175];
 
 const SR_TOTAL = 4822;
 const SR_NORMAL = 4822;
@@ -67,12 +60,12 @@ const LINE_ITEMS_SHORTFALL = 849;
 
 const CLEAN_LINEN_WEIGHT = [1480, 1520, 1500, 1490, 1510, 1530, 1500, 1480, 1520, 1510, 1490, 1500];
 
-const LAUNDRY_PLANT = [
-  { plant: "Plant A", weight: 850, pct: 42.5 },
-  { plant: "Plant B", weight: 650, pct: 32.5 },
-  { plant: "Plant C", weight: 500, pct: 25.0 },
+/* Linen Dispatch/Receive (replaces Laundry Plant Distribution) */
+const LINEN_DISPATCH_RECEIVE = [
+  { type: "Dispatched", weight: 4820, pct: 51.2 },
+  { type: "Received", weight: 4590, pct: 48.8 },
 ];
-const LAUNDRY_PLANT_COLORS = ["#219EBC","#FB8500","#FFB703"];
+const DISPATCH_RECEIVE_COLORS = ["#219EBC","#FB8500"];
 
 const ITEM_COLORS = ["#219EBC","#8ECAE6","#FB8500","#FFB703","#023047","#6b7280"];
 
@@ -134,11 +127,9 @@ const NAV_PAGES = [
 
 /* ─── LLS PERFORMANCE TABS ──────────────────────── */
 const LLS_TABS = [
-  { key:"overview", label:"Line Usage Performance" },
+  { key:"overview", label:"General" },
   { key:"supply", label:"Supply & Reject by Item" },
   { key:"soiled", label:"Soiled Collection" },
-  { key:"deduction", label:"Deduction Overview" },
-  { key:"sr", label:"Service Request" },
 ];
 
 /* ─── CHART HELPERS ─────────────────────────────── */
@@ -376,49 +367,30 @@ function TabOverview({ T, panelStyle }: { T: Theme; panelStyle: (extra?: React.C
             <canvas id="cleanLinenChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
           </div>
         </div>
-        <div style={{display:"flex",gap:10,flex:1}}>
-          <div style={{...panelStyle({padding:"10px 12px",flex:1,display:"flex",flexDirection:"column"})}}>
-            <div style={{marginBottom:6}}>
-              <div style={{fontSize:12,fontWeight:700,color:T.text}}>Supply Performance</div>
-              <div style={{fontSize:10,color:T.muted}}>Previous 6 Months</div>
-            </div>
-            <div style={{position:"relative",flex:1,minHeight:70}}>
-              <canvas id="supplyTrendChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
-            </div>
-            <div style={{display:"flex",gap:14,marginTop:4}}>
-              <div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}>
-                <div style={{width:7,height:7,borderRadius:"50%",background:C.primary1}} />Supply
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}>
-                <div style={{width:12,height:0,borderTop:`2px dashed ${T.danger}`}} />Target
-              </div>
-            </div>
+        <div style={{...panelStyle({padding:"10px 12px",flex:1,display:"flex",flexDirection:"column"})}}>
+          <div style={{marginBottom:6}}>
+            <div style={{fontSize:12,fontWeight:700,color:T.text}}>Reject Rate</div>
+            <div style={{fontSize:10,color:T.muted}}>Previous 6 Months</div>
           </div>
-          <div style={{...panelStyle({padding:"10px 12px",flex:1,display:"flex",flexDirection:"column"})}}>
-            <div style={{marginBottom:6}}>
-              <div style={{fontSize:12,fontWeight:700,color:T.text}}>Reject Rate</div>
-              <div style={{fontSize:10,color:T.muted}}>Previous 6 Months</div>
-            </div>
-            <div style={{position:"relative",flex:1,minHeight:70}}>
-              <canvas id="rejectTrendChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
-            </div>
+          <div style={{position:"relative",flex:1,minHeight:70}}>
+            <canvas id="rejectTrendChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
           </div>
         </div>
         <div style={{...panelStyle({padding:"10px 12px",flex:1,display:"flex",flexDirection:"column"})}}>
           <div style={{marginBottom:6}}>
-            <div style={{fontSize:12,fontWeight:700,color:T.text}}>Laundry Plant Distribution</div>
+            <div style={{fontSize:12,fontWeight:700,color:T.text}}>Linen Dispatch/Receive</div>
             <div style={{fontSize:10,color:T.muted}}>By Weight (Kg)</div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:16,flex:1}}>
             <div style={{position:"relative",width:100,height:100}}>
-              <canvas id="laundryPlantPie" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
+              <canvas id="linenDispatchPie" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
             </div>
             <div>
-              {LAUNDRY_PLANT.map((p,i) => (
-                <div key={p.plant} style={{marginBottom:8}}>
+              {LINEN_DISPATCH_RECEIVE.map((p,i) => (
+                <div key={p.type} style={{marginBottom:8}}>
                   <div style={{display:"flex",alignItems:"center",gap:6}}>
-                    <div style={{width:8,height:8,borderRadius:"50%",background:LAUNDRY_PLANT_COLORS[i]}} />
-                    <span style={{fontSize:11,color:T.muted}}>{p.plant}</span>
+                    <div style={{width:8,height:8,borderRadius:"50%",background:DISPATCH_RECEIVE_COLORS[i]}} />
+                    <span style={{fontSize:11,color:T.muted}}>{p.type}</span>
                   </div>
                   <div style={{fontSize:14,fontWeight:700,color:T.text,marginLeft:14}}>
                     {p.weight.toLocaleString()} Kg <span style={{fontSize:10,color:T.muted,fontWeight:400}}>({p.pct}%)</span>
@@ -473,58 +445,12 @@ function TabSoiled({ T, panelStyle }: { T: Theme; panelStyle: (extra?: React.CSS
   );
 }
 
-function TabDeduction({ T, panelStyle }: { T: Theme; panelStyle: (extra?: React.CSSProperties) => React.CSSProperties }) {
-  return (
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{...panelStyle({padding:"14px"})}}>
-        <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:10}}>Shortfall % by Month</div>
-        <div style={{position:"relative",height:300}}>
-          <canvas id="shortfallChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
-        </div>
-      </div>
-      <div style={{...panelStyle({padding:"14px"})}}>
-        <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:10}}>Deduction Trend</div>
-        <div style={{position:"relative",height:200}}>
-          <canvas id="deductMonthLine" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TabSR({ T, panelStyle }: { T: Theme; panelStyle: (extra?: React.CSSProperties) => React.CSSProperties }) {
-  return (
-    <div style={{...panelStyle({padding:"14px",height:"100%"})}}>
-      <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:10}}>Service Request by Type</div>
-      <div style={{display:"flex",alignItems:"center",gap:20,height:"calc(100% - 40px)"}}>
-        <div style={{position:"relative",width:300,height:300}}>
-          <canvas id="srTypePie" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
-        </div>
-        <div style={{flex:1}}>
-          {SR_BY_TYPE.map((item,i) => (
-            <div key={item.type} style={{marginBottom:12}}>
-              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <div style={{width:10,height:10,borderRadius:"50%",background:[C.primary1,C.support1,C.support2,C.primary2,C.support3,"#6b7280"][i]}} />
-                <span style={{fontSize:12,color:T.muted}}>{item.type}</span>
-              </div>
-              <div style={{fontSize:16,fontWeight:700,color:T.text,marginLeft:18}}>
-                {item.count.toLocaleString()} <span style={{fontSize:11,color:T.muted,fontWeight:400}}>({item.pct}%)</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ─── MAIN COMPONENT ────────────────────────────── */
 export default function LLSDashboard(){
   const { openSidebar } = useDashboardNav();
   const [activePage,setActivePage]=useState("lls");
   const [activeTab,setActiveTab]=useState("overview");
   const [modal,setModal]=useState<string|null>(null);
-  const [penTab,setPenTab]=useState("critical");
   const [themeName,setThemeName]=useState<"dark"|"light">("light");
   const [frequency,setFrequency]=useState("monthly");
   const [frequencyKey,setFrequencyKey]=useState("all");
@@ -537,6 +463,7 @@ export default function LLSDashboard(){
   const [modalMonth,setModalMonth]=useState("all");
   
   const T=THEMES[themeName];
+  const [scriptsLoaded,setScriptsLoaded]=useState(false);
   const scriptsReady=useRef(false);
   const baseChartsInited=useRef(false);
   const currentPage=NAV_PAGES.find(p=>p.key===activePage)||NAV_PAGES[0];
@@ -554,6 +481,7 @@ export default function LLSDashboard(){
     load("https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",()=>{
       load("https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js",()=>{
         scriptsReady.current=true;
+        setScriptsLoaded(true);
       });
     });
   },[]);
@@ -561,7 +489,7 @@ export default function LLSDashboard(){
   const initBase=useCallback(()=>{
     if(!window.Chart) return;
     
-    ["supplyDonut","cleanLinenChart","laundryPlantPie","supplyTrendChart","supplyItemChart","financeChart","deductIndicatorPie","deductMonthLine","rejectTrendChart"].forEach(id=>{
+    ["supplyDonut","cleanLinenChart","linenDispatchPie","supplyItemChart","deductIndicatorPie","rejectTrendChart"].forEach(id=>{
       const c=document.getElementById(id) as HTMLCanvasElement;
       if(c){
         const ex=window.Chart.getChart(c);
@@ -571,23 +499,12 @@ export default function LLSDashboard(){
     
     mkPie("supplyDonut",["Supply","Shortfall"],[SUPPLY_PCT,100-SUPPLY_PCT],[C.primary1,T.border],T,"60%");
     mkLine("cleanLinenChart",MONTHS_12,[{data:CLEAN_LINEN_WEIGHT,borderColor:C.primary1,backgroundColor:C.primary1+"22",fill:true,pointRadius:4,borderWidth:3}],T);
-    mkPie("laundryPlantPie",LAUNDRY_PLANT.map(p=>p.plant),LAUNDRY_PLANT.map(p=>p.weight),LAUNDRY_PLANT_COLORS,T,"50%");
-    mkLine("supplyTrendChart",M6,[
-      {data:SUPPLY_TREND,borderColor:C.primary1,backgroundColor:C.primary1+"22",fill:true,pointRadius:5,borderWidth:3},
-      {data:Array(6).fill(SUPPLY_TARGET),borderColor:T.danger,borderDash:[4,3],borderWidth:2.5,pointRadius:0},
-    ],T,{scales:{y:{min:93,max:100.5,ticks:{callback:(v:number)=>v+"%"}}}});
+    mkPie("linenDispatchPie",LINEN_DISPATCH_RECEIVE.map(p=>p.type),LINEN_DISPATCH_RECEIVE.map(p=>p.weight),DISPATCH_RECEIVE_COLORS,T,"50%");
     mkBar("supplyItemChart",SUPPLY_BY_ITEM.map(s=>s.item),SUPPLY_BY_ITEM.map(s=>s.supply),ITEM_COLORS,T,{
       indexAxis:"y",
       scales:{x:{min:98,max:100.5,ticks:{callback:(v:number)=>v+"%"}}}
     });
-    mkLine("financeChart",FINM,[
-      {data:FINANCE_INVOICE,borderColor:T.accent,backgroundColor:T.accent+"22",fill:true,pointRadius:5,borderWidth:3},
-      {data:FINANCE_PENALTY,borderColor:T.danger,backgroundColor:T.danger+"18",fill:true,pointRadius:5,borderWidth:3},
-    ],T,{scales:{y:{ticks:{callback:(v:number)=>"RM "+(v>=1000?(v/1000).toFixed(0)+"k":v)}}}});
     mkPie("deductIndicatorPie",LI,LV,LC,T,"55%");
-    mkLine("deductMonthLine",["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct"],[{
-      data:DEDUCTION_BY_MONTH,borderColor:C.support1,backgroundColor:C.support1+"22",fill:true,pointRadius:5,borderWidth:3
-    }],T,{scales:{y:{ticks:{callback:(v:number)=>v+"%"}}}});
     mkLine("rejectTrendChart",M6,[{
       data:REJECT_TREND,borderColor:C.support1,backgroundColor:C.support1+"22",fill:true,pointRadius:5,borderWidth:3
     }],T,{scales:{y:{ticks:{callback:(v:number)=>v+"%"}}}});
@@ -596,7 +513,7 @@ export default function LLSDashboard(){
   const initTab=useCallback((tab:string)=>{
     if(!window.Chart) return;
     
-    ["soiledChart","shortfallChart","srTypePie"].forEach(id=>{
+    ["soiledChart"].forEach(id=>{
       const c=document.getElementById(id) as HTMLCanvasElement;
       if(c){
         const ex=window.Chart.getChart(c);
@@ -613,31 +530,23 @@ export default function LLSDashboard(){
     if(tab==="soiled"){
       mkBar("soiledChart",MONTHS_12,SOILED_COLLECTION,Array(12).fill(C.primary2),T);
     }
-    if(tab==="deduction"){
-      mkBar("shortfallChart",MONTHS_12,SHORTFALL_PCT,SHORTFALL_PCT.map(v=>{
-        if(v===0)return"#64748b";if(v<=2)return C.primary2;if(v<=6)return C.support2;if(v<=10)return C.support1;return C.support3;
-      }),T);
-    }
-    if(tab==="sr"){
-      mkPie("srTypePie",SR_BY_TYPE.map(s=>s.type),SR_BY_TYPE.map(s=>s.count),[C.primary1,C.support1,C.support2,C.primary2,C.support3,"#6b7280"],T,"0%");
-    }
   }, [T]);
 
   useEffect(()=>{
-    if(!scriptsReady.current) return;
+    if(!scriptsLoaded) return;
     const initCharts = () => {
       if(!window.Chart) { setTimeout(initCharts, 200); return; }
       initBase();
       baseChartsInited.current=true;
     };
     initCharts();
-  }, [themeName, initBase]);
+  }, [themeName, initBase, scriptsLoaded]);
 
   useEffect(()=>{
-    if(!scriptsReady.current || !baseChartsInited.current) return;
+    if(!scriptsLoaded || !baseChartsInited.current) return;
     if(!window.Chart) return;
     initTab(activeTab);
-  }, [activeTab, themeName, initTab]);
+  }, [activeTab, themeName, initTab, scriptsLoaded]);
 
   const openModal=(id:string)=>{
     setModal(id);
@@ -651,7 +560,7 @@ export default function LLSDashboard(){
     if (!modal || !window.Chart) return;
     const timer = setTimeout(() => {
       const currentTheme = THEMES[themeName];
-      ["m-srBar","m-srTypePie","m-ncrBar","m-lBar","m-deductLine","m-finLine"].forEach(i=>{
+      ["m-srBar","m-srTypePie","m-ncrBar","m-lBar","m-deductLine"].forEach(i=>{
         const c=document.getElementById(i) as HTMLCanvasElement;
         if(c){ const ex=window.Chart.getChart(c); if(ex)ex.destroy(); }
       });
@@ -667,12 +576,6 @@ export default function LLSDashboard(){
         mkLine("m-deductLine",["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct"],[{
           data:DEDUCTION_BY_MONTH,borderColor:C.support1,backgroundColor:C.support1+"22",fill:true,pointRadius:5,borderWidth:3
         }],currentTheme,{scales:{y:{ticks:{callback:(v:number)=>v+"%"}}}});
-      }
-      if(modal==="finance"){
-        mkLine("m-finLine",FINM,[
-          {data:FINANCE_INVOICE,borderColor:currentTheme.accent,backgroundColor:currentTheme.accent+"22",fill:true,pointRadius:6,borderWidth:3,label:"Invoice"},
-          {data:FINANCE_PENALTY,borderColor:currentTheme.danger,backgroundColor:currentTheme.danger+"18",fill:true,pointRadius:6,borderWidth:3,label:"Penalty"},
-        ],currentTheme,{plugins:{legend:{display:true}},scales:{y:{ticks:{callback:(v:number)=>"RM "+(v>=1000?(v/1000).toFixed(0)+"k":v)}}}});
       }
     }, 200);
     return () => clearTimeout(timer);
@@ -872,8 +775,6 @@ export default function LLSDashboard(){
                     {activeTab === "overview" && <TabOverview T={T} panelStyle={panelStyle} />}
                     {activeTab === "supply" && <TabSupply T={T} panelStyle={panelStyle} thStyle={thStyle} tdStyle={tdStyle} />}
                     {activeTab === "soiled" && <TabSoiled T={T} panelStyle={panelStyle} />}
-                    {activeTab === "deduction" && <TabDeduction T={T} panelStyle={panelStyle} />}
-                    {activeTab === "sr" && <TabSR T={T} panelStyle={panelStyle} />}
                   </div>
                 </div>
               </div>
@@ -881,8 +782,8 @@ export default function LLSDashboard(){
 
             {/* RIGHT COLUMN */}
             <div style={{width:300,flexShrink:0,display:"flex",flexDirection:"column",gap:14,overflow:"hidden"}}>
-              {/* Deduction Card */}
-              <div style={{...cardStyle({display:"flex",flexDirection:"column",minHeight:0,overflow:"hidden"}),flex:1}}>
+              {/* Deduction Card — follows HWMS style/design; fills the right column */}
+              <div style={{...cardStyle({display:"flex",flexDirection:"column",overflow:"hidden"}),flex:1,position:"relative",minHeight:0}}>
                 <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",justifyContent:"space-between",flexShrink:0}}>
                   <div>
                     <div style={{fontSize:14,fontWeight:700,color:T.text}}>Deduction by Indicator</div>
@@ -890,7 +791,8 @@ export default function LLSDashboard(){
                   </div>
                   <button className="no-print" onClick={()=>openModal("deduct")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button>
                 </div>
-                <div style={{padding:"10px 14px",borderBottom:`1px solid ${T.border}`,display:"flex",gap:16}}>
+                {/* Summary row */}
+                <div style={{padding:"10px 14px",borderBottom:`1px solid ${T.border}`,display:"flex",gap:16,flexShrink:0}}>
                   <div style={{textAlign:"center",flex:1}}>
                     <div style={{fontSize:10,color:T.muted}}>% Deduction</div>
                     <div style={{fontSize:18,fontWeight:800,color:C.support1}}>{OVERALL_DEDUCTION_PCT}%</div>
@@ -901,67 +803,20 @@ export default function LLSDashboard(){
                     <div style={{fontSize:18,fontWeight:800,color:T.success}}>RM 60.00</div>
                   </div>
                 </div>
-                <div style={{flex:1,padding:"10px 12px",display:"flex",flexDirection:"column",gap:6,overflowY:"auto"}}>
-                  <div style={{position:"relative",height:120,flexShrink:0}}>
+                {/* Pie chart — takes remaining space, compact legend below */}
+                <div style={{flex:1,padding:"12px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:0}}>
+                  <div style={{position:"relative",width:"100%",flex:1,minHeight:0}}>
                     <canvas id="deductIndicatorPie" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
                   </div>
-                  {LI.map((label,i) => (
-                    <div key={label} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 12px",background:T.panel,borderRadius:9,border:`1px solid ${T.border}`}}>
-                      <div style={{display:"flex",alignItems:"center",gap:10}}>
-                        <div style={{width:9,height:9,borderRadius:3,background:LC[i]}} />
-                        <span style={{fontSize:13,fontWeight:600,color:T.text}}>{label}</span>
-                        <span style={{fontSize:10,color:T.muted}}>{LV[i].toFixed(2)}%</span>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"6px 14px",justifyContent:"center",paddingTop:10,flexShrink:0}}>
+                    {LI.map((l,i)=>(
+                      <div key={l} style={{display:"flex",alignItems:"center",gap:5}}>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:LC[i],flexShrink:0}} />
+                        <span style={{fontSize:10,color:T.muted,fontWeight:600}}>{l}</span>
+                        <span style={{fontSize:10,color:T.text,fontWeight:700}}>{LV[i]}%</span>
                       </div>
-                      <div style={{textAlign:"right"}}>
-                        <span style={{fontSize:13,fontWeight:700,color:T.success}}>RM 10.00</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Penalty Card */}
-              <div style={{...cardStyle({display:"flex",flexDirection:"column",minHeight:0,overflow:"hidden"}),flex:1}}>
-                <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",justifyContent:"space-between",flexShrink:0}}>
-                  <div>
-                    <div style={{fontSize:14,fontWeight:700,color:T.text}}>Penalty by Criteria</div>
-                    <div style={{fontSize:10,color:T.muted}}>{startDate} to {endDate}</div>
+                    ))}
                   </div>
-                  <button className="no-print" onClick={()=>openModal("penalty")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button>
-                </div>
-                <div className="no-print" style={{padding:"8px 14px",display:"flex",gap:7}}>
-                  {["critical","value"].map(t => (
-                    <button key={t} onClick={()=>setPenTab(t)} style={{fontSize:11,padding:"5px 13px",borderRadius:20,border:`1px solid ${penTab===t?T.accent:T.border}`,background:penTab===t?T.accent+"12":"transparent",color:penTab===t?T.accent:T.muted,cursor:"pointer",fontWeight:penTab===t?700:400}}>
-                      {t==="critical"?"Critical Events":"Penalty Value"}
-                    </button>
-                  ))}
-                </div>
-                <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:10}}>
-                  <BIcon name="bi-check-circle" size={40} color={T.success} />
-                  <div style={{fontSize:12,color:T.muted}}>No Data</div>
-                  <Badge color="green" T={T}>All KPIs Met</Badge>
-                </div>
-              </div>
-
-              {/* Finance Card */}
-              <div style={{...cardStyle({display:"flex",flexDirection:"column",minHeight:0,overflow:"hidden"}),flex:1}}>
-                <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",justifyContent:"space-between",flexShrink:0}}>
-                  <div>
-                    <div style={{fontSize:14,fontWeight:700,color:T.text}}>Finance</div>
-                    <div style={{fontSize:10,color:T.muted}}>{startDate} to {endDate}</div>
-                  </div>
-                  <button className="no-print" onClick={()=>openModal("finance")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button>
-                </div>
-                <div style={{padding:"8px 14px",display:"flex",gap:14}}>
-                  <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:T.muted}}>
-                    <div style={{width:7,height:7,borderRadius:"50%",background:T.accent}} />Invoice
-                  </div>
-                  <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:T.muted}}>
-                    <div style={{width:7,height:7,borderRadius:"50%",background:T.danger}} />Penalty
-                  </div>
-                </div>
-                <div style={{flex:1,padding:"0 12px 12px",position:"relative",minHeight:0}}>
-                  <canvas id="financeChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
                 </div>
               </div>
             </div>
@@ -1108,67 +963,6 @@ export default function LLSDashboard(){
             </Modal>
           )}
 
-          {modal==="penalty" && (
-            <Modal title="Penalty by Criteria — Feb'26" onClose={()=>setModal(null)} T={T} onPrint={printPage}>
-              <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} />
-              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
-                {[
-                  {v:"0",l:"Critical Events",c:T.success},
-                  {v:"RM 0.00",l:"Total Penalty",c:T.success},
-                  {v:"0",l:"L1 Events",c:T.success},
-                  {v:"0",l:"L2 Events",c:T.success}
-                ].map((s,i) => (
-                  <div key={i} style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}>
-                    <div style={{fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div>
-                    <div style={{fontSize:12,color:T.muted,marginTop:4}}>{s.l}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{background:T.success+"05",border:`1px solid ${T.success}20`,borderRadius:14,padding:24,textAlign:"center"}}>
-                <BIcon name="bi-check-circle-fill" size={40} color={T.success} />
-                <div style={{fontSize:16,fontWeight:700,color:T.success,marginBottom:6}}>No Penalty Events Recorded</div>
-                <div style={{fontSize:13,color:T.muted}}>All KPI thresholds met.</div>
-              </div>
-            </Modal>
-          )}
-
-          {modal==="finance" && (
-            <Modal title="Finance — Aug'25 to Jan'26" onClose={()=>setModal(null)} T={T} onPrint={printPage}>
-              <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} showMonth={true} T={T} />
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:20}}>
-                {[
-                  {v:"RM 120,105",l:"Aug Invoice",c:T.accent},
-                  {v:"RM 119,326",l:"Sep Invoice",c:T.accent},
-                  {v:"RM 134,552",l:"Oct Invoice",c:T.accent},
-                  {v:"RM 140,710",l:"Nov Invoice",c:T.accent},
-                  {v:"RM 0",l:"Dec Invoice",c:T.muted},
-                  {v:"RM 175",l:"Jan Penalty",c:T.danger}
-                ].map((s,i) => (
-                  <div key={i} style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}>
-                    <div style={{fontSize:18,fontWeight:800,color:s.c}}>{s.v}</div>
-                    <div style={{fontSize:12,color:T.muted,marginTop:4}}>{s.l}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>Finance Overview</div>
-              <div style={{position:"relative",height:260}}><canvas id="m-finLine" /></div>
-              <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,marginTop:18}}>
-                <thead><tr>{["Month","Invoice (RM)","Penalty (RM)"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead>
-                <tbody>
-                  {[
-                    ["Aug '25","120,105.00","0.00"],
-                    ["Sep '25","119,326.00","0.00"],
-                    ["Oct '25","134,552.00","0.00"],
-                    ["Nov '25","140,710.00","0.00"],
-                    ["Dec '25","0.00","0.00"],
-                    ["Jan '26","0.00","175.00"]
-                  ].map((r,i) => (
-                    <tr key={i}>{r.map((cell,j)=><td key={j} style={tdStyle}>{cell}</td>)}</tr>
-                  ))}
-                </tbody>
-              </table>
-            </Modal>
-          )}
         </>
       )}
     </div>

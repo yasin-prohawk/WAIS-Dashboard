@@ -23,7 +23,7 @@ const SR_BY_TYPE = [
   { label: "BER", count: 37, percentage: 5.7, color: "#eab308" },
   { label: "Non-conformance (NCR)", count: 62, percentage: 9.6, color: "#86efac" },
   { label: "T&C", count: 81, percentage: 12.5, color: "#15803d" },
-  { label: "Unschedule Maintenance", count: 115, percentage: 17.8, color: "#60a5fa" },
+  { label: "Unscheduled Maintenance", count: 115, percentage: 17.8, color: "#60a5fa" },
   { label: "User Request", count: 143, percentage: 22.1, color: "#1e40af" },
   { label: "User Training", count: 46, percentage: 7.1, color: "#b91c1c" },
 ];
@@ -36,30 +36,48 @@ const SR_STATUS_BY_CATEGORY = [
   { label: "BER", open: 2, closed: 35, total: 37, color: "#eab308" },
   { label: "Non-conformance", open: 8, closed: 54, total: 62, color: "#86efac" },
   { label: "T&C", open: 6, closed: 75, total: 81, color: "#15803d" },
-  { label: "Unschedule Maintenance", open: 10, closed: 105, total: 115, color: "#60a5fa" },
+  { label: "Unscheduled Maintenance", open: 10, closed: 105, total: 115, color: "#60a5fa" },
   { label: "User Request", open: 12, closed: 131, total: 143, color: "#1e40af" },
   { label: "User Training", open: 4, closed: 42, total: 46, color: "#b91c1c" },
 ];
 
+// NCR Data - By Month with NCR 1.1, NCR 1.2, etc.
 const NCR_TOTAL = 156;
 const NCR_OPEN = 89;
 const NCR_CLOSED = 67;
 const NCR_CLOSURE_RATE = 42.9;
+const NCR_BY_MONTH = [
+  { month: "NCR 1.1", open: 12, closed: 8 },
+  { month: "NCR 1.2", open: 10, closed: 6 },
+  { month: "NCR 1.3", open: 15, closed: 10 },
+  { month: "NCR 1.4", open: 8, closed: 12 },
+  { month: "NCR 1.5", open: 14, closed: 7 },
+  { month: "NCR 1.6", open: 11, closed: 9 },
+  { month: "NCR 1.7", open: 9, closed: 11 },
+  { month: "NCR 1.8", open: 13, closed: 5 },
+  { month: "NCR 1.9", open: 7, closed: 14 },
+  { month: "NCR 1.10", open: 16, closed: 4 },
+  { month: "NCR 1.11", open: 10, closed: 8 },
+  { month: "NCR 1.12", open: 8, closed: 10 },
+];
+// Distinct rainbow palette for the "NCR Open by Month" horizontal bar chart
+const NCR_MONTH_COLORS = ["#3b82f6","#8b5cf6","#22d3ee","#0e7490","#0ea5e9","#ef4444","#f97316","#eab308","#22c55e","#14b8a6","#a855f7","#f43f5e"];
 
 const OVERALL_DEDUCTION = 8.93;
 const DEDUCTION_BY_MONTH = [9.12, 8.45, 7.98, 9.30, 8.65, 8.93];
 const DEDUCTION_2024 = [8.50, 7.80, 8.20, 8.90, 8.10, 8.40];
 const DEDUCTION_2026 = [9.20, 9.00, 9.40, 8.80, 9.60, 9.00];
 
-const F_LABELS = ["F6","F7","F8","F9","F10","F11","F12","F13","F14"];
-const F_VALUES = [5.12, 8.45, 3.67, 6.89, 4.23, 42.10, 12.34, 9.56, 7.64];
-const F_COLORS = ["#007BFF","#6F42C1","#00CCCC","#17A2B8","#0DCAF0","#ef4444","#f97316","#FFB703","#22c55e"];
-const F_DEDUCTIONS = [0, 0, 0, 0, 0, 1841.37, 0, 0, 0];
+// Deduction data - using F1, F2, etc.
+const DEDUCTION_LABELS = ["F1","F2","F3","F4","F5","F6","F7","F8","F9"];
+const DEDUCTION_VALUES = [5.12, 8.45, 3.67, 6.89, 4.23, 42.10, 12.34, 9.56, 7.64];
+const DEDUCTION_COLORS = ["#007BFF","#6F42C1","#00CCCC","#17A2B8","#0DCAF0","#ef4444","#f97316","#FFB703","#22c55e"];
+const DEDUCTION_AMOUNTS = [0, 0, 0, 0, 0, 1841.37, 0, 0, 0];
 
 const ASSET_ACTIVE = 1048;
 const ASSET_INACTIVE = 673;
 const TOTAL_ASSETS = 1721;
-const HOSPITAL_NAME = "Hospital: Grik (PRK333)";
+const HOSPITAL_NAME = "Hospital: HTA";
 
 const ASSET_BY_TYPE = [
   { type: "Equipment", active: 450, inactive: 180 },
@@ -70,7 +88,23 @@ const ASSET_BY_TYPE = [
   { type: "System", active: 40, inactive: 128 },
 ];
 
-const ASSET_UPTIME = [98.5, 98.8, 97.9, 99.1, 98.3, 98.7, 99.0, 97.5, 98.2, 98.9, 97.8, 98.4];
+// Asset Lifespan Data
+const ASSET_LIFESPAN = {
+  groups: [
+    { group: "0-5 Years", count: 85, color: "#22c55e" },
+    { group: "5-10 Years", count: 156, color: "#3b82f6" },
+    { group: "10-15 Years", count: 234, color: "#f97316" },
+    { group: "15-30 Years", count: 89, color: "#ef4444" },
+    { group: "30+ Years", count: 34, color: "#8b5cf6" },
+  ],
+  withinLifespan: 475,
+  exceedLifespan: 123,
+  serviceByGroup: [
+    { group: "Mechanical", aging: { "0-5": 35, "5-10": 45, "10-15": 55, "15-30": 25, "30+": 10 } },
+    { group: "Electrical", aging: { "0-5": 25, "5-10": 35, "10-15": 45, "15-30": 20, "30+": 8 } },
+    { group: "Civil", aging: { "0-5": 15, "5-10": 25, "10-15": 35, "15-30": 15, "30+": 6 } },
+  ]
+};
 
 const TRAINING_SCHEDULE = [
   { id:"TR-01", topic:"Fire Safety & Emergency Response",   month:"Feb", date:"2026-02-18", status:"Completed" },
@@ -90,13 +124,14 @@ const LICENSE_DATA = [
   { no:"LIC-088", category:"Air Cond & Mech Vent",  expiry:"2026-04-22", daysLeft:56 },
 ];
 
-// Unschedule Categories with M/E/C breakdown including Critical/Normal
+// Unschedule Categories
 const UNSCHEDULE_CATEGORIES = [
   { 
     key: "breakdown", 
-    label: "Breakdown", 
+    label: "BREAKDOWN", 
     color: "#ef4444", 
-    total: 142, 
+    total: 142,
+    totalGenerated: 131,
     open: 18, 
     wip: 12, 
     completed: 98, 
@@ -104,16 +139,17 @@ const UNSCHEDULE_CATEGORIES = [
     rfCancel: 3, 
     notDoneClosed: 3,
     groups: [
-      { group: "Mechanical", open: 8, wip: 5, completed: 45, cancel: 3, notDoneClosed: 1, critical: 20, normal: 42 },
-      { group: "Electrical", open: 6, wip: 4, completed: 32, cancel: 3, notDoneClosed: 1, critical: 18, normal: 28 },
-      { group: "Civil", open: 4, wip: 3, completed: 21, cancel: 2, notDoneClosed: 1, critical: 12, normal: 22 },
+      { group: "Mechanical", open: 8, wip: 5, completed: 45, notDoneClosed: 1 },
+      { group: "Electrical", open: 6, wip: 4, completed: 32, notDoneClosed: 1 },
+      { group: "Civil", open: 4, wip: 3, completed: 21, notDoneClosed: 1 },
     ]
   },
   { 
     key: "corrective", 
-    label: "Corrective", 
+    label: "CORRECTIVE", 
     color: "#f97316", 
-    total: 185, 
+    total: 185,
+    totalGenerated: 173,
     open: 24, 
     wip: 18, 
     completed: 128, 
@@ -121,16 +157,17 @@ const UNSCHEDULE_CATEGORIES = [
     rfCancel: 2, 
     notDoneClosed: 3,
     groups: [
-      { group: "Mechanical", open: 10, wip: 8, completed: 55, cancel: 4, notDoneClosed: 1, critical: 25, normal: 58 },
-      { group: "Electrical", open: 8, wip: 6, completed: 42, cancel: 3, notDoneClosed: 1, critical: 20, normal: 40 },
-      { group: "Civil", open: 6, wip: 4, completed: 31, cancel: 3, notDoneClosed: 1, critical: 15, normal: 32 },
+      { group: "Mechanical", open: 10, wip: 8, completed: 55, notDoneClosed: 1 },
+      { group: "Electrical", open: 8, wip: 6, completed: 42, notDoneClosed: 1 },
+      { group: "Civil", open: 6, wip: 4, completed: 31, notDoneClosed: 1 },
     ]
   },
   { 
     key: "proactive", 
-    label: "Proactive", 
+    label: "PROACTIVE", 
     color: "#3b82f6", 
-    total: 64, 
+    total: 64,
+    totalGenerated: 60,
     open: 5, 
     wip: 4, 
     completed: 51, 
@@ -138,16 +175,17 @@ const UNSCHEDULE_CATEGORIES = [
     rfCancel: 1, 
     notDoneClosed: 0,
     groups: [
-      { group: "Mechanical", open: 2, wip: 2, completed: 22, cancel: 1, notDoneClosed: 0, critical: 8, normal: 20 },
-      { group: "Electrical", open: 2, wip: 1, completed: 17, cancel: 1, notDoneClosed: 0, critical: 6, normal: 16 },
-      { group: "Civil", open: 1, wip: 1, completed: 12, cancel: 1, notDoneClosed: 0, critical: 5, normal: 11 },
+      { group: "Mechanical", open: 2, wip: 2, completed: 22, notDoneClosed: 0 },
+      { group: "Electrical", open: 2, wip: 1, completed: 17, notDoneClosed: 0 },
+      { group: "Civil", open: 1, wip: 1, completed: 12, notDoneClosed: 0 },
     ]
   },
   { 
     key: "warranty", 
-    label: "Warranty", 
+    label: "WARRANTY", 
     color: "#8b5cf6", 
-    total: 21, 
+    total: 21,
+    totalGenerated: 20,
     open: 3, 
     wip: 2, 
     completed: 14, 
@@ -155,120 +193,115 @@ const UNSCHEDULE_CATEGORIES = [
     rfCancel: 0, 
     notDoneClosed: 1,
     groups: [
-      { group: "Mechanical", open: 1, wip: 1, completed: 6, cancel: 0, notDoneClosed: 0, critical: 3, normal: 6 },
-      { group: "Electrical", open: 1, wip: 1, completed: 5, cancel: 1, notDoneClosed: 0, critical: 2, normal: 6 },
-      { group: "Civil", open: 1, wip: 0, completed: 3, cancel: 0, notDoneClosed: 1, critical: 1, normal: 3 },
+      { group: "Mechanical", open: 1, wip: 1, completed: 6, notDoneClosed: 0 },
+      { group: "Electrical", open: 1, wip: 1, completed: 5, notDoneClosed: 0 },
+      { group: "Civil", open: 1, wip: 0, completed: 3, notDoneClosed: 1 },
     ]
   },
 ];
 const UNSCHEDULE_TOTAL = 412;
+const UNSCHEDULE_TOTAL_GENERATED = 384;
 const UNSCHEDULE_OPEN = 50;
 const UNSCHEDULE_COMPLETED = 291;
 
-// Schedule Categories with M/E/C breakdown
 const SCHEDULE_CATEGORIES = [
-  { 
-    key: "ppm", 
-    label: "PPM", 
-    color: "#3b82f6", 
-    total: 124, 
-    open: 10, 
-    wip: 8, 
-    completed: 58, 
-    cancel: 4, 
-    rfCancel: 1, 
-    notDoneClosed: 1,
+  {
+    key: "ppm", label: "PPM", color: "#3b82f6", total: 124, totalGenerated: 124,
+    open: 10, wip: 8, completed: 58, cancel: 0, rfCancel: 0, notDoneClosed: 1,
     groups: [
-      { group: "Mechanical", open: 10, wip: 8, completed: 58, cancel: 4, notDoneClosed: 1 },
-      { group: "Electrical", open: 10, wip: 8, completed: 58, cancel: 4, notDoneClosed: 1 },
-      { group: "Civil", open: 10, wip: 8, completed: 58, cancel: 4, notDoneClosed: 1 },
+      { group: "Mechanical", open: 5, wip: 4, completed: 30, notDoneClosed: 1 },
+      { group: "Electrical", open: 3, wip: 3, completed: 19, notDoneClosed: 0 },
+      { group: "Civil", open: 2, wip: 1, completed: 9, notDoneClosed: 0 },
     ]
   },
-  { 
-    key: "ri", 
-    label: "RI", 
-    color: "#22c55e", 
-    total: 87, 
-    open: 7, 
-    wip: 5, 
-    completed: 43, 
-    cancel: 3, 
-    rfCancel: 1, 
-    notDoneClosed: 0,
+  {
+    key: "ri", label: "RI", color: "#22c55e", total: 87, totalGenerated: 87,
+    open: 7, wip: 5, completed: 43, cancel: 0, rfCancel: 0, notDoneClosed: 0,
     groups: [
-      { group: "Mechanical", open: 7, wip: 5, completed: 43, cancel: 3, notDoneClosed: 0 },
-      { group: "Electrical", open: 7, wip: 5, completed: 43, cancel: 3, notDoneClosed: 0 },
-      { group: "Civil", open: 7, wip: 5, completed: 43, cancel: 3, notDoneClosed: 0 },
+      { group: "Mechanical", open: 4, wip: 3, completed: 23, notDoneClosed: 0 },
+      { group: "Electrical", open: 2, wip: 1, completed: 14, notDoneClosed: 0 },
+      { group: "Civil", open: 1, wip: 1, completed: 6, notDoneClosed: 0 },
     ]
   },
-  { 
-    key: "scm", 
-    label: "SCM", 
-    color: "#f97316", 
-    total: 63, 
-    open: 5, 
-    wip: 4, 
-    completed: 32, 
-    cancel: 3, 
-    rfCancel: 1, 
-    notDoneClosed: 0,
+  {
+    key: "scm", label: "SCM", color: "#f97316", total: 63, totalGenerated: 63,
+    open: 5, wip: 4, completed: 32, cancel: 0, rfCancel: 0, notDoneClosed: 0,
     groups: [
-      { group: "Mechanical", open: 5, wip: 4, completed: 32, cancel: 3, notDoneClosed: 0 },
-      { group: "Electrical", open: 5, wip: 4, completed: 32, cancel: 3, notDoneClosed: 0 },
-      { group: "Civil", open: 5, wip: 4, completed: 32, cancel: 3, notDoneClosed: 0 },
+      { group: "Mechanical", open: 3, wip: 2, completed: 18, notDoneClosed: 0 },
+      { group: "Electrical", open: 1, wip: 1, completed: 10, notDoneClosed: 0 },
+      { group: "Civil", open: 1, wip: 1, completed: 4, notDoneClosed: 0 },
     ]
   },
 ];
 const SCHEDULE_TOTAL = 274;
+const SCHEDULE_TOTAL_GENERATED = 274;
 const SCHEDULE_OPEN = 22;
 const SCHEDULE_COMPLETED = 133;
+const SCHEDULE_NOT_DONE_CLOSED = 1;
 
-// Monthly data with WO priority (Critical/Normal) - Unschedule
+// Monthly data for Unschedule
 const UNSCHEDULE_MONTHLY_DATA = [
-  { month: "Jan '25", totalGenerated: 45, closed: 30, inProgress: 15, critical: 12, normal: 33 },
-  { month: "Feb '25", totalGenerated: 38, closed: 25, inProgress: 13, critical: 10, normal: 28 },
-  { month: "Mar '25", totalGenerated: 52, closed: 35, inProgress: 17, critical: 15, normal: 37 },
-  { month: "Apr '25", totalGenerated: 48, closed: 32, inProgress: 16, critical: 14, normal: 34 },
-  { month: "May '25", totalGenerated: 55, closed: 38, inProgress: 17, critical: 16, normal: 39 },
-  { month: "Jun '25", totalGenerated: 50, closed: 34, inProgress: 16, critical: 13, normal: 37 },
-  { month: "Jul '25", totalGenerated: 44, closed: 30, inProgress: 14, critical: 11, normal: 33 },
-  { month: "Aug '25", totalGenerated: 40, closed: 28, inProgress: 12, critical: 10, normal: 30 },
-  { month: "Sep '25", totalGenerated: 46, closed: 32, inProgress: 14, critical: 13, normal: 33 },
-  { month: "Oct '25", totalGenerated: 43, closed: 29, inProgress: 14, critical: 12, normal: 31 },
-  { month: "Nov '25", totalGenerated: 42, closed: 28, inProgress: 14, critical: 11, normal: 31 },
-  { month: "Dec '25", totalGenerated: 39, closed: 26, inProgress: 13, critical: 10, normal: 29 },
+  { month: "Jan 25", totalGenerated: 42, closed: 30, inProgress: 12, critical: 12, normal: 30 },
+  { month: "Feb 25", totalGenerated: 36, closed: 25, inProgress: 11, critical: 10, normal: 26 },
+  { month: "Mar 25", totalGenerated: 49, closed: 35, inProgress: 14, critical: 15, normal: 34 },
+  { month: "Apr 25", totalGenerated: 45, closed: 32, inProgress: 13, critical: 14, normal: 31 },
+  { month: "May 25", totalGenerated: 52, closed: 38, inProgress: 14, critical: 16, normal: 36 },
+  { month: "Jun 25", totalGenerated: 47, closed: 34, inProgress: 13, critical: 13, normal: 34 },
+  { month: "Jul 25", totalGenerated: 41, closed: 30, inProgress: 11, critical: 11, normal: 30 },
+  { month: "Aug 25", totalGenerated: 38, closed: 28, inProgress: 10, critical: 10, normal: 28 },
+  { month: "Sep 25", totalGenerated: 43, closed: 32, inProgress: 11, critical: 13, normal: 30 },
+  { month: "Oct 25", totalGenerated: 40, closed: 29, inProgress: 11, critical: 12, normal: 28 },
+  { month: "Nov 25", totalGenerated: 39, closed: 28, inProgress: 11, critical: 11, normal: 28 },
+  { month: "Dec 25", totalGenerated: 36, closed: 26, inProgress: 10, critical: 10, normal: 26 },
 ];
 
 // Monthly data for Schedule
 const SCHEDULE_MONTHLY_DATA = [
-  { month: "Jan '25", totalGenerated: 620, closed: 590, inProgress: 30 },
-  { month: "Feb '25", totalGenerated: 450, closed: 430, inProgress: 20 },
-  { month: "Mar '25", totalGenerated: 590, closed: 560, inProgress: 30 },
-  { month: "Apr '25", totalGenerated: 720, closed: 680, inProgress: 40 },
-  { month: "May '25", totalGenerated: 520, closed: 490, inProgress: 30 },
-  { month: "Jun '25", totalGenerated: 580, closed: 550, inProgress: 30 },
-  { month: "Jul '25", totalGenerated: 620, closed: 590, inProgress: 30 },
-  { month: "Aug '25", totalGenerated: 580, closed: 560, inProgress: 20 },
-  { month: "Sep '25", totalGenerated: 560, closed: 540, inProgress: 20 },
-  { month: "Oct '25", totalGenerated: 540, closed: 520, inProgress: 20 },
-  { month: "Nov '25", totalGenerated: 520, closed: 500, inProgress: 20 },
-  { month: "Dec '25", totalGenerated: 480, closed: 460, inProgress: 20 },
+  { month: "Jan 25", totalGenerated: 620, closed: 590, open: 10, wip: 19, notDoneClosed: 1 },
+  { month: "Feb 25", totalGenerated: 450, closed: 430, open: 8, wip: 11, notDoneClosed: 1 },
+  { month: "Mar 25", totalGenerated: 590, closed: 560, open: 10, wip: 19, notDoneClosed: 1 },
+  { month: "Apr 25", totalGenerated: 720, closed: 680, open: 12, wip: 27, notDoneClosed: 1 },
+  { month: "May 25", totalGenerated: 520, closed: 490, open: 8, wip: 21, notDoneClosed: 1 },
+  { month: "Jun 25", totalGenerated: 580, closed: 550, open: 10, wip: 19, notDoneClosed: 1 },
+  { month: "Jul 25", totalGenerated: 620, closed: 590, open: 10, wip: 19, notDoneClosed: 1 },
+  { month: "Aug 25", totalGenerated: 580, closed: 560, open: 8, wip: 11, notDoneClosed: 1 },
+  { month: "Sep 25", totalGenerated: 560, closed: 540, open: 8, wip: 11, notDoneClosed: 1 },
+  { month: "Oct 25", totalGenerated: 540, closed: 520, open: 8, wip: 11, notDoneClosed: 1 },
+  { month: "Nov 25", totalGenerated: 520, closed: 500, open: 8, wip: 11, notDoneClosed: 1 },
+  { month: "Dec 25", totalGenerated: 480, closed: 460, open: 8, wip: 11, notDoneClosed: 1 },
 ];
 
 // Yearly summary data for Unschedule
 const UNSCHEDULE_YEARLY_SUMMARY = {
-  totalGenerated: 542,
-  closed: 367,
-  inProgress: 175,
+  totalGenerated: 384,
+  closed: 291,
+  open: 50,
+  wip: 36,
+  completed: 291,
+  notDoneClosed: 7,
   critical: 147,
-  normal: 395,
+  normal: 363,
 };
 
 // Yearly summary data for Schedule
 const SCHEDULE_YEARLY_SUMMARY = {
-  totalGenerated: 6791,
-  closed: 6455,
-  inProgress: 336,
+  totalGenerated: 274,
+  closed: 133,
+  open: 22,
+  inProgress: 17,
+  notDoneClosed: 1,
+  cancel: 0,
+  rfCancel: 0,
+};
+
+// Service Request Summary for Modal (excluding cancel and req cancel)
+const SR_MODAL_SUMMARY = {
+  totalGenerated: 716,
+  closed: 392,
+  open: 0,
+  wip: 0,
+  completed: 392,
+  notDoneClosed: 0,
 };
 
 const getYearData = (year:string, data2025:any[])=>{
@@ -276,36 +309,6 @@ const getYearData = (year:string, data2025:any[])=>{
   if(year==="2026") return data2025.map((d:any)=>({...d,completedWithin:Math.round(d.completedWithin*1.1),completedNotTo:Math.round(d.completedNotTo*0.8),remaining:Math.round(d.remaining*1.5),notDone:Math.round(d.notDone*0.7)}));
   return data2025;
 };
-
-const UNSCHEDULE_TABLE_DATA_2025 = [
-  { m:"Jan '25", completedWithin:45, completedNotTo:12, remaining:0, notDone:3 },
-  { m:"Feb '25", completedWithin:38, completedNotTo:15, remaining:2, notDone:2 },
-  { m:"Mar '25", completedWithin:52, completedNotTo:18, remaining:0, notDone:1 },
-  { m:"Apr '25", completedWithin:48, completedNotTo:14, remaining:1, notDone:2 },
-  { m:"May '25", completedWithin:55, completedNotTo:20, remaining:0, notDone:1 },
-  { m:"Jun '25", completedWithin:50, completedNotTo:16, remaining:0, notDone:2 },
-  { m:"Jul '25", completedWithin:44, completedNotTo:13, remaining:1, notDone:1 },
-  { m:"Aug '25", completedWithin:40, completedNotTo:10, remaining:0, notDone:2 },
-  { m:"Sep '25", completedWithin:46, completedNotTo:17, remaining:0, notDone:1 },
-  { m:"Oct '25", completedWithin:43, completedNotTo:16, remaining:2, notDone:2 },
-  { m:"Nov '25", completedWithin:42, completedNotTo:14, remaining:0, notDone:1 },
-  { m:"Dec '25", completedWithin:39, completedNotTo:12, remaining:0, notDone:1 },
-];
-
-const SCHEDULE_TABLE_DATA_2025 = [
-  { m:"Jan '25", completedWithin:631, completedNotTo:0, remaining:0, notDone:0 },
-  { m:"Feb '25", completedWithin:462, completedNotTo:0, remaining:0, notDone:0 },
-  { m:"Mar '25", completedWithin:614, completedNotTo:0, remaining:0, notDone:0 },
-  { m:"Apr '25", completedWithin:734, completedNotTo:0, remaining:0, notDone:0 },
-  { m:"May '25", completedWithin:520, completedNotTo:15, remaining:2, notDone:0 },
-  { m:"Jun '25", completedWithin:580, completedNotTo:8, remaining:0, notDone:1 },
-  { m:"Jul '25", completedWithin:495, completedNotTo:22, remaining:0, notDone:0 },
-  { m:"Aug '25", completedWithin:610, completedNotTo:5, remaining:1, notDone:0 },
-  { m:"Sep '25", completedWithin:550, completedNotTo:12, remaining:0, notDone:0 },
-  { m:"Oct '25", completedWithin:575, completedNotTo:8, remaining:0, notDone:1 },
-  { m:"Nov '25", completedWithin:530, completedNotTo:18, remaining:0, notDone:0 },
-  { m:"Dec '25", completedWithin:490, completedNotTo:10, remaining:3, notDone:0 },
-];
 
 const STATUS_LABELS: Record<string,string> = {open:"Open",wip:"WIP",completed:"Completed",cancel:"Cancel",rfCancel:"Req. Cancel",notDoneClosed:"Not Done"};
 const STATUS_COLORS: Record<string,string> = {open:"#ef4444",wip:"#f97316",completed:"#22c55e",cancel:"#9ca3af",rfCancel:"#eab308",notDoneClosed:"#8b5cf6"};
@@ -343,10 +346,6 @@ const FEMS_TABS = [
   { key:"general", label:"General" },
   { key:"assetStatus", label:"Asset Status" },
   { key:"assetLifespan", label:"Asset Lifespan" },
-  { key:"assetMaintenance", label:"Asset Maintenance" },
-  { key:"assetUptime", label:"Asset Uptime" },
-  { key:"eodPerformance", label:"EOD Performance" },
-  { key:"manpower", label:"Manpower Assignment" },
 ];
 
 /* ─── CHART HELPERS ─────────────────────────────── */
@@ -398,7 +397,7 @@ function getContrastText(h:string){const r=parseInt(h.slice(1,3),16),g=parseInt(
 
 function Modal({title,onClose,children,T,onExport,onPrint}:{title:string;onClose:()=>void;children:React.ReactNode;T:Theme;onExport?:()=>void;onPrint?:()=>void}){
   return(<div onClick={e=>{if((e.target as HTMLElement).dataset.overlay)onClose();}} data-overlay="1" style={{position:"fixed",inset:0,background:"rgba(0,0,0,.45)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",backdropFilter:"blur(4px)"}}>
-    <div style={{background:T.panel,border:`1px solid ${T.border}`,borderRadius:20,padding:28,width:1300,maxHeight:"88vh",overflowY:"auto",boxShadow:"0 24px 60px rgba(0,0,0,.18)"}}>
+    <div style={{background:T.panel,border:`1px solid ${T.border}`,borderRadius:20,padding:28,width:1100,maxHeight:"88vh",overflowY:"auto",boxShadow:"0 24px 60px rgba(0,0,0,.18)"}}>
       <style>{`::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:${T.scrollThumb};border-radius:99px}`}</style>
       <div className="no-print" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}><h2 style={{fontSize:20,fontWeight:700,color:T.text,margin:0}}>{title}</h2>
         <div style={{display:"flex",gap:8}}>
@@ -441,15 +440,7 @@ function StatCards({data,T}:{data:any[],T:Theme}){
 }
 
 /* ─── EXPORT ─────────────────────────────────────── */
-function exportExcelAll(){if(!window.XLSX)return;const wb=window.XLSX.utils.book_new();[{name:"Summary",data:[["FEMS Dashboard"],["Metric","Value"],["Total SR",SR_TOTAL],["Total NCR",NCR_TOTAL],["Unschedule WO",UNSCHEDULE_TOTAL],["Schedule WO",SCHEDULE_TOTAL]]}].forEach(s=>{const ws=window.XLSX.utils.aoa_to_sheet(s.data);window.XLSX.utils.book_append_sheet(wb,ws,s.name);});window.XLSX.writeFile(wb,"FEMS_Dashboard_Export.xlsx");}
-function exportModalData(modalId:string,yr:string,getData:any){
-  if(!window.XLSX)return;let rows:any[][]=[];
-  if(modalId==="unschedule"||modalId==="schedule"){const data=getData();rows=[["Month","Completed Within Schedule","Completed Not to Schedule","Remaining","Not Done"],...data.map((d:any)=>[d.m,d.completedWithin,d.completedNotTo,d.remaining,d.notDone])];}
-  else if(modalId==="sr"){rows=[["Status","Count"],["Total",SR_TOTAL],["Normal",SR_NORMAL],["Outstanding",SR_OUTSTANDING],["Done",SR_DONE]];}
-  else if(modalId==="ncr"){rows=[["Status","Count"],["Total",NCR_TOTAL],["Open",NCR_OPEN],["Closed",NCR_CLOSED]];}
-  else if(modalId==="deduction"){rows=[["Indicator","%","Deduction (RM)"],...F_LABELS.map((l,i)=>[l,F_VALUES[i].toFixed(2)+"%","RM "+F_DEDUCTIONS[i].toFixed(2)])];}
-  if(!rows.length)return;const wb=window.XLSX.utils.book_new();const ws=window.XLSX.utils.aoa_to_sheet(rows);window.XLSX.utils.book_append_sheet(wb,ws,"Detail");window.XLSX.writeFile(wb,`FEMS_${modalId}_${yr}.xlsx`);
-}
+function exportExcelAll(){if(!window.XLSX)return;const wb=window.XLSX.utils.book_new();[{name:"Summary",data:[["FEMS Dashboard Summary"],["Metric","Value"],["Total SR",SR_TOTAL],["Total NCR",NCR_TOTAL],["Unschedule WO",UNSCHEDULE_TOTAL],["Schedule WO",SCHEDULE_TOTAL]]}].forEach(s=>{const ws=window.XLSX.utils.aoa_to_sheet(s.data);window.XLSX.utils.book_append_sheet(wb,ws,s.name);});window.XLSX.writeFile(wb,"FEMS_Dashboard_Summary.xlsx");}
 function printPage(){const s=document.createElement('style');s.id='ps';s.textContent='@page{size:A4 landscape;margin:10mm}@media print{body{-webkit-print-color-adjust:exact!important}.no-print{display:none!important}}';document.head.appendChild(s);window.print();setTimeout(()=>{const e=document.getElementById('ps');if(e)e.remove();},1000);}
 
 /* ─── MAIN ──────────────────────────────────────── */
@@ -461,10 +452,10 @@ export default function FEMSDashboard(){
   const [selectedYear,setSelectedYear]=useState("2026");
   const [startDate,setStartDate]=useState("2025-07-01");
   const [endDate,setEndDate]=useState("2025-12-31");
-  const [modalYear,setModalYear]=useState("2025");const [modalMonth,setModalMonth]=useState("all");
-  const [modalStartDate,setModalStartDate]=useState("2025-01-01");
-  const [modalEndDate,setModalEndDate]=useState("2025-12-31");
-  const [modalDeductYear,setModalDeductYear]=useState("2025");
+  const [modalYear,setModalYear]=useState("2026");const [modalMonth,setModalMonth]=useState("all");
+  const [modalStartDate,setModalStartDate]=useState("2026-01-01");
+  const [modalEndDate,setModalEndDate]=useState("2026-12-31");
+  const [modalDeductYear,setModalDeductYear]=useState("2026");
   const T=THEMES[themeName];const scriptsReady=useRef(false);const baseChartsInited=useRef(false);
   const currentPage=NAV_PAGES.find(p=>p.key===activePage)||NAV_PAGES[0];const HDR="#0f172a";const htc=getContrastText(HDR);
 
@@ -476,15 +467,17 @@ export default function FEMSDashboard(){
   useEffect(()=>{if(scriptsReady.current&&baseChartsInited.current)setTimeout(initBaseCharts,200);},[activeTab,themeName,startDate,endDate]);
   useEffect(()=>{if(modal&&scriptsReady.current&&baseChartsInited.current)setTimeout(()=>initModalCharts(modal),300);},[modal,modalYear,modalMonth,modalDeductYear]);
 
-  const getUnschedData=useMemo(()=>getYearData(modalYear,UNSCHEDULE_TABLE_DATA_2025),[modalYear]);
-  const getSchedData=useMemo(()=>getYearData(modalYear,SCHEDULE_TABLE_DATA_2025),[modalYear]);
-
   const initBaseCharts=()=>{
     if(!window.Chart){setTimeout(initBaseCharts,200);return;}
-    ["deductionLine","deductIndicatorPie","assetPie","assetBar","assetUptimeChart","srPie","srStackedBar"].forEach(id=>{const c=document.getElementById(id) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
-    mkLineChart("deductionLine",["Jul","Aug","Sep","Oct","Nov","Dec"],[{data:DEDUCTION_BY_MONTH,borderColor:"#3b82f6",backgroundColor:"#3b82f622",fill:true}],T,{callback:(v:number)=>v+"%"});
-    mkPieChart("deductIndicatorPie",F_LABELS,F_VALUES,F_COLORS,"50%");
+    ["deductIndicatorPie","assetPie","assetBar","srPie","srStackedBar","assetLifespanPie","assetLifespanDonut","assetServiceBar","ncrBar"].forEach(id=>{const c=document.getElementById(id) as HTMLCanvasElement;if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}});
+
+    // Deduction Indicator Pie
+    mkPieChart("deductIndicatorPie", DEDUCTION_LABELS, DEDUCTION_VALUES, DEDUCTION_COLORS, "50%");
+    
+    // SR Pie Chart - By Type (for General tab and modal)
     mkPieChart("srPie", SR_BY_TYPE.map(s=>s.label), SR_BY_TYPE.map(s=>s.count), SR_BY_TYPE.map(s=>s.color), "50%");
+    
+    // SR Status by Category - Stacked Bar (for General tab and modal)
     const openData = SR_STATUS_BY_CATEGORY.map(s => s.open);
     const closedData = SR_STATUS_BY_CATEGORY.map(s => s.closed);
     const labels = SR_STATUS_BY_CATEGORY.map(s => s.label);
@@ -492,75 +485,167 @@ export default function FEMSDashboard(){
       { label: 'Open', data: openData, backgroundColor: '#ef4444' },
       { label: 'Closed', data: closedData, backgroundColor: '#22c55e' }
     ], T, true);
+    
+    // NCR Bar Chart - Open by Month with NCR 1.1, NCR 1.2, etc. (vertical bars)
+    const ncrMonths = NCR_BY_MONTH.map(d => d.month);
+    const ncrOpenData = NCR_BY_MONTH.map(d => d.open);
+    mkBarChart("ncrBar", ncrMonths, ncrOpenData, Array(12).fill("#ef4444"), T, false);
+    
     if(activeTab==="assetStatus"){mkPieChart("assetPie",["Active","Inactive"],[ASSET_ACTIVE,ASSET_INACTIVE],["#22c55e","#ef4444"],"55%");mkBarChart("assetBar",ASSET_BY_TYPE.map(a=>a.type),ASSET_BY_TYPE.map(a=>a.active),Array(6).fill("#22c55e"),T,true);}
-    if(activeTab==="assetUptime"){mkLineChart("assetUptimeChart",MONTHS_12,[{data:ASSET_UPTIME,borderColor:"#22c55e",backgroundColor:"#22c55e22",fill:true},{data:Array(12).fill(95),borderColor:"#ef4444",borderDash:[4,3],borderWidth:2,pointRadius:0}],T,{min:93,max:100.5,callback:(v:number)=>v+"%"});}
+    if(activeTab==="assetLifespan"){
+      const lifespanLabels = ASSET_LIFESPAN.groups.map(g => g.group);
+      const lifespanValues = ASSET_LIFESPAN.groups.map(g => g.count);
+      const lifespanColors = ASSET_LIFESPAN.groups.map(g => g.color);
+      mkPieChart("assetLifespanPie", lifespanLabels, lifespanValues, lifespanColors, "50%");
+      mkPieChart("assetLifespanDonut", ["Within Lifespan", "Exceed Lifespan"], [ASSET_LIFESPAN.withinLifespan, ASSET_LIFESPAN.exceedLifespan], ["#22c55e", "#ef4444"], "60%");
+      
+      const groupLabels = ASSET_LIFESPAN.serviceByGroup.map(g => g.group);
+      const agingKeys = ["0-5", "5-10", "10-15", "15-30", "30+"];
+      const agingColors = ["#22c55e", "#3b82f6", "#f97316", "#ef4444", "#8b5cf6"];
+      const datasets = agingKeys.map((key, idx) => ({
+        label: key + " Years",
+        data: ASSET_LIFESPAN.serviceByGroup.map(g => g.aging[key as keyof typeof g.aging] || 0),
+        backgroundColor: agingColors[idx]
+      }));
+      mkStackedBarChart("assetServiceBar", groupLabels, datasets, T, false);
+    }
   };
 
   const initModalCharts=(id:string)=>{
     if(!window.Chart){setTimeout(()=>initModalCharts(id),200);return;}
-    if(id==="sr"){mkBarChart("modalSRChart",["Total","Normal","Outstanding","Done","Critical"],[SR_TOTAL,SR_NORMAL,SR_OUTSTANDING,SR_DONE,SR_CRITICAL],[T.accent,T.green,T.warn,T.green,T.danger],T);}
-    if(id==="ncr"){mkBarChart("modalNCRChart",["Total","Open","Closed"],[NCR_TOTAL,NCR_OPEN,NCR_CLOSED],[T.warn,T.danger,T.success],T);}
-    if(id==="deduction"){mkBarChart("modalDeductBar",F_LABELS,F_VALUES,F_COLORS,T,true);const dd=modalDeductYear==="2024"?DEDUCTION_2024:modalDeductYear==="2026"?DEDUCTION_2026:DEDUCTION_BY_MONTH;mkLineChart("modalDeductLine",["Jul","Aug","Sep","Oct","Nov","Dec"],[{data:dd,borderColor:"#3b82f6",backgroundColor:"#3b82f622",fill:true}],T,{callback:(v:number)=>v+"%"});}
+    if(id==="sr"){
+      // Service Request Modal - Bar chart with Total Generated, Closed, Open, WIP, Completed, Not Done
+      mkBarChart("modalSRChart", ["Total Generated", "Closed", "Open", "WIP", "Completed", "Not Done"], 
+        [SR_MODAL_SUMMARY.totalGenerated, SR_MODAL_SUMMARY.closed, SR_MODAL_SUMMARY.open, SR_MODAL_SUMMARY.wip, SR_MODAL_SUMMARY.completed, SR_MODAL_SUMMARY.notDoneClosed], 
+        ["#3b82f6", "#22c55e", "#ef4444", "#f97316", "#22c55e", "#8b5cf6"], T, false);
+      // SR modal gets its own pie/stacked-bar canvases (avoids duplicate-id conflict with the hidden General tab canvases)
+      mkPieChart("modalSRPie", SR_BY_TYPE.map(s=>s.label), SR_BY_TYPE.map(s=>s.count), SR_BY_TYPE.map(s=>s.color), "50%");
+      mkStackedBarChart("modalSRStackedBar", SR_STATUS_BY_CATEGORY.map(s=>s.label), [
+        { label: 'Open', data: SR_STATUS_BY_CATEGORY.map(s=>s.open), backgroundColor: '#ef4444' },
+        { label: 'Closed', data: SR_STATUS_BY_CATEGORY.map(s=>s.closed), backgroundColor: '#22c55e' }
+      ], T, true);
+    }
+    if(id==="ncr"){
+      // NCR Modal - Bar chart with Total, Open, Closed
+      mkBarChart("modalNCRChart", ["Total", "Open", "Closed"], 
+        [NCR_TOTAL, NCR_OPEN, NCR_CLOSED], 
+        ["#f59e0b", "#ef4444", "#22c55e"], T, false);
+      // NCR Open by Month - own canvas, horizontal bars with distinct colors (matches "% by Indicator" design)
+      mkBarChart("modalNCRMonthly", NCR_BY_MONTH.map(d=>d.month), NCR_BY_MONTH.map(d=>d.open), NCR_MONTH_COLORS, T, true);
+    }
+    if(id==="deduction"){
+      // Deduction modal - full details with F1, F2, etc.
+      mkBarChart("modalDeductBar", DEDUCTION_LABELS, DEDUCTION_VALUES, DEDUCTION_COLORS, T, true);
+      const dd = modalDeductYear==="2024"?DEDUCTION_2024:modalDeductYear==="2026"?DEDUCTION_2026:DEDUCTION_BY_MONTH;
+      mkLineChart("modalDeductLine",["Jul","Aug","Sep","Oct","Nov","Dec"],[{data:dd,borderColor:"#3b82f6",backgroundColor:"#3b82f622",fill:true}],T,{callback:(v:number)=>v+"%"});
+    }
     if(id==="unschedule"){
-      const months = UNSCHEDULE_MONTHLY_DATA.map(d => d.month);
-      mkGroupedBarChart("modalUnschedMonthly", months, [
-        {label:"Total Generated", data:UNSCHEDULE_MONTHLY_DATA.map(d=>d.totalGenerated), backgroundColor:"#3b82f6"},
-        {label:"Closed", data:UNSCHEDULE_MONTHLY_DATA.map(d=>d.closed), backgroundColor:"#22c55e"},
-        {label:"In-Progress", data:UNSCHEDULE_MONTHLY_DATA.map(d=>d.inProgress), backgroundColor:"#f97316"}
+      // Filter data based on selected month for charts
+      let monthlyData = UNSCHEDULE_MONTHLY_DATA;
+      
+      if (modalMonth !== "all") {
+        const monthIndex = months.findIndex(m => m.toLowerCase() === modalMonth);
+        if (monthIndex !== -1) {
+          monthlyData = UNSCHEDULE_MONTHLY_DATA.filter(d => {
+            const dMonth = new Date(d.month + " 1, 2000").getMonth();
+            return dMonth === monthIndex;
+          });
+        }
+      }
+      
+      const months2 = monthlyData.map(d => d.month);
+      
+      // WO Status by Month - Full width chart
+      mkGroupedBarChart("modalUnschedMonthly", months2, [
+        {label:"Total Generated", data:monthlyData.map(d=>d.totalGenerated), backgroundColor:"#3b82f6"},
+        {label:"Closed", data:monthlyData.map(d=>d.closed), backgroundColor:"#22c55e"},
+        {label:"In-Progress", data:monthlyData.map(d=>d.inProgress), backgroundColor:"#f97316"}
       ], T);
       
-      mkGroupedBarChart("modalUnschedPriority", months, [
-        {label:"Critical", data:UNSCHEDULE_MONTHLY_DATA.map(d=>d.critical), backgroundColor:"#dc2626"},
-        {label:"Normal", data:UNSCHEDULE_MONTHLY_DATA.map(d=>d.normal), backgroundColor:"#3b82f6"}
-      ], T);
+      // Critical vs Normal - Pie Chart (Overall 2026)
+      const totalCritical = UNSCHEDULE_YEARLY_SUMMARY.critical;
+      const totalNormal = UNSCHEDULE_YEARLY_SUMMARY.normal;
+      mkPieChart("modalUnschedPriority", ["Critical", "Normal"], [totalCritical, totalNormal], ["#dc2626", "#3b82f6"], "50%");
       
-      UNSCHEDULE_CATEGORIES.forEach((cat,i)=>{
-        const keys=["open","wip","completed","cancel","rfCancel","notDoneClosed"];
-        const st=keys.map(k=>({k,v:(cat as any)[k]||0})).filter(s=>s.v>0);
-        mkPieChart(`unschedCatPie${i}`,st.map(s=>STATUS_LABELS[s.k]),st.map(s=>s.v),st.map(s=>STATUS_COLORS[s.k]),"55%");
-        if(cat.groups){
-          const groupLabels = cat.groups.map(g => g.group);
-          mkGroupedBarChart(`unschedGroupChart${i}`, groupLabels, [
-            {label:"Open", data:cat.groups.map(g=>g.open), backgroundColor:"#ef4444"},
-            {label:"WIP", data:cat.groups.map(g=>g.wip), backgroundColor:"#f97316"},
-            {label:"Completed", data:cat.groups.map(g=>g.completed), backgroundColor:"#22c55e"},
-            {label:"Cancel", data:cat.groups.map(g=>g.cancel), backgroundColor:"#9ca3af"},
-            {label:"Not Done & Closed", data:cat.groups.map(g=>g.notDoneClosed), backgroundColor:"#8b5cf6"}
-          ], T);
-          mkGroupedBarChart(`unschedGroupPriority${i}`, groupLabels, [
-            {label:"Critical", data:cat.groups.map(g=>g.critical), backgroundColor:"#dc2626"},
-            {label:"Normal", data:cat.groups.map(g=>g.normal), backgroundColor:"#3b82f6"}
-          ], T);
+      // Overall Group Chart (Mechanical, Electrical, Civil)
+      const groupTotals = {
+        Mechanical: { open: 0, wip: 0, completed: 0, notDoneClosed: 0 },
+        Electrical: { open: 0, wip: 0, completed: 0, notDoneClosed: 0 },
+        Civil: { open: 0, wip: 0, completed: 0, notDoneClosed: 0 },
+      };
+      
+      UNSCHEDULE_CATEGORIES.forEach(cat => {
+        if (cat.groups) {
+          cat.groups.forEach(g => {
+            if (g.group === "Mechanical") {
+              groupTotals.Mechanical.open += g.open;
+              groupTotals.Mechanical.wip += g.wip;
+              groupTotals.Mechanical.completed += g.completed;
+              groupTotals.Mechanical.notDoneClosed += g.notDoneClosed;
+            } else if (g.group === "Electrical") {
+              groupTotals.Electrical.open += g.open;
+              groupTotals.Electrical.wip += g.wip;
+              groupTotals.Electrical.completed += g.completed;
+              groupTotals.Electrical.notDoneClosed += g.notDoneClosed;
+            } else if (g.group === "Civil") {
+              groupTotals.Civil.open += g.open;
+              groupTotals.Civil.wip += g.wip;
+              groupTotals.Civil.completed += g.completed;
+              groupTotals.Civil.notDoneClosed += g.notDoneClosed;
+            }
+          });
         }
       });
+      
+      const groupLabels = ["Mechanical", "Electrical", "Civil"];
+      mkGroupedBarChart("modalUnschedGroupOverall", groupLabels, [
+        {label:"Open", data:[groupTotals.Mechanical.open, groupTotals.Electrical.open, groupTotals.Civil.open], backgroundColor:"#ef4444"},
+        {label:"WIP", data:[groupTotals.Mechanical.wip, groupTotals.Electrical.wip, groupTotals.Civil.wip], backgroundColor:"#f97316"},
+        {label:"Completed", data:[groupTotals.Mechanical.completed, groupTotals.Electrical.completed, groupTotals.Civil.completed], backgroundColor:"#22c55e"},
+        {label:"Not Done", data:[groupTotals.Mechanical.notDoneClosed, groupTotals.Electrical.notDoneClosed, groupTotals.Civil.notDoneClosed], backgroundColor:"#8b5cf6"}
+      ], T);
     }
     if(id==="schedule"){
-      const months = SCHEDULE_MONTHLY_DATA.map(d => d.month);
-      mkGroupedBarChart("modalSchedMonthly", months, [
-        {label:"Total Generated", data:SCHEDULE_MONTHLY_DATA.map(d=>d.totalGenerated), backgroundColor:"#3b82f6"},
-        {label:"Closed", data:SCHEDULE_MONTHLY_DATA.map(d=>d.closed), backgroundColor:"#22c55e"},
-        {label:"In-Progress", data:SCHEDULE_MONTHLY_DATA.map(d=>d.inProgress), backgroundColor:"#f97316"}
-      ], T);
+      let monthlyData = SCHEDULE_MONTHLY_DATA;
+      if (modalMonth !== "all") {
+        const monthIndex = months.findIndex(m => m.toLowerCase() === modalMonth);
+        if (monthIndex !== -1) {
+          monthlyData = SCHEDULE_MONTHLY_DATA.filter(d => {
+            const dMonth = new Date(d.month + " 1, 2000").getMonth();
+            return dMonth === monthIndex;
+          });
+        }
+      }
       
-      SCHEDULE_CATEGORIES.forEach((cat,i)=>{
-        const keys=["open","wip","completed","cancel","rfCancel","notDoneClosed"];
-        const st=keys.map(k=>({k,v:(cat as any)[k]||0})).filter(s=>s.v>0);
-        mkPieChart(`schedCatPie${i}`,st.map(s=>STATUS_LABELS[s.k]),st.map(s=>s.v),st.map(s=>STATUS_COLORS[s.k]),"55%");
+      const months2 = monthlyData.map(d => d.month);
+      mkGroupedBarChart("modalSchedMonthly", months2, [
+        {label:"Total Generated", data:monthlyData.map(d=>d.totalGenerated), backgroundColor:"#3b82f6"},
+        {label:"Closed", data:monthlyData.map(d=>d.closed), backgroundColor:"#22c55e"},
+        {label:"Open", data:monthlyData.map(d=>d.open), backgroundColor:"#ef4444"},
+        {label:"WIP", data:monthlyData.map(d=>d.wip), backgroundColor:"#f97316"},
+        {label:"Not Done", data:monthlyData.map(d=>d.notDoneClosed), backgroundColor:"#8b5cf6"}
+      ], T);
+
+      // Per-category donut + WO by Group charts (PPM / RI / SCM) — matches Unschedule visual pattern
+      const statusKeys: (keyof typeof STATUS_LABELS)[] = ["open","wip","completed","cancel","rfCancel","notDoneClosed"];
+      SCHEDULE_CATEGORIES.forEach(cat=>{
+        const values = statusKeys.map(k=>(cat as any)[k] as number);
+        const colors = statusKeys.map(k=>STATUS_COLORS[k]);
+        mkPieChart(`sched_${cat.key}_pie`, statusKeys.map(k=>STATUS_LABELS[k]), values, colors, "55%");
         if(cat.groups){
-          const groupLabels = cat.groups.map(g => g.group);
-          mkGroupedBarChart(`schedGroupChart${i}`, groupLabels, [
+          const gLabels = cat.groups.map(g=>g.group);
+          mkGroupedBarChart(`sched_${cat.key}_group`, gLabels, [
             {label:"Open", data:cat.groups.map(g=>g.open), backgroundColor:"#ef4444"},
             {label:"WIP", data:cat.groups.map(g=>g.wip), backgroundColor:"#f97316"},
             {label:"Completed", data:cat.groups.map(g=>g.completed), backgroundColor:"#22c55e"},
-            {label:"Cancel", data:cat.groups.map(g=>g.cancel), backgroundColor:"#9ca3af"},
-            {label:"Not Done & Closed", data:cat.groups.map(g=>g.notDoneClosed), backgroundColor:"#8b5cf6"}
+            {label:"Not Done", data:cat.groups.map(g=>g.notDoneClosed), backgroundColor:"#8b5cf6"}
           ], T);
         }
       });
     }
   };
 
-  const openModal=(id:string)=>{setModal(id);setModalYear("2025");setModalMonth("all");setModalStartDate("2025-01-01");setModalEndDate("2025-12-31");setModalDeductYear("2025");};
+  const openModal=(id:string)=>{setModal(id);setModalYear("2026");setModalMonth("all");setModalStartDate("2026-01-01");setModalEndDate("2026-12-31");setModalDeductYear("2026");};
   const card=(e?:React.CSSProperties):React.CSSProperties=>({background:T.card,border:`1px solid ${T.border}`,borderRadius:16,...e});
   const panel=(e?:React.CSSProperties):React.CSSProperties=>({background:T.panel,border:`1px solid ${T.border}`,borderRadius:12,...e});
 
@@ -600,7 +685,7 @@ export default function FEMSDashboard(){
           <div><div style={{fontSize:17,fontWeight:700,color:htc}}>{currentPage.label}</div><div style={{fontSize:11,color:htc,opacity:0.6}}>FEMS Performance Dashboard</div></div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
-          {activePage==="fem"&&<div style={{display:"flex",gap:8}}><button onClick={exportExcelAll} title="Export" style={{background:T.success+"12",border:`1px solid ${T.success}25`,color:T.success,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-download" size={15} color={T.success} /></button><button onClick={printPage} title="Print" style={{background:T.accent+"12",border:`1px solid ${T.accent}25`,color:T.accent,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-printer" size={15} color={T.accent} /></button></div>}
+          {activePage==="fem"&&<div style={{display:"flex",gap:8}}><button onClick={exportExcelAll} title="Export Summary" style={{background:T.success+"12",border:`1px solid ${T.success}25`,color:T.success,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-download" size={15} color={T.success} /></button><button onClick={printPage} title="Print" style={{background:T.accent+"12",border:`1px solid ${T.accent}25`,color:T.accent,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-printer" size={15} color={T.accent} /></button></div>}
           <div style={{width:1,height:28,background:htc,opacity:0.12}} />
           <button onClick={()=>setThemeName(n=>n==="dark"?"light":"dark")} style={{background:"transparent",border:`1px solid ${htc}20`,color:htc,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:14}}><BIcon name={themeName==="dark"?"bi-sun-fill":"bi-moon-fill"} size={15} color={htc} /></button>
           <span style={{fontSize:13,color:htc,opacity:0.7}}>25 Feb 2026</span>
@@ -652,6 +737,7 @@ export default function FEMSDashboard(){
                 <div className="no-print" style={{width:185,flexShrink:0,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",padding:"10px 7px",gap:3,overflowY:"auto",background:themeName==="light"?"#f8fafc":T.panel}}>{FEMS_TABS.map(t=>{const a=activeTab===t.key;return(<button key={t.key} onClick={()=>setActiveTab(t.key)} style={{width:"100%",padding:"11px 12px",borderRadius:9,fontSize:11,fontWeight:a?600:400,border:`1px solid ${a?T.accent:T.border}`,background:a?T.accent+"12":"transparent",color:a?T.accent:T.muted,cursor:"pointer",textAlign:"left",borderLeft:`3px solid ${a?T.accent:"transparent"}`}}>{t.label}</button>);})}</div>
                 <div style={{flex:1,overflow:"auto",padding:"14px"}}>
                   {activeTab==="general"&&(<div style={{display:"flex",flexDirection:"column",gap:12}}>
+                    {/* Service Request Overview - Kept in General tab */}
                     <div style={{...panel({padding:"14px"})}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
                         <span style={{fontSize:13,fontWeight:700,color:T.text}}>Service Request Overview</span>
@@ -684,6 +770,17 @@ export default function FEMSDashboard(){
                       </div>
                     </div>
 
+                    {/* NCR - Total removed, Open by Month with NCR 1.1, etc. */}
+                    <div style={{...panel({padding:"14px"})}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                        <span style={{fontSize:13,fontWeight:700,color:T.text}}>NCR Open by Month</span>
+                        <div style={{display:"flex",gap:8}}>
+                          <span style={{fontSize:11,fontWeight:600,padding:"4px 12px",borderRadius:24,background:"rgba(34,197,94,.12)",color:"#22c55e",border:"1px solid rgba(34,197,94,.25)"}}>Closed: {NCR_CLOSED}</span>
+                        </div>
+                      </div>
+                      <div style={{position:"relative",height:250,width:"100%"}}><canvas id="ncrBar" style={{width:"100%",height:"100%"}} /></div>
+                    </div>
+
                     <div style={{...panel({padding:"14px",overflowX:"auto"})}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
                         <span style={{fontSize:13,fontWeight:700,color:T.text}}>User Training Schedule {selectedYear}</span>
@@ -706,239 +803,300 @@ export default function FEMSDashboard(){
                       <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr style={{borderBottom:`2px solid ${T.border}`}}>{["No","Category","Expiry","Days"].map(h=><th key={h} style={{padding:"10px 12px",textAlign:"left",color:T.muted,fontWeight:600,fontSize:10,textTransform:"uppercase"}}>{h}</th>)}</tr></thead><tbody>{LICENSE_DATA.map((l,i)=>(<tr key={i} style={{borderBottom:`1px solid ${T.border}`}}><td style={{padding:"10px 12px",color:T.muted}}>{l.no}</td><td style={{padding:"10px 12px",color:T.text,fontWeight:500}}>{l.category}</td><td style={{padding:"10px 12px",color:T.text}}>{l.expiry}</td><td style={{padding:"10px 12px"}}><DaysBadge days={l.daysLeft} /></td></tr>))}</tbody></table></div></div>
                   </div>)}
                   {activeTab==="assetStatus"&&(<div style={{display:"flex",flexDirection:"column",gap:12}}><div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>{[{l:"Total",v:TOTAL_ASSETS.toLocaleString(),c:T.accent},{l:"Active",v:ASSET_ACTIVE.toLocaleString(),c:"#22c55e"},{l:"Inactive",v:ASSET_INACTIVE.toLocaleString(),c:"#ef4444"}].map((s,i)=>(<div key={i} style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>{s.l}</div><div style={{fontSize:24,fontWeight:800,color:s.c}}>{s.v}</div></div>))}</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,flex:1}}><div style={{...panel({padding:"12px"})}}><div style={{fontSize:12,color:T.muted,marginBottom:8}}>{HOSPITAL_NAME}</div><div style={{display:"flex",alignItems:"center",gap:12,height:200}}><div style={{position:"relative",width:160,height:160,flexShrink:0}}><canvas id="assetPie" style={{width:"100%",height:"100%"}} /></div><div style={{flex:1}}><Badge color="green" T={T}>Active: {ASSET_ACTIVE}</Badge><div style={{marginTop:10}}><Badge color="danger" T={T}>Inactive: {ASSET_INACTIVE}</Badge></div></div></div></div><div style={{...panel({padding:"12px"})}}><div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8}}>Asset by Type</div><div style={{position:"relative",height:240}}><canvas id="assetBar" style={{width:"100%",height:"100%"}} /></div></div></div></div>)}
-                  {activeTab==="assetUptime"&&(<div style={{display:"flex",flexDirection:"column",gap:12}}><div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>{[{l:"Avg Uptime",v:"98.4%",c:"#22c55e"},{l:"Target",v:"95%",c:T.accent},{l:"Lowest",v:"Aug (97.5%)",c:T.warn}].map((s,i)=>(<div key={i} style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>{s.l}</div><div style={{fontSize:24,fontWeight:800,color:s.c}}>{s.v}</div></div>))}</div><div style={{...panel({padding:"12px",flex:1})}}><div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8}}>Asset Uptime % by Month</div><div style={{position:"relative",height:260}}><canvas id="assetUptimeChart" style={{width:"100%",height:"100%"}} /></div></div></div>)}
-                  {["assetLifespan","assetMaintenance","eodPerformance","manpower"].includes(activeTab)&&(<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",color:T.muted,fontSize:16,flexDirection:"column",gap:10}}><BIcon name="bi-gear" size={48} color={T.muted} /><div style={{fontSize:18,fontWeight:600}}>{FEMS_TABS.find(t=>t.key===activeTab)?.label}</div><div style={{fontSize:13}}>Coming soon</div></div>)}
+                  {activeTab==="assetLifespan"&&(<div style={{display:"flex",flexDirection:"column",gap:12}}>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Total Assets</div><div style={{fontSize:24,fontWeight:800,color:T.accent}}>{TOTAL_ASSETS}</div></div>
+                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Within Lifespan</div><div style={{fontSize:24,fontWeight:800,color:"#22c55e"}}>{ASSET_LIFESPAN.withinLifespan}</div></div>
+                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:10,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Exceed Lifespan</div><div style={{fontSize:24,fontWeight:800,color:"#ef4444"}}>{ASSET_LIFESPAN.exceedLifespan}</div></div>
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,flex:1}}>
+                      <div style={{...panel({padding:"12px"})}}>
+                        <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8,textAlign:"center"}}>Asset Aging</div>
+                        <div style={{position:"relative",height:220}}><canvas id="assetLifespanPie" style={{width:"100%",height:"100%"}} /></div>
+                      </div>
+                      <div style={{...panel({padding:"12px"})}}>
+                        <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8,textAlign:"center"}}>Lifespan Status</div>
+                        <div style={{position:"relative",height:220}}><canvas id="assetLifespanDonut" style={{width:"100%",height:"100%"}} /></div>
+                      </div>
+                      <div style={{...panel({padding:"12px"})}}>
+                        <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:8,textAlign:"center"}}>Service by Group (Aging)</div>
+                        <div style={{position:"relative",height:220}}><canvas id="assetServiceBar" style={{width:"100%",height:"100%"}} /></div>
+                      </div>
+                    </div>
+                  </div>)}
                 </div>
               </div>
             </div>
           </div>
 
+          {/* RIGHT COLUMN - Deduction by Indicator */}
           <div style={{width:300,flexShrink:0,display:"flex",flexDirection:"column",gap:14,overflow:"hidden"}}>
             <div style={{...card({display:"flex",flexDirection:"column",minHeight:0,overflow:"hidden"}),flex:1}}>
-              <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontSize:14,fontWeight:700,color:T.text}}>Deduction by Indicator</div><div style={{fontSize:10,color:T.muted}}>{startDate} to {endDate}</div></div><button className="no-print" onClick={()=>openModal("deduction")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button></div>
-              <div style={{padding:"8px 14px",borderBottom:`1px solid ${T.border}`,display:"flex",gap:16}}><div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>% Deduction</div><div style={{fontSize:18,fontWeight:800,color:"#ef4444"}}>{OVERALL_DEDUCTION}%</div></div><div style={{width:1,background:T.border}} /><div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>Total</div><div style={{fontSize:18,fontWeight:800,color:T.green}}>RM {F_DEDUCTIONS.reduce((a,b)=>a+b,0).toFixed(0)}</div></div></div>
-              <div style={{flex:1,padding:"10px 12px",display:"flex",flexDirection:"column",gap:5,overflowY:"auto"}}><div style={{position:"relative",height:120,flexShrink:0}}><canvas id="deductIndicatorPie" style={{width:"100%",height:"100%"}} /></div>{F_LABELS.map((l,i)=>(<div key={l} style={{display:"flex",justifyContent:"space-between",padding:"7px 10px",background:T.panel,borderRadius:8,border:`1px solid ${T.border}`}}><div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:8,height:8,borderRadius:2,background:F_COLORS[i]}} /><span style={{fontSize:12,fontWeight:600,color:T.text}}>{l}</span></div><div><span style={{fontSize:11,color:T.muted}}>{F_VALUES[i].toFixed(1)}%</span><span style={{fontSize:11,fontWeight:700,color:F_DEDUCTIONS[i]>0?T.danger:T.success,marginLeft:8}}>RM {F_DEDUCTIONS[i].toFixed(0)}</span></div></div>))}</div>
+              <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div><div style={{fontSize:14,fontWeight:700,color:T.text}}>Deduction by Indicator</div><div style={{fontSize:10,color:T.muted}}>{startDate} to {endDate}</div></div>
+                <button className="no-print" onClick={()=>openModal("deduction")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button>
+              </div>
+              {/* Summary row */}
+              <div style={{padding:"10px 14px",borderBottom:`1px solid ${T.border}`,display:"flex",gap:16,flexShrink:0}}>
+                <div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>% Deduction</div><div style={{fontSize:18,fontWeight:800,color:"#ef4444"}}>{OVERALL_DEDUCTION}%</div></div>
+                <div style={{width:1,background:T.border}} />
+                <div style={{textAlign:"center",flex:1}}><div style={{fontSize:10,color:T.muted}}>Total</div><div style={{fontSize:18,fontWeight:800,color:"#22c55e"}}>RM 1841.37</div></div>
+              </div>
+              {/* Pie chart with legend */}
+              <div style={{flex:1,padding:"12px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:0}}>
+                <div style={{position:"relative",width:"100%",flex:1,minHeight:0}}>
+                  <canvas id="deductIndicatorPie" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} />
+                </div>
+                {/* Compact legend — dot + label only, no rows */}
+                <div style={{display:"flex",flexWrap:"wrap",gap:"6px 14px",justifyContent:"center",paddingTop:10,flexShrink:0}}>
+                  {DEDUCTION_LABELS.map((l,i)=>(
+                    <div key={l} style={{display:"flex",alignItems:"center",gap:5}}>
+                      <div style={{width:8,height:8,borderRadius:"50%",background:DEDUCTION_COLORS[i],flexShrink:0}} />
+                      <span style={{fontSize:10,color:T.muted,fontWeight:600}}>{l}</span>
+                      <span style={{fontSize:10,color:T.text,fontWeight:700}}>{DEDUCTION_VALUES[i].toFixed(2)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div style={{...card({display:"flex",flexDirection:"column"}),flex:0.8,minHeight:0}}><div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`}}><div style={{fontSize:14,fontWeight:700,color:T.text}}>% Deduction by Month</div></div><div style={{flex:1,padding:"8px 10px",position:"relative"}}><canvas id="deductionLine" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} /></div></div>
           </div>
         </div>
 
         {/* MODALS */}
-        {modal==="sr"&&(<Modal title="Service Request" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("sr","",null)} onPrint={printPage}><FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} /><StatCards data={[{v:SR_TOTAL.toLocaleString(),l:"Total",c:T.accent},{v:SR_NORMAL.toLocaleString(),l:"Normal",c:T.success},{v:SR_OUTSTANDING.toLocaleString(),l:"Outstanding",c:T.warn},{v:SR_DONE.toLocaleString(),l:"Done",c:T.success}]} T={T} /><div style={{position:"relative",height:300,marginBottom:20}}><canvas id="modalSRChart" style={{width:"100%",height:"100%"}} /></div><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr>{["Status","Count","%"].map(h=><th key={h} style={{background:T.accent+"10",color:T.accent,padding:"10px 12px",textAlign:"left",fontWeight:700,fontSize:12,borderBottom:`2px solid ${T.border}`}}>{h}</th>)}</tr></thead><tbody>{[{l:"Total",v:SR_TOTAL},{l:"Normal",v:SR_NORMAL},{l:"Outstanding",v:SR_OUTSTANDING},{l:"Done",v:SR_DONE}].map((s,i)=>(<tr key={i}><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text,fontWeight:600}}>{s.l}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text}}>{s.v.toLocaleString()}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.muted}}>{((s.v/SR_TOTAL)*100).toFixed(1)}%</td></tr>))}</tbody></table></Modal>)}
-
-        {modal==="ncr"&&(<Modal title="NCR" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("ncr","",null)} onPrint={printPage}><FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} /><StatCards data={[{v:NCR_TOTAL.toString(),l:"Total",c:T.warn},{v:NCR_OPEN.toString(),l:"Open",c:T.danger},{v:NCR_CLOSED.toString(),l:"Closed",c:T.success},{v:NCR_CLOSURE_RATE+"%",l:"Closure Rate",c:T.accent}]} T={T} /><div style={{position:"relative",height:300,marginBottom:20}}><canvas id="modalNCRChart" style={{width:"100%",height:"100%"}} /></div><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr>{["Status","Count","%"].map(h=><th key={h} style={{background:T.accent+"10",color:T.accent,padding:"10px 12px",textAlign:"left",fontWeight:700,fontSize:12,borderBottom:`2px solid ${T.border}`}}>{h}</th>)}</tr></thead><tbody>{[{l:"Total",v:NCR_TOTAL},{l:"Open",v:NCR_OPEN},{l:"Closed",v:NCR_CLOSED}].map((s,i)=>(<tr key={i}><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text,fontWeight:600}}>{s.l}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text}}>{s.v}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.muted}}>{((s.v/NCR_TOTAL)*100).toFixed(1)}%</td></tr>))}</tbody></table></Modal>)}
-
-        {modal==="deduction"&&(<Modal title="Deduction by Indicator" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("deduction",modalDeductYear,null)} onPrint={printPage}><FilterRow year={modalDeductYear} setYear={setModalDeductYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} showMonth={false} T={T} /><StatCards data={[{v:OVERALL_DEDUCTION+"%",l:"% Deduction",c:"#ef4444"},{v:"9",l:"Indicators",c:T.accent},{v:"RM 1,841",l:"Total Deduction",c:T.danger},{v:"F11",l:"Highest",c:"#ef4444"}]} T={T} /><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginBottom:20}}><div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>% by Indicator</div><div style={{position:"relative",height:300}}><canvas id="modalDeductBar" style={{width:"100%",height:"100%"}} /></div></div><div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>% Deduction Trend ({modalDeductYear})</div><div style={{position:"relative",height:300}}><canvas id="modalDeductLine" style={{width:"100%",height:"100%"}} /></div></div></div><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr>{["Indicator","%","Deduction (RM)"].map(h=><th key={h} style={{background:T.accent+"10",color:T.accent,padding:"10px 12px",textAlign:"left",fontWeight:700,fontSize:12,borderBottom:`2px solid ${T.border}`}}>{h}</th>)}</tr></thead><tbody>{F_LABELS.map((l,i)=>(<tr key={l}><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:F_COLORS[i],fontWeight:600}}>{l}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text}}>{F_VALUES[i].toFixed(2)}%</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:F_DEDUCTIONS[i]>0?T.danger:T.success,fontWeight:600}}>RM {F_DEDUCTIONS[i].toFixed(2)}</td></tr>))}</tbody></table></Modal>)}
-
-        {/* UNSCHEDULE MODAL */}
-        {modal==="unschedule"&&(<Modal title="Unschedule Work Order" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("unschedule",modalYear,()=>getUnschedData)} onPrint={printPage}>
+        {modal==="sr"&&(<Modal title="Service Request" onClose={()=>setModal(null)} T={T} onExport={undefined} onPrint={printPage}>
           <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} />
           
-          {/* SUMMARY CARDS - Yearly totals */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
-            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px",textAlign:"center"}}>
-              <div style={{fontSize:10,color:T.muted,textTransform:"uppercase"}}>Total WO Generated</div>
-              <div style={{fontSize:24,fontWeight:800,color:"#3b82f6"}}>{UNSCHEDULE_YEARLY_SUMMARY.totalGenerated}</div>
+          {/* Service Request Modal - 6 cards like Unschedule (Total Generated, Closed, Open, WIP, Completed, Not Done) - excluding cancel and req cancel */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:10,marginBottom:20}}>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 6px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Total Generated</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#3b82f6"}}>{SR_MODAL_SUMMARY.totalGenerated}</div>
             </div>
-            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px",textAlign:"center"}}>
-              <div style={{fontSize:10,color:T.muted,textTransform:"uppercase"}}>Closed</div>
-              <div style={{fontSize:24,fontWeight:800,color:"#22c55e"}}>{UNSCHEDULE_YEARLY_SUMMARY.closed}</div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 6px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Closed</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#22c55e"}}>{SR_MODAL_SUMMARY.closed}</div>
             </div>
-            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px",textAlign:"center"}}>
-              <div style={{fontSize:10,color:T.muted,textTransform:"uppercase"}}>In-Progress</div>
-              <div style={{fontSize:24,fontWeight:800,color:"#f97316"}}>{UNSCHEDULE_YEARLY_SUMMARY.inProgress}</div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 6px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Open</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#ef4444"}}>{SR_MODAL_SUMMARY.open}</div>
             </div>
-            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px",textAlign:"center"}}>
-              <div style={{fontSize:10,color:T.muted,textTransform:"uppercase"}}>Critical</div>
-              <div style={{fontSize:24,fontWeight:800,color:"#dc2626"}}>{UNSCHEDULE_YEARLY_SUMMARY.critical}</div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 6px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>WIP</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#f97316"}}>{SR_MODAL_SUMMARY.wip}</div>
             </div>
-            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px",textAlign:"center"}}>
-              <div style={{fontSize:10,color:T.muted,textTransform:"uppercase"}}>Normal</div>
-              <div style={{fontSize:24,fontWeight:800,color:"#3b82f6"}}>{UNSCHEDULE_YEARLY_SUMMARY.normal}</div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 6px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Completed</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#22c55e"}}>{SR_MODAL_SUMMARY.completed}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 6px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Not Done</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#8b5cf6"}}>{SR_MODAL_SUMMARY.notDoneClosed}</div>
             </div>
           </div>
-
-          {/* CHARTS SECTION */}
+          
+          {/* SR by Type of Request Pie Chart */}
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginBottom:20}}>
             <div>
-              <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:8}}>WO Status by Month</div>
-              <div style={{position:"relative",height:250,width:"100%"}}><canvas id="modalUnschedMonthly" style={{width:"100%",height:"100%"}} /></div>
+              <div style={{fontSize:12,fontWeight:600,color:T.muted,textAlign:"center",marginBottom:8}}>SR by Type of Request</div>
+              <div style={{display:"flex",alignItems:"center",gap:12}}>
+                <div style={{position:"relative",width:140,height:140,flexShrink:0}}><canvas id="modalSRPie" style={{width:"100%",height:"100%"}} /></div>
+                <div style={{flex:1,display:"flex",flexDirection:"column",gap:2}}>
+                  {SR_BY_TYPE.map((s,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,fontSize:10}}>
+                    <span style={{width:8,height:8,borderRadius:"50%",background:s.color,display:"inline-block",flexShrink:0}} />
+                    <span style={{color:T.muted}}>{s.label}</span>
+                    <span style={{marginLeft:"auto",color:T.text,fontWeight:600}}>{s.count}</span>
+                  </div>))}
+                </div>
+              </div>
             </div>
             <div>
-              <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:8}}>WO Priority (Critical vs Normal)</div>
-              <div style={{position:"relative",height:250,width:"100%"}}><canvas id="modalUnschedPriority" style={{width:"100%",height:"100%"}} /></div>
+              <div style={{fontSize:12,fontWeight:600,color:T.muted,textAlign:"center",marginBottom:8}}>SR Status by Category</div>
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                <div style={{position:"relative",height:200,width:"100%"}}><canvas id="modalSRStackedBar" style={{width:"100%",height:"100%"}} /></div>
+                <div style={{display:"flex",justifyContent:"center",gap:16,fontSize:10,color:T.muted}}>
+                  <span style={{display:"flex",alignItems:"center",gap:4}}><span style={{width:10,height:10,borderRadius:2,background:"#ef4444"}} /> Open</span>
+                  <span style={{display:"flex",alignItems:"center",gap:4}}><span style={{width:10,height:10,borderRadius:2,background:"#22c55e"}} /> Closed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Bar chart at bottom */}
+          <div style={{position:"relative",height:200,marginTop:10}}><canvas id="modalSRChart" style={{width:"100%",height:"100%"}} /></div>
+        </Modal>)}
+
+        {modal==="ncr"&&(<Modal title="NCR" onClose={()=>setModal(null)} T={T} onExport={undefined} onPrint={printPage}>
+          <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} />
+          
+          {/* NCR Modal - 3 cards like Unschedule */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:20}}>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 6px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Total</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#f59e0b"}}>{NCR_TOTAL}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 6px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Open ({((NCR_OPEN/NCR_TOTAL)*100).toFixed(1)}%)</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#ef4444"}}>{NCR_OPEN}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 6px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Closed ({((NCR_CLOSED/NCR_TOTAL)*100).toFixed(1)}%)</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#22c55e"}}>{NCR_CLOSED}</div>
+            </div>
+          </div>
+          
+          {/* NCR Open by Month — horizontal bar chart, one distinct color per bar (same design as "% by Indicator") */}
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:12,fontWeight:600,color:T.muted,marginBottom:8}}>NCR Open by Month</div>
+            <div style={{position:"relative",height:340,width:"100%"}}><canvas id="modalNCRMonthly" style={{width:"100%",height:"100%"}} /></div>
+          </div>
+          
+          {/* Bar chart at bottom */}
+          <div style={{position:"relative",height:200}}><canvas id="modalNCRChart" style={{width:"100%",height:"100%"}} /></div>
+        </Modal>)}
+
+        {modal==="deduction"&&(<Modal title="Deduction by Indicator" onClose={()=>setModal(null)} T={T} onExport={undefined} onPrint={printPage}><FilterRow year={modalDeductYear} setYear={setModalDeductYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} showMonth={false} T={T} />
+          <StatCards data={[{v:OVERALL_DEDUCTION+"%",l:"% Deduction",c:"#ef4444"},{v:DEDUCTION_LABELS.length.toString(),l:"Indicators",c:T.accent},{v:"RM 1,841",l:"Total Deduction",c:T.danger},{v:"F6",l:"Highest",c:"#ef4444"}]} T={T} />
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginBottom:20}}>
+            <div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>% by Indicator</div><div style={{position:"relative",height:300}}><canvas id="modalDeductBar" style={{width:"100%",height:"100%"}} /></div></div>
+            <div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>% Deduction Trend ({modalDeductYear})</div><div style={{position:"relative",height:300}}><canvas id="modalDeductLine" style={{width:"100%",height:"100%"}} /></div></div>
+          </div>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+            <thead><tr>{["Indicator","%","Deduction (RM)"].map(h=><th key={h} style={{background:T.accent+"10",color:T.accent,padding:"10px 12px",textAlign:"left",fontWeight:700,fontSize:12,borderBottom:`2px solid ${T.border}`}}>{h}</th>)}</tr></thead>
+            <tbody>{DEDUCTION_LABELS.map((label,i)=>(<tr key={i}><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:DEDUCTION_COLORS[i],fontWeight:600}}>{label}</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:T.text}}>{DEDUCTION_VALUES[i].toFixed(2)}%</td><td style={{padding:"10px 12px",borderBottom:`1px solid ${T.border}`,color:DEDUCTION_AMOUNTS[i]>0?T.danger:T.success,fontWeight:600}}>RM {DEDUCTION_AMOUNTS[i].toFixed(2)}</td></tr>))}</tbody>
+          </table>
+        </Modal>)}
+
+        {/* UNSCHEDULE MODAL */}
+        {modal==="unschedule"&&(<Modal title="Unschedule Work Order" onClose={()=>setModal(null)} T={T} onExport={undefined} onPrint={printPage}>
+          <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} />
+          
+          {/* SUMMARY CARDS */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:8,marginBottom:16}}>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Total WS</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#3b82f6"}}>{UNSCHEDULE_YEARLY_SUMMARY.totalGenerated}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Closed</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#22c55e"}}>{UNSCHEDULE_YEARLY_SUMMARY.closed}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Open</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#ef4444"}}>{UNSCHEDULE_YEARLY_SUMMARY.open}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>WIP</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#f97316"}}>{UNSCHEDULE_YEARLY_SUMMARY.wip}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Completed</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#22c55e"}}>{UNSCHEDULE_YEARLY_SUMMARY.completed}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Not Done</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#8b5cf6"}}>{UNSCHEDULE_YEARLY_SUMMARY.notDoneClosed}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Critical / Normal</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#dc2626"}}>{UNSCHEDULE_YEARLY_SUMMARY.critical}</div>
+              <div style={{fontSize:11,fontWeight:600,color:"#3b82f6"}}>{UNSCHEDULE_YEARLY_SUMMARY.normal}</div>
             </div>
           </div>
 
-          {/* TABLE SECTION */}
-          <div style={{marginBottom:20,overflowX:"auto"}}>
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-              <thead>
-                <tr style={{borderBottom:`2px solid ${T.border}`}}>
-                  <th style={{padding:"8px 10px",textAlign:"left",color:T.muted,fontWeight:700,fontSize:10,textTransform:"uppercase"}}>Month</th>
-                  <th style={{padding:"8px 10px",textAlign:"center",color:T.muted,fontWeight:700,fontSize:10,textTransform:"uppercase"}}>Total WO Generated</th>
-                  <th style={{padding:"8px 10px",textAlign:"center",color:T.muted,fontWeight:700,fontSize:10,textTransform:"uppercase"}}>Closed</th>
-                  <th style={{padding:"8px 10px",textAlign:"center",color:T.muted,fontWeight:700,fontSize:10,textTransform:"uppercase"}}>In-Progress</th>
-                  <th style={{padding:"8px 10px",textAlign:"center",color:T.muted,fontWeight:700,fontSize:10,textTransform:"uppercase"}}>Critical</th>
-                  <th style={{padding:"8px 10px",textAlign:"center",color:T.muted,fontWeight:700,fontSize:10,textTransform:"uppercase"}}>Normal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {UNSCHEDULE_MONTHLY_DATA.map((d,i)=>(
-                  <tr key={i} style={{borderBottom:`1px solid ${T.border}30`}}>
-                    <td style={{padding:"8px 10px",color:T.text,fontWeight:600}}>{d.month}</td>
-                    <td style={{padding:"8px 10px",textAlign:"center",color:T.accent,fontWeight:600}}>{d.totalGenerated}</td>
-                    <td style={{padding:"8px 10px",textAlign:"center",color:"#22c55e",fontWeight:600}}>{d.closed}</td>
-                    <td style={{padding:"8px 10px",textAlign:"center",color:"#f97316",fontWeight:600}}>{d.inProgress}</td>
-                    <td style={{padding:"8px 10px",textAlign:"center",color:"#dc2626",fontWeight:600}}>{d.critical}</td>
-                    <td style={{padding:"8px 10px",textAlign:"center",color:"#3b82f6",fontWeight:600}}>{d.normal}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* WO Status by Month - Full width */}
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:11,fontWeight:600,color:T.muted,marginBottom:3}}>WO Status by Month</div>
+            <div style={{position:"relative",height:180,width:"100%"}}><canvas id="modalUnschedMonthly" style={{width:"100%",height:"100%"}} /></div>
+            <div style={{display:"flex",justifyContent:"space-around",fontSize:8,color:T.muted,marginTop:2}}>
+              {UNSCHEDULE_MONTHLY_DATA.map(d => (
+                <span key={d.month}>{d.month}</span>
+              ))}
+            </div>
           </div>
 
-          {/* CATEGORY CARDS SECTION */}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-            {UNSCHEDULE_CATEGORIES.map((cat,i)=>{
-              const st=["open","wip","completed","cancel","rfCancel","notDoneClosed"].map(k=>({k,v:(cat as any)[k]||0})).filter(s=>s.v>0);
-              return(
-                <div key={cat.key} style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"14px"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
-                    <span style={{fontSize:14,fontWeight:700,textTransform:"uppercase",color:cat.color}}>{cat.label}</span>
-                    <span style={{fontSize:11,color:T.muted,marginLeft:"auto"}}>Total: <strong style={{color:T.text}}>{cat.total}</strong></span>
-                  </div>
-                  
-                  <div style={{display:"flex",gap:16,marginBottom:12}}>
-                    <div style={{position:"relative",width:100,height:100,flexShrink:0}}>
-                      <canvas id={`unschedCatPie${i}`} width={100} height={100} style={{width:100,height:100}} />
-                    </div>
-                    <div style={{flex:1,display:"flex",flexDirection:"column",gap:2,justifyContent:"center"}}>
-                      {st.map(s=>{
-                        const pct=Math.round((s.v/cat.total)*100);
-                        return(<div key={s.k} style={{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:10}}>
-                          <div style={{display:"flex",alignItems:"center",gap:4}}>
-                            <span style={{width:8,height:8,borderRadius:"50%",background:STATUS_COLORS[s.k],display:"inline-block",flexShrink:0}} />
-                            <span style={{color:T.muted}}>{STATUS_LABELS[s.k]}</span>
-                          </div>
-                          <span style={{color:T.text,fontWeight:600}}>{s.v} ({pct}%)</span>
-                        </div>);
-                      })}
-                    </div>
-                  </div>
-                  
-                  {cat.groups && (
-                    <div style={{marginBottom:10}}>
-                      <div style={{fontSize:11,fontWeight:600,color:T.muted,marginBottom:4}}>WO by Group (Status)</div>
-                      <div style={{position:"relative",height:130,width:"100%"}}>
-                        <canvas id={`unschedGroupChart${i}`} style={{width:"100%",height:"100%"}} />
-                      </div>
-                    </div>
-                  )}
-                  
-                  {cat.groups && (
-                    <div>
-                      <div style={{fontSize:11,fontWeight:600,color:T.muted,marginBottom:4}}>WO by Group (Priority)</div>
-                      <div style={{position:"relative",height:120,width:"100%"}}>
-                        <canvas id={`unschedGroupPriority${i}`} style={{width:"100%",height:"100%"}} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          {/* Critical/Normal Pie Chart on Left + WO by Group Horizontal Bar Chart on Right */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:16,marginBottom:16}}>
+            <div>
+              <div style={{fontSize:11,fontWeight:600,color:T.muted,marginBottom:3,textAlign:"center"}}>Critical / Normal</div>
+              <div style={{position:"relative",height:160,width:"100%"}}><canvas id="modalUnschedPriority" style={{width:"100%",height:"100%"}} /></div>
+            </div>
+            <div>
+              <div style={{fontSize:11,fontWeight:600,color:T.muted,marginBottom:3}}>WO by Group (Mechanical / Electrical / Civil)</div>
+              <div style={{position:"relative",height:160,width:"100%"}}><canvas id="modalUnschedGroupOverall" style={{width:"100%",height:"100%"}} /></div>
+            </div>
           </div>
         </Modal>)}
 
         {/* SCHEDULE MODAL */}
-        {modal==="schedule"&&(<Modal title="Schedule Work Order" onClose={()=>setModal(null)} T={T} onExport={()=>exportModalData("schedule",modalYear,()=>getSchedData)} onPrint={printPage}>
+        {modal==="schedule"&&(<Modal title="Schedule Work Order" onClose={()=>setModal(null)} T={T} onExport={undefined} onPrint={printPage}>
           <FilterRow year={modalYear} setYear={setModalYear} month={modalMonth} setMonth={setModalMonth} startDate={modalStartDate} setStartDate={setModalStartDate} endDate={modalEndDate} setEndDate={setModalEndDate} T={T} />
           
-          {/* SUMMARY CARDS - Yearly totals for Schedule */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:20}}>
-            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px",textAlign:"center"}}>
-              <div style={{fontSize:10,color:T.muted,textTransform:"uppercase"}}>Total WO Generated</div>
-              <div style={{fontSize:24,fontWeight:800,color:"#3b82f6"}}>{SCHEDULE_YEARLY_SUMMARY.totalGenerated}</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8,marginBottom:16}}>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Total WS</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#3b82f6"}}>{SCHEDULE_YEARLY_SUMMARY.totalGenerated}</div>
             </div>
-            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px",textAlign:"center"}}>
-              <div style={{fontSize:10,color:T.muted,textTransform:"uppercase"}}>Closed</div>
-              <div style={{fontSize:24,fontWeight:800,color:"#22c55e"}}>{SCHEDULE_YEARLY_SUMMARY.closed}</div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Closed</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#22c55e"}}>{SCHEDULE_YEARLY_SUMMARY.closed}</div>
             </div>
-            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 14px",textAlign:"center"}}>
-              <div style={{fontSize:10,color:T.muted,textTransform:"uppercase"}}>In-Progress</div>
-              <div style={{fontSize:24,fontWeight:800,color:"#f97316"}}>{SCHEDULE_YEARLY_SUMMARY.inProgress}</div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Open</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#ef4444"}}>{SCHEDULE_YEARLY_SUMMARY.open}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>WIP</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#f97316"}}>{SCHEDULE_YEARLY_SUMMARY.inProgress}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Cancel / Req Cancel</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#9ca3af"}}>{SCHEDULE_YEARLY_SUMMARY.cancel}</div>
+              <div style={{fontSize:11,fontWeight:600,color:"#eab308"}}>{SCHEDULE_YEARLY_SUMMARY.rfCancel}</div>
+            </div>
+            <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:8,padding:"8px 4px",textAlign:"center"}}>
+              <div style={{fontSize:8,color:T.muted,textTransform:"uppercase",letterSpacing:"0.3px"}}>Not Done</div>
+              <div style={{fontSize:18,fontWeight:700,color:"#8b5cf6"}}>{SCHEDULE_YEARLY_SUMMARY.notDoneClosed}</div>
             </div>
           </div>
 
-          {/* CHARTS SECTION */}
-          <div style={{display:"grid",gridTemplateColumns:"1fr",gap:20,marginBottom:20}}>
-            <div>
-              <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:8}}>WO Status by Month</div>
-              <div style={{position:"relative",height:280,width:"100%"}}><canvas id="modalSchedMonthly" style={{width:"100%",height:"100%"}} /></div>
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:11,fontWeight:600,color:T.muted,marginBottom:3}}>WO Status by Month</div>
+            <div style={{position:"relative",height:180,width:"100%"}}><canvas id="modalSchedMonthly" style={{width:"100%",height:"100%"}} /></div>
+            <div style={{display:"flex",justifyContent:"space-around",fontSize:8,color:T.muted,marginTop:2}}>
+              {SCHEDULE_MONTHLY_DATA.map(d => (
+                <span key={d.month}>{d.month}</span>
+              ))}
             </div>
           </div>
 
-          {/* TABLE SECTION */}
-          <div style={{marginBottom:20,overflowX:"auto"}}>
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-              <thead>
-                <tr style={{borderBottom:`2px solid ${T.border}`}}>
-                  <th style={{padding:"8px 10px",textAlign:"left",color:T.muted,fontWeight:700,fontSize:10,textTransform:"uppercase"}}>Month</th>
-                  <th style={{padding:"8px 10px",textAlign:"center",color:T.muted,fontWeight:700,fontSize:10,textTransform:"uppercase"}}>Total WO Generated</th>
-                  <th style={{padding:"8px 10px",textAlign:"center",color:T.muted,fontWeight:700,fontSize:10,textTransform:"uppercase"}}>Closed</th>
-                  <th style={{padding:"8px 10px",textAlign:"center",color:T.muted,fontWeight:700,fontSize:10,textTransform:"uppercase"}}>In-Progress</th>
-                </tr>
-              </thead>
-              <tbody>
-                {SCHEDULE_MONTHLY_DATA.map((d,i)=>(
-                  <tr key={i} style={{borderBottom:`1px solid ${T.border}30`}}>
-                    <td style={{padding:"8px 10px",color:T.text,fontWeight:600}}>{d.month}</td>
-                    <td style={{padding:"8px 10px",textAlign:"center",color:T.accent,fontWeight:600}}>{d.totalGenerated}</td>
-                    <td style={{padding:"8px 10px",textAlign:"center",color:"#22c55e",fontWeight:600}}>{d.closed}</td>
-                    <td style={{padding:"8px 10px",textAlign:"center",color:"#f97316",fontWeight:600}}>{d.inProgress}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* CATEGORY CARDS SECTION */}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16}}>
-            {SCHEDULE_CATEGORIES.map((cat,i)=>{
-              const st=["open","wip","completed","cancel","rfCancel","notDoneClosed"].map(k=>({k,v:(cat as any)[k]||0})).filter(s=>s.v>0);
-              return(
-                <div key={cat.key} style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:"14px"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
-                    <span style={{fontSize:14,fontWeight:700,textTransform:"uppercase",color:cat.color}}>{cat.label}</span>
-                    <span style={{fontSize:11,color:T.muted,marginLeft:"auto"}}>Total: <strong style={{color:T.text}}>{cat.total}</strong></span>
+          {/* Per-category donut breakdown — PPM / RI / SCM */}
+          <div style={{fontSize:11,fontWeight:600,color:T.muted,marginBottom:8}}>Breakdown by Category</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14}}>
+            {SCHEDULE_CATEGORIES.map(cat=>{
+              const statusKeys: (keyof typeof STATUS_LABELS)[] = ["open","wip","completed","cancel","rfCancel","notDoneClosed"];
+              return (
+                <div key={cat.key} style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:12,padding:12}}>
+                  <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:8}}>
+                    <span style={{width:8,height:8,borderRadius:"50%",background:cat.color,display:"inline-block",flexShrink:0}} />
+                    <span style={{fontSize:13,fontWeight:700,color:T.text}}>{cat.label}</span>
+                    <span style={{marginLeft:"auto",fontSize:10,color:T.muted}}>Total: {cat.total}</span>
                   </div>
-                  
-                  <div style={{display:"flex",gap:16,marginBottom:12}}>
-                    <div style={{position:"relative",width:100,height:100,flexShrink:0}}>
-                      <canvas id={`schedCatPie${i}`} width={100} height={100} style={{width:100,height:100}} />
-                    </div>
-                    <div style={{flex:1,display:"flex",flexDirection:"column",gap:2,justifyContent:"center"}}>
-                      {st.map(s=>{
-                        const pct=Math.round((s.v/cat.total)*100);
-                        return(<div key={s.k} style={{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:10}}>
-                          <div style={{display:"flex",alignItems:"center",gap:4}}>
-                            <span style={{width:8,height:8,borderRadius:"50%",background:STATUS_COLORS[s.k],display:"inline-block",flexShrink:0}} />
-                            <span style={{color:T.muted}}>{STATUS_LABELS[s.k]}</span>
-                          </div>
-                          <span style={{color:T.text,fontWeight:600}}>{s.v} ({pct}%)</span>
-                        </div>);
-                      })}
-                    </div>
+                  <div style={{position:"relative",height:150,marginBottom:10}}><canvas id={`sched_${cat.key}_pie`} style={{width:"100%",height:"100%"}} /></div>
+                  <div style={{display:"flex",flexDirection:"column",gap:3,marginBottom:12}}>
+                    {statusKeys.map(k=>{
+                      const v=(cat as any)[k] as number;
+                      const pct = cat.total ? ((v/cat.total)*100).toFixed(0) : "0";
+                      return (
+                        <div key={k} style={{display:"flex",alignItems:"center",gap:5,fontSize:10}}>
+                          <span style={{width:7,height:7,borderRadius:"50%",background:STATUS_COLORS[k],flexShrink:0}} />
+                          <span style={{color:T.muted}}>{STATUS_LABELS[k]}</span>
+                          <span style={{marginLeft:"auto",color:T.text,fontWeight:600}}>{v} <span style={{color:T.muted,fontWeight:400}}>({pct}%)</span></span>
+                        </div>
+                      );
+                    })}
                   </div>
-                  
-                  {cat.groups && (
-                    <div style={{marginTop:10}}>
-                      <div style={{fontSize:11,fontWeight:600,color:T.muted,marginBottom:4}}>WO by Group (Status)</div>
-                      <div style={{position:"relative",height:150,width:"100%"}}>
-                        <canvas id={`schedGroupChart${i}`} style={{width:"100%",height:"100%"}} />
-                      </div>
-                    </div>
-                  )}
+                  <div style={{fontSize:10,fontWeight:600,color:T.muted,marginBottom:4}}>WO by Group (M/E/C)</div>
+                  <div style={{position:"relative",height:130}}><canvas id={`sched_${cat.key}_group`} style={{width:"100%",height:"100%"}} /></div>
                 </div>
               );
             })}

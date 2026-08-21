@@ -8,7 +8,6 @@ declare global { interface Window { Chart: any; XLSX: any; } }
 
 /* ─── HWMS DATA ─────────────────────────────────── */
 const M6    = ["Sep '25","Oct '25","Nov '25","Dec '25","Jan '26","Feb '26"];
-const FINM  = ["Aug '25","Sep '25","Oct '25","Nov '25","Dec '25","Jan '26"];
 const MONTHS_12 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const MONTHS_10 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct"];
 
@@ -62,6 +61,15 @@ const SR_OUTSTANDING = 16;
 const SR_DONE = 10;
 const SR_TOTAL = SR_NORMAL + SR_OUTSTANDING + SR_DONE;
 
+/* ─── NCR TYPES ──────────────────────────────────── */
+const NCR_TYPES = [
+  "Documentation",
+  "Process Deviation",
+  "Safety Violation",
+  "Equipment Failure",
+  "Training Gap",
+];
+
 const NCR_TOTAL = 78;
 const NCR_OPEN = 58;
 const NCR_CLOSED = 20;
@@ -75,15 +83,33 @@ const NCR_BY_MONTH = [
   { month: "Feb '26", total: 78, open: 58, closed: 20, rate: "25.6%" },
 ];
 
+const NCR_BY_TYPE_HWMS = [
+  { type: "Documentation", count: 22, pct: 28.2, color: "#6F42C1" },
+  { type: "Process Deviation", count: 18, pct: 23.1, color: "#f97316" },
+  { type: "Safety Violation", count: 14, pct: 17.9, color: "#ef4444" },
+  { type: "Equipment Failure", count: 16, pct: 20.5, color: "#007BFF" },
+  { type: "Training Gap", count: 8, pct: 10.3, color: "#22c55e" },
+];
+
+const NCR_MOCK_DATA = [
+  { id: "NCR-HTA-001", type: "Documentation", date: "2026-01-04", status: "Open", department: "ICU", description: "Missing waste log entries" },
+  { id: "NCR-HTA-002", type: "Process Deviation", date: "2026-01-10", status: "Closed", department: "Laboratory", description: "Incorrect segregation procedure" },
+  { id: "NCR-HTA-003", type: "Safety Violation", date: "2026-01-16", status: "Open", department: "Emergency Dept", description: "PPE not worn during handling" },
+  { id: "NCR-HTA-004", type: "Equipment Failure", date: "2026-01-22", status: "Closed", department: "Operating Theatre", description: "Autoclave calibration overdue" },
+  { id: "NCR-HTA-005", type: "Training Gap", date: "2026-01-28", status: "Open", department: "Pharmacy", description: "Staff not certified on handling" },
+  { id: "NCR-HTA-006", type: "Documentation", date: "2026-02-03", status: "Open", department: "General Ward", description: "Incomplete manifest records" },
+  { id: "NCR-HTA-007", type: "Process Deviation", date: "2026-02-09", status: "Closed", department: "Radiology", description: "Storage temperature deviation" },
+  { id: "NCR-HTA-008", type: "Safety Violation", date: "2026-02-15", status: "Open", department: "Outpatient Clinic", description: "Sharps container overfilled" },
+  { id: "NCR-HTA-009", type: "Equipment Failure", date: "2026-02-20", status: "Open", department: "ICU", description: "Incinerator temperature fault" },
+  { id: "NCR-HTA-010", type: "Training Gap", date: "2026-02-25", status: "Closed", department: "Laboratory", description: "Refresher training overdue" },
+];
+
 const OVERALL_DEDUCTION = 0.03;
 const DEDUCTION_BY_MONTH = [0.03, 0.03, 0.02, 0.02, 0.01, 0.02, 0.06, 0.03, 0.02, 0.02];
 
 const HC_LABELS = ["% HC1","% HC2","% HC3","% HC4","% HC5"];
 const HC_VALUES = [25.64, 35.90, 6.64, 31.86, 0.0];
 const HC_COLORS = ["#007BFF","#6F42C1","#00CCCC","#17A2B8","#0DCAF0"];
-
-const FINANCE_INVOICE = [120105, 119326, 134552, 140710, 0, 0];
-const FINANCE_PENALTY = [0, 0, 0, 0, 0, 175];
 
 const LICENSE_EXPIRY = [
   { license: "Environmental License", expiry: "15 Dec 2026", status: "Active", daysLeft: 232 },
@@ -92,28 +118,6 @@ const LICENSE_EXPIRY = [
   { license: "Hazardous Waste Permit", expiry: "10 Jan 2027", status: "Active", daysLeft: 258 },
   { license: "Incinerator Operating License", expiry: "05 Jun 2026", status: "Warning", daysLeft: 39 },
 ];
-
-const COMPLAINTS_BY_MONTH = [
-  { month: "Jan", count: 12, resolved: 10, pending: 2 },
-  { month: "Feb", count: 15, resolved: 13, pending: 2 },
-  { month: "Mar", count: 8, resolved: 8, pending: 0 },
-  { month: "Apr", count: 18, resolved: 15, pending: 3 },
-  { month: "May", count: 10, resolved: 9, pending: 1 },
-  { month: "Jun", count: 14, resolved: 12, pending: 2 },
-  { month: "Jul", count: 20, resolved: 17, pending: 3 },
-  { month: "Aug", count: 16, resolved: 14, pending: 2 },
-  { month: "Sep", count: 11, resolved: 10, pending: 1 },
-  { month: "Oct", count: 9, resolved: 9, pending: 0 },
-];
-const COMPLAINTS_BY_TYPE = [
-  { type: "Missed Collection", count: 45, color: "#ef4444" },
-  { type: "Spillage", count: 28, color: "#f97316" },
-  { type: "Late Service", count: 22, color: "#FFB703" },
-  { type: "Staff Conduct", count: 18, color: "#007BFF" },
-  { type: "Container Damage", count: 12, color: "#6F42C1" },
-  { type: "Others", count: 8, color: "#6b7280" },
-];
-const TOTAL_COMPLAINTS = COMPLAINTS_BY_TYPE.reduce((a, b) => a + b.count, 0);
 
 const HTA_COLLECTION = { scheduled: 5340, collected: 5328, missed: 12, pct: 99.78 };
 
@@ -128,41 +132,12 @@ const WASTE_GEN_BY_CATEGORY = [
   { category: "Radioactive Waste", jan: 0.003, feb: 0.002, mar: 0.004, apr: 0.002, may: 0.003, jun: 0.003, total: 0.017, color: "#FFD700" },
 ];
 
-const WASTE_GEN_BY_DEPARTMENT = [
-  { department: "Emergency Dept", jan: 0.065, feb: 0.062, mar: 0.068, apr: 0.060, may: 0.064, jun: 0.066, total: 0.385, color: "#ef4444" },
-  { department: "ICU", jan: 0.048, feb: 0.046, mar: 0.050, apr: 0.044, may: 0.047, jun: 0.049, total: 0.284, color: "#007BFF" },
-  { department: "General Ward", jan: 0.095, feb: 0.092, mar: 0.098, apr: 0.090, may: 0.093, jun: 0.096, total: 0.564, color: "#22c55e" },
-  { department: "Operating Theatre", jan: 0.072, feb: 0.069, mar: 0.074, apr: 0.068, may: 0.071, jun: 0.073, total: 0.427, color: "#6F42C1" },
-  { department: "Laboratory", jan: 0.038, feb: 0.036, mar: 0.040, apr: 0.035, may: 0.037, jun: 0.039, total: 0.225, color: "#f97316" },
-  { department: "Pharmacy", jan: 0.022, feb: 0.020, mar: 0.024, apr: 0.019, may: 0.021, jun: 0.023, total: 0.129, color: "#00CCCC" },
-  { department: "Radiology", jan: 0.015, feb: 0.014, mar: 0.016, apr: 0.013, may: 0.015, jun: 0.016, total: 0.089, color: "#17A2B8" },
-  { department: "Outpatient Clinic", jan: 0.055, feb: 0.053, mar: 0.057, apr: 0.051, may: 0.054, jun: 0.056, total: 0.326, color: "#FFB703" },
-];
-
-const WASTE_TREATMENT_DATA = [
-  { month: "Jan", incineration: 280, autoclave: 150, chemical: 45, landfill: 30 },
-  { month: "Feb", incineration: 265, autoclave: 140, chemical: 40, landfill: 28 },
-  { month: "Mar", incineration: 290, autoclave: 155, chemical: 48, landfill: 32 },
-  { month: "Apr", incineration: 275, autoclave: 145, chemical: 42, landfill: 29 },
-  { month: "May", incineration: 300, autoclave: 160, chemical: 50, landfill: 35 },
-  { month: "Jun", incineration: 285, autoclave: 148, chemical: 46, landfill: 31 },
-];
-
-const TREATMENT_FACILITIES = [
-  { facility: "Incinerator Unit A", capacity: 500, utilized: 420, availability: 80, status: "Operational", efficiency: 94.5 },
-  { facility: "Autoclave Unit B", capacity: 450, utilized: 380, availability: 70, status: "Operational", efficiency: 91.2 },
-  { facility: "Chemical Treatment C", capacity: 300, utilized: 250, availability: 50, status: "Operational", efficiency: 96.1 },
-  { facility: "Waste Storage Facility", capacity: 600, utilized: 550, availability: 50, status: "Near Capacity", efficiency: 88.7 },
-];
-
-const TEST_PARAMS = [
-  { parameter: "Temperature (°C)", standard: "850-1100", jan: 980, feb: 995, mar: 972, apr: 988, may: 1002, jun: 990, status: "Pass" },
-  { parameter: "Residence Time (sec)", standard: "≥2.0", jan: 2.4, feb: 2.3, mar: 2.5, apr: 2.2, may: 2.4, jun: 2.3, status: "Pass" },
-  { parameter: "CO Emission (mg/Nm³)", standard: "<50", jan: 32, feb: 28, mar: 35, apr: 30, may: 27, jun: 29, status: "Pass" },
-  { parameter: "Particulate (mg/Nm³)", standard: "<10", jan: 6.2, feb: 5.8, mar: 6.5, apr: 5.9, may: 5.5, jun: 6.0, status: "Pass" },
-  { parameter: "HCl Removal (%)", standard: ">99", jan: 99.5, feb: 99.6, mar: 99.4, apr: 99.6, may: 99.5, jun: 99.7, status: "Pass" },
-  { parameter: "Heavy Metals (mg/Nm³)", standard: "<0.5", jan: 0.12, feb: 0.10, mar: 0.14, apr: 0.11, may: 0.09, jun: 0.10, status: "Pass" },
-];
+/* Overall waste generation per month (sum across all categories) */
+const WASTE_GEN_OVERALL_BY_MONTH = (() => {
+  const keys: ("jan"|"feb"|"mar"|"apr"|"may"|"jun")[] = ["jan","feb","mar","apr","may","jun"];
+  return keys.map(k => +WASTE_GEN_BY_CATEGORY.reduce((sum, c) => sum + (c as any)[k], 0).toFixed(3));
+})();
+const WASTE_GEN_OVERALL_TOTAL = +WASTE_GEN_BY_CATEGORY.reduce((a, b) => a + b.total, 0).toFixed(3);
 
 /* ─── THEMES ────────────────────────────────────── */
 const THEMES = {
@@ -221,11 +196,8 @@ const NAV_PAGES = [
 /* ─── HWMS PERFORMANCE TABS ─────────────────────── */
 const HWMS_TABS = [
   { key:"licenses",      label:"Licenses" },
-  { key:"complaints",    label:"Complaints" },
   { key:"wastecoll",     label:"Waste Collection" },
   { key:"wastegen",      label:"Waste Generation" },
-  { key:"wastetreat",    label:"Waste Treatment" },
-  { key:"treatfacility", label:"Treatment Facility" },
   { key:"testparam",     label:"Test Parameter" },
 ];
 
@@ -236,6 +208,15 @@ const MONTHS_LIST = [
 ];
 
 const YEARS_LIST = ["2024", "2025", "2026", "2027"];
+
+const TEST_PARAMS = [
+  { parameter: "Temperature (°C)", standard: "850-1100", jan: 980, feb: 995, mar: 972, apr: 988, may: 1002, jun: 990, status: "Pass" },
+  { parameter: "Residence Time (sec)", standard: "≥2.0", jan: 2.4, feb: 2.3, mar: 2.5, apr: 2.2, may: 2.4, jun: 2.3, status: "Pass" },
+  { parameter: "CO Emission (mg/Nm³)", standard: "<50", jan: 32, feb: 28, mar: 35, apr: 30, may: 27, jun: 29, status: "Pass" },
+  { parameter: "Particulate (mg/Nm³)", standard: "<10", jan: 6.2, feb: 5.8, mar: 6.5, apr: 5.9, may: 5.5, jun: 6.0, status: "Pass" },
+  { parameter: "HCl Removal (%)", standard: ">99", jan: 99.5, feb: 99.6, mar: 99.4, apr: 99.6, may: 99.5, jun: 99.7, status: "Pass" },
+  { parameter: "Heavy Metals (mg/Nm³)", standard: "<0.5", jan: 0.12, feb: 0.10, mar: 0.14, apr: 0.11, may: 0.09, jun: 0.10, status: "Pass" },
+];
 
 /* ─── CHART HELPERS ─────────────────────────────── */
 function drawChart(id:string,type:string,data:any,options:any){
@@ -377,11 +358,12 @@ function getContrastText(h:string){
   return(r*299+g*587+b*114)/1000>128?"#ffffff":"#ffffff";
 }
 
-function Modal({title,onClose,children,T,onPrint,onExport,startDate,endDate,onStartChange,onEndChange,selectedYear,selectedMonth,onYearChange,onMonthChange,showSRFilter,srTypeFilter,onSRTypeChange}:{
+function Modal({title,onClose,children,T,onPrint,onExport,startDate,endDate,onStartChange,onEndChange,selectedYear,selectedMonth,onYearChange,onMonthChange,showSRFilter,srTypeFilter,onSRTypeChange,showNCRFilter,ncrTypeFilter,onNCRTypeChange}:{
   title:string;onClose:()=>void;children:React.ReactNode;T:Theme;onPrint?:()=>void;onExport?:()=>void;
   startDate:string;endDate:string;onStartChange:(v:string)=>void;onEndChange:(v:string)=>void;
   selectedYear:string;selectedMonth:string;onYearChange:(v:string)=>void;onMonthChange:(v:string)=>void;
   showSRFilter?:boolean;srTypeFilter?:string;onSRTypeChange?:(v:string)=>void;
+  showNCRFilter?:boolean;ncrTypeFilter?:string;onNCRTypeChange?:(v:string)=>void;
 }){
   const selectStyle:React.CSSProperties={
     background:T.inputBg,color:T.text,padding:"6px 30px 6px 10px",borderRadius:8,fontSize:12,
@@ -399,6 +381,13 @@ function Modal({title,onClose,children,T,onPrint,onExport,startDate,endDate,onSt
               <select value={srTypeFilter||""} onChange={e=>onSRTypeChange(e.target.value)} style={selectStyle}>
                 <option value="">All SR Types</option>
                 {SR_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
+              </select>
+            )}
+            {/* NCR Type Filter for NCR Modal */}
+            {showNCRFilter && onNCRTypeChange && (
+              <select value={ncrTypeFilter||""} onChange={e=>onNCRTypeChange(e.target.value)} style={selectStyle}>
+                <option value="">All NCR Types</option>
+                {NCR_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
               </select>
             )}
             <button onClick={onExport} title="Export to Excel" style={{background:T.success+"12",border:`1px solid ${T.success}25`,color:T.success,width:36,height:36,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-file-earmark-excel" size={16} color={T.success} /></button>
@@ -428,7 +417,6 @@ export default function HWMSDashboard(){
   const { openSidebar } = useDashboardNav();
   const [activePage,setActivePage]=useState("hwm");
   const [activeTab,setActiveTab]=useState("licenses");
-  const [wasteGenView,setWasteGenView]=useState<"category"|"department">("category");
   const [modal,setModal]=useState<string|null>(null);
   const [themeName,setThemeName]=useState<"dark"|"light">("light");
   const [frequency,setFrequency]=useState("monthly");
@@ -450,6 +438,9 @@ export default function HWMSDashboard(){
   // SR Type filter for SR modal
   const [srTypeFilter,setSRTypeFilter]=useState("");
 
+  // NCR Type filter for NCR modal
+  const [ncrTypeFilter,setNCRTypeFilter]=useState("");
+
   const T=THEMES[themeName];
   const scriptsReady=useRef(false);
   const baseChartsInited=useRef(false);
@@ -470,31 +461,19 @@ export default function HWMSDashboard(){
 
   useEffect(()=>{
     if(scriptsReady.current&&baseChartsInited.current)setTimeout(()=>initTab(activeTab),200);
-  },[themeName,activeTab,wasteGenView]);
+  },[themeName,activeTab]);
 
   const initTab=(tab:string)=>{
     if(!window.Chart){setTimeout(()=>initTab(tab),200);return;}
-    ["licensesChart","complaintsChart","complaintsPie","complaintsLine","wasteCollChart","wasteGenCatChart","wasteGenDeptChart","wasteTreatChart","treatFacChart","testParamChart","financeChart","deductIndicatorPie"].forEach(id=>{
+    ["licensesChart","wasteCollChart","wasteGenOverallChart","testParamChart","deductIndicatorPie"].forEach(id=>{
       const c=document.getElementById(id) as HTMLCanvasElement;
       if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}
     });
 
     if(tab==="licenses") mkBar("licensesChart",LICENSE_EXPIRY.map(l=>l.license.split(" ")[0]),LICENSE_EXPIRY.map(l=>l.daysLeft),LICENSE_EXPIRY.map(l=>l.status==="Warning"?"#f97316":"#22c55e"),T,{indexAxis:"y"});
-    if(tab==="complaints"){
-      mkBar("complaintsChart",COMPLAINTS_BY_MONTH.map(m=>m.month),COMPLAINTS_BY_MONTH.map(m=>m.count),Array(10).fill("#007BFF"),T);
-      mkPie("complaintsPie",COMPLAINTS_BY_TYPE.map(c=>c.type),COMPLAINTS_BY_TYPE.map(c=>c.count),COMPLAINTS_BY_TYPE.map(c=>c.color),T,"50%");
-      mkLine("complaintsLine",COMPLAINTS_BY_MONTH.map(m=>m.month),[{data:COMPLAINTS_BY_MONTH.map(m=>m.resolved),borderColor:"#22c55e",backgroundColor:"#22c55e22",fill:true,pointRadius:4,borderWidth:2.5},{data:COMPLAINTS_BY_MONTH.map(m=>m.pending),borderColor:"#ef4444",backgroundColor:"#ef444422",fill:true,pointRadius:4,borderWidth:2.5}],T);
-    }
     if(tab==="wastecoll") mkBar("wasteCollChart",["HTA"],[HTA_COLLECTION.pct],["#6F42C1"],T);
-    if(tab==="wastegen"){
-      if(wasteGenView==="category") mkStackedBar("wasteGenCatChart",["Jan","Feb","Mar","Apr","May","Jun"],WASTE_GEN_BY_CATEGORY.map(c=>({label:c.category,data:[c.jan,c.feb,c.mar,c.apr,c.may,c.jun],backgroundColor:c.color,borderRadius:4})),T);
-      else mkStackedBar("wasteGenDeptChart",["Jan","Feb","Mar","Apr","May","Jun"],WASTE_GEN_BY_DEPARTMENT.map(d=>({label:d.department,data:[d.jan,d.feb,d.mar,d.apr,d.may,d.jun],backgroundColor:d.color,borderRadius:4})),T);
-    }
-    if(tab==="wastetreat") mkStackedBar("wasteTreatChart",WASTE_TREATMENT_DATA.map(d=>d.month),[{label:"Incineration",data:WASTE_TREATMENT_DATA.map(d=>d.incineration),backgroundColor:"#ef4444",borderRadius:4},{label:"Autoclave",data:WASTE_TREATMENT_DATA.map(d=>d.autoclave),backgroundColor:"#007BFF",borderRadius:4},{label:"Chemical",data:WASTE_TREATMENT_DATA.map(d=>d.chemical),backgroundColor:"#00CCCC",borderRadius:4},{label:"Landfill",data:WASTE_TREATMENT_DATA.map(d=>d.landfill),backgroundColor:"#6b7280",borderRadius:4}],T);
-    if(tab==="treatfacility") mkBar("treatFacChart",TREATMENT_FACILITIES.map(f=>f.facility),TREATMENT_FACILITIES.map(f=>f.efficiency),TREATMENT_FACILITIES.map(f=>f.efficiency>=95?"#22c55e":f.efficiency>=90?"#FFB703":"#ef4444"),T,{indexAxis:"y"});
-    if(tab==="testparam") mkBar("testParamChart",TEST_PARAMS.map(p=>p.parameter.split(" (")[0]),TEST_PARAMS.map(p=>p.jun),Array(TEST_PARAMS.length).fill("#17A2B8"),T,{indexAxis:"y"});
+    if(tab==="wastegen") mkLine("wasteGenOverallChart",["Jan","Feb","Mar","Apr","May","Jun"],[{data:WASTE_GEN_OVERALL_BY_MONTH,borderColor:C.primary2,backgroundColor:C.primary2+"22",fill:true,pointRadius:5,borderWidth:3}],T,{scales:{y:{ticks:{callback:(v:number)=>v.toFixed(3)}}}});
     mkPie("deductIndicatorPie",HC_LABELS,HC_VALUES,HC_COLORS,T,"50%");
-    mkLine("financeChart",FINM,[{data:FINANCE_INVOICE,borderColor:T.accent,backgroundColor:T.accent+"22",fill:true,pointRadius:4,borderWidth:2.5},{data:FINANCE_PENALTY,borderColor:T.danger,backgroundColor:T.danger+"18",fill:true,pointRadius:4,borderWidth:2.5}],T,{scales:{y:{ticks:{callback:(v:number)=>"RM "+(v>=1000?(v/1000).toFixed(0)+"k":v)}}}});
   };
 
   // Filter SR data by type
@@ -509,11 +488,16 @@ export default function HWMSDashboard(){
     return SR_BY_TYPE_HWMS.filter(sr => sr.type === srTypeFilter);
   };
 
-  // Calculate filtered SR total
-  const getFilteredSRTotal = () => {
-    if (!srTypeFilter) return SR_TOTAL;
-    const filtered = SR_BY_TYPE_HWMS.find(sr => sr.type === srTypeFilter);
-    return filtered ? filtered.count : 0;
+  // Filter NCR data by type
+  const getFilteredNCRData = () => {
+    if (!ncrTypeFilter) return NCR_MOCK_DATA;
+    return NCR_MOCK_DATA.filter(n => n.type === ncrTypeFilter);
+  };
+
+  // Filter NCR type stats
+  const getFilteredNCRTypes = () => {
+    if (!ncrTypeFilter) return NCR_BY_TYPE_HWMS;
+    return NCR_BY_TYPE_HWMS.filter(n => n.type === ncrTypeFilter);
   };
 
   const openModal=(id:string)=>{
@@ -523,9 +507,10 @@ export default function HWMSDashboard(){
     setModalYear(selectedYear);
     setModalMonth("");
     setSRTypeFilter("");
+    setNCRTypeFilter("");
     setModal(id);
     setTimeout(()=>{
-      ["m-srBar","m-srPie","m-ncrBar","m-lBar","m-deductLine","m-finLine"].forEach(i=>{
+      ["m-srBar","m-srPie","m-ncrBar","m-ncrPie","m-lBar","m-deductLine"].forEach(i=>{
         const c=document.getElementById(i) as HTMLCanvasElement;
         if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}
       });
@@ -534,16 +519,14 @@ export default function HWMSDashboard(){
         mkBar("m-srBar",["Total","Normal","Outstanding","Done","Critical"],[SR_TOTAL,SR_NORMAL,SR_OUTSTANDING,SR_DONE,SR_CRITICAL],[T.accent,T.success,T.warn,T.success,T.danger],T);
         mkPie("m-srPie",filteredTypes.map(s=>s.type),filteredTypes.map(s=>s.count),filteredTypes.map(s=>s.color),T,"50%");
       }
-      if(id==="ncr") mkBar("m-ncrBar",M6,NCR_BY_MONTH.map(n=>n.total),Array(6).fill(T.warn),T);
+      if(id==="ncr"){
+        const filteredTypes = getFilteredNCRTypes();
+        mkBar("m-ncrBar",M6,NCR_BY_MONTH.map(n=>n.total),Array(6).fill(T.warn),T);
+        mkPie("m-ncrPie",filteredTypes.map(n=>n.type),filteredTypes.map(n=>n.count),filteredTypes.map(n=>n.color),T,"50%");
+      }
       if(id==="deduct"){
         mkBar("m-lBar",HC_LABELS,HC_VALUES,HC_COLORS,T,{indexAxis:"y"});
         mkLine("m-deductLine",MONTHS_10,[{data:DEDUCTION_BY_MONTH,borderColor:C.primary1,backgroundColor:C.primary1+"22",fill:true,pointRadius:5,borderWidth:3}],T,{scales:{y:{ticks:{callback:(v:number)=>v.toFixed(2)+"%"}}}});
-      }
-      if(id==="finance"){
-        mkLine("m-finLine",FINM,[
-          {data:FINANCE_INVOICE,borderColor:T.accent,backgroundColor:T.accent+"22",fill:true,pointRadius:6,borderWidth:3,label:"Invoice"},
-          {data:FINANCE_PENALTY,borderColor:T.danger,backgroundColor:T.danger+"18",fill:true,pointRadius:6,borderWidth:3,label:"Penalty"},
-        ],T,{plugins:{legend:{display:true}},scales:{y:{ticks:{callback:(v:number)=>"RM "+(v>=1000?(v/1000).toFixed(0)+"k":v)}}}});
       }
     },200);
   };
@@ -555,6 +538,16 @@ export default function HWMSDashboard(){
       const c=document.getElementById("m-srPie") as HTMLCanvasElement;
       if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}
       mkPie("m-srPie",filteredTypes.map(s=>s.type),filteredTypes.map(s=>s.count),filteredTypes.map(s=>s.color),T,"50%");
+    },100);
+  };
+
+  const handleNCRTypeChange = (type:string) => {
+    setNCRTypeFilter(type);
+    setTimeout(()=>{
+      const filteredTypes = type ? NCR_BY_TYPE_HWMS.filter(n => n.type === type) : NCR_BY_TYPE_HWMS;
+      const c=document.getElementById("m-ncrPie") as HTMLCanvasElement;
+      if(c){const ex=window.Chart.getChart(c);if(ex)ex.destroy();}
+      mkPie("m-ncrPie",filteredTypes.map(n=>n.type),filteredTypes.map(n=>n.count),filteredTypes.map(n=>n.color),T,"50%");
     },100);
   };
 
@@ -582,6 +575,10 @@ export default function HWMSDashboard(){
   const exportNCRModal = () => {
     const data = [["Month","Total NCR","Open","Closed","Closure Rate"]];
     NCR_BY_MONTH.forEach(n => data.push([n.month,String(n.total),String(n.open),String(n.closed),n.rate]));
+    const filtered = getFilteredNCRData();
+    data.push([]);
+    data.push(["ID","Type","Date","Status","Department","Description"]);
+    filtered.forEach(n => data.push([n.id,n.type,n.date,n.status,n.department,n.description]));
     exportModalExcel("NCR",data);
   };
 
@@ -589,12 +586,6 @@ export default function HWMSDashboard(){
     const data = [["Indicator","% Weight","Deduction (RM)"]];
     HC_LABELS.forEach((label,i) => data.push([label,HC_VALUES[i].toFixed(2)+"%","RM 0.00"]));
     exportModalExcel("Deduction",data);
-  };
-
-  const exportFinanceModal = () => {
-    const data = [["Month","Invoice (RM)","Penalty (RM)"]];
-    [["Aug '25","120,105.00","0.00"],["Sep '25","119,326.00","0.00"],["Oct '25","134,552.00","0.00"],["Nov '25","140,710.00","0.00"],["Dec '25","0.00","0.00"],["Jan '26","0.00","175.00"]].forEach(r=>data.push(r));
-    exportModalExcel("Finance",data);
   };
 
   return(
@@ -679,21 +670,6 @@ export default function HWMSDashboard(){
                     </div>
                   </div>)}
 
-                  {/* COMPLAINTS TAB */}
-                  {activeTab==="complaints"&&(<div style={{display:"flex",flexDirection:"column",gap:12,height:"100%"}}>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Total Complaints</div><div style={{fontSize:22,fontWeight:800,color:T.danger}}>{TOTAL_COMPLAINTS}</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Resolved</div><div style={{fontSize:22,fontWeight:800,color:T.success}}>{COMPLAINTS_BY_MONTH.reduce((a,b)=>a+b.resolved,0)}</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Pending</div><div style={{fontSize:22,fontWeight:800,color:T.warn}}>{COMPLAINTS_BY_MONTH.reduce((a,b)=>a+b.pending,0)}</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Resolution Rate</div><div style={{fontSize:22,fontWeight:800,color:T.accent}}>{(COMPLAINTS_BY_MONTH.reduce((a,b)=>a+b.resolved,0)/COMPLAINTS_BY_MONTH.reduce((a,b)=>a+b.count,0)*100).toFixed(1)}%</div></div>
-                    </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,flex:1}}>
-                      <div style={{...panel({padding:"12px"})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Complaints by Month</div><div style={{position:"relative",height:200}}><canvas id="complaintsChart" /></div></div>
-                      <div style={{...panel({padding:"12px"})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Complaints by Type</div><div style={{display:"flex",alignItems:"center",gap:12,height:200}}><div style={{position:"relative",width:120,height:120,flexShrink:0}}><canvas id="complaintsPie" /></div><div style={{flex:1}}>{COMPLAINTS_BY_TYPE.map((c,i)=>(<div key={c.type} style={{marginBottom:6}}><div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:7,height:7,borderRadius:"50%",background:c.color}} /><span style={{fontSize:10,color:T.muted}}>{c.type}</span></div><div style={{fontSize:13,fontWeight:700,color:T.text,marginLeft:11}}>{c.count} ({((c.count/TOTAL_COMPLAINTS)*100).toFixed(1)}%)</div></div>))}</div></div></div>
-                    </div>
-                    <div style={{...panel({padding:"12px",flex:1})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Resolution Trend</div><div style={{position:"relative",height:180}}><canvas id="complaintsLine" /></div><div style={{display:"flex",gap:14,marginTop:6}}><div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:"#22c55e"}} />Resolved</div><div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:"#ef4444"}} />Pending</div></div></div>
-                  </div>)}
-
                   {/* WASTE COLLECTION TAB */}
                   {activeTab==="wastecoll"&&(<div style={{display:"flex",flexDirection:"column",gap:12,height:"100%"}}>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
@@ -705,71 +681,37 @@ export default function HWMSDashboard(){
                     <div style={{...panel({padding:"12px",flex:1})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Collection Performance - HTA</div><div style={{position:"relative",height:280}}><canvas id="wasteCollChart" /></div></div>
                   </div>)}
 
-                  {/* WASTE GENERATION TAB */}
+                  {/* WASTE GENERATION TAB — Overall only */}
                   {activeTab==="wastegen"&&(<div style={{display:"flex",flexDirection:"column",gap:12,height:"100%"}}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                      <span style={{fontSize:12,fontWeight:700,color:T.text}}>Waste Generation Data - HTA</span>
-                      <div className="no-print" style={{display:"flex",gap:6}}>
-                        <button onClick={()=>setWasteGenView("category")} style={{fontSize:11,padding:"6px 14px",borderRadius:20,border:`1px solid ${wasteGenView==="category"?T.accent:T.border}`,background:wasteGenView==="category"?T.accent+"15":"transparent",color:wasteGenView==="category"?T.accent:T.muted,cursor:"pointer",fontWeight:wasteGenView==="category"?700:400}}>By Category</button>
-                        <button onClick={()=>setWasteGenView("department")} style={{fontSize:11,padding:"6px 14px",borderRadius:20,border:`1px solid ${wasteGenView==="department"?T.accent:T.border}`,background:wasteGenView==="department"?T.accent+"15":"transparent",color:wasteGenView==="department"?T.accent:T.muted,cursor:"pointer",fontWeight:wasteGenView==="department"?700:400}}>By Department</button>
-                      </div>
-                    </div>
+                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>Waste Generation Data - HTA (Overall)</div>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Total (juta Kg)</div><div style={{fontSize:18,fontWeight:800,color:C.primary2}}>{(wasteGenView==="category"?WASTE_GEN_BY_CATEGORY:WASTE_GEN_BY_DEPARTMENT).reduce((a,b)=>a+b.total,0).toFixed(3)}</div></div>
+                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Total (juta Kg)</div><div style={{fontSize:18,fontWeight:800,color:C.primary2}}>{WASTE_GEN_OVERALL_TOTAL.toFixed(3)}</div></div>
                       <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>General Waste</div><div style={{fontSize:18,fontWeight:800,color:"#1a1a1a"}}>{WASTE_GEN_BY_CATEGORY[3].total.toFixed(3)}</div></div>
                       <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Clinical Waste</div><div style={{fontSize:18,fontWeight:800,color:"#FFB703"}}>{WASTE_GEN_BY_CATEGORY[0].total.toFixed(3)}</div></div>
                       <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Infectious Waste</div><div style={{fontSize:18,fontWeight:800,color:"#f97316"}}>{WASTE_GEN_BY_CATEGORY[5].total.toFixed(3)}</div></div>
                     </div>
-                    <div style={{...panel({padding:"12px",flex:1})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>{wasteGenView==="category"?"Waste Generation by Category (Jan–Jun)":"Waste Generation by Department (Jan–Jun)"}</div><div style={{position:"relative",height:280}}><canvas id={wasteGenView==="category"?"wasteGenCatChart":"wasteGenDeptChart"} /></div></div>
+                    <div style={{...panel({padding:"12px",flex:1})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Overall Waste Generation (Jan–Jun)</div><div style={{position:"relative",height:280}}><canvas id="wasteGenOverallChart" /></div></div>
                   </div>)}
 
-                  {/* WASTE TREATMENT TAB */}
-                  {activeTab==="wastetreat"&&(<div style={{display:"flex",flexDirection:"column",gap:12,height:"100%"}}>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Total Treated</div><div style={{fontSize:20,fontWeight:800,color:C.primary2}}>{WASTE_TREATMENT_DATA.reduce((a,b)=>a+b.incineration+b.autoclave+b.chemical+b.landfill,0).toLocaleString()} Kg</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Incineration %</div><div style={{fontSize:20,fontWeight:800,color:"#ef4444"}}>{(WASTE_TREATMENT_DATA.reduce((a,b)=>a+b.incineration,0)/WASTE_TREATMENT_DATA.reduce((a,b)=>a+b.incineration+b.autoclave+b.chemical+b.landfill,0)*100).toFixed(1)}%</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Autoclave %</div><div style={{fontSize:20,fontWeight:800,color:"#007BFF"}}>{(WASTE_TREATMENT_DATA.reduce((a,b)=>a+b.autoclave,0)/WASTE_TREATMENT_DATA.reduce((a,b)=>a+b.incineration+b.autoclave+b.chemical+b.landfill,0)*100).toFixed(1)}%</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Avg Monthly</div><div style={{fontSize:20,fontWeight:800,color:C.primary1}}>{Math.round(WASTE_TREATMENT_DATA.reduce((a,b)=>a+b.incineration+b.autoclave+b.chemical+b.landfill,0)/6).toLocaleString()} Kg</div></div>
-                    </div>
-                    <div style={{...panel({padding:"12px",flex:1})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Waste Treatment by Method (Jan–Jun)</div><div style={{position:"relative",height:280}}><canvas id="wasteTreatChart" /></div></div>
-                  </div>)}
-
-                  {/* TREATMENT FACILITY TAB */}
-                  {activeTab==="treatfacility"&&(<div style={{display:"flex",flexDirection:"column",gap:12,height:"100%"}}>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Total Facilities</div><div style={{fontSize:22,fontWeight:800,color:T.accent}}>{TREATMENT_FACILITIES.length}</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Operational</div><div style={{fontSize:22,fontWeight:800,color:T.success}}>{TREATMENT_FACILITIES.filter(f=>f.status==="Operational").length}</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Total Capacity</div><div style={{fontSize:22,fontWeight:800,color:C.primary2}}>{TREATMENT_FACILITIES.reduce((a,b)=>a+b.capacity,0).toLocaleString()}</div></div>
-                      <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Avg Efficiency</div><div style={{fontSize:22,fontWeight:800,color:C.primary1}}>{(TREATMENT_FACILITIES.reduce((a,b)=>a+b.efficiency,0)/4).toFixed(1)}%</div></div>
-                    </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,flex:1}}>
-                      <div style={{...panel({padding:"12px"})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Facility Efficiency (%)</div><div style={{position:"relative",height:260}}><canvas id="treatFacChart" /></div></div>
-                      <div style={{...panel({padding:"12px"})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Facility Details</div><div style={{display:"flex",flexDirection:"column",gap:8}}>{TREATMENT_FACILITIES.map((f,i)=>(<div key={i} style={{padding:"12px",background:T.card,borderRadius:10,border:`1px solid ${T.border}`}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{fontSize:12,fontWeight:600,color:T.text}}>{f.facility}</span><Badge color={f.status==="Operational"?"green":"warn"} T={T}>{f.status}</Badge></div><div style={{display:"flex",gap:12,fontSize:10,color:T.muted}}><span>Capacity: <strong style={{color:T.text}}>{f.capacity}</strong></span><span>Utilized: <strong style={{color:T.text}}>{f.utilized}</strong></span><span>Available: <strong style={{color:T.success}}>{f.availability}</strong></span><span style={{color:f.efficiency>=95?T.success:f.efficiency>=90?T.warn:T.danger,fontWeight:600}}>Efficiency: {f.efficiency}%</span></div></div>))}</div></div>
-                    </div>
-                  </div>)}
-
-                  {/* TEST PARAMETER TAB */}
+                  {/* TEST PARAMETER TAB — Latest Reading chart removed, details table only */}
                   {activeTab==="testparam"&&(<div style={{display:"flex",flexDirection:"column",gap:12,height:"100%"}}>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
                       <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Total Parameters</div><div style={{fontSize:22,fontWeight:800,color:T.accent}}>{TEST_PARAMS.length}</div></div>
                       <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Pass Rate</div><div style={{fontSize:22,fontWeight:800,color:T.success}}>100%</div></div>
                       <div style={{...panel({padding:"12px",textAlign:"center"})}}><div style={{fontSize:9,color:T.muted,textTransform:"uppercase",marginBottom:4}}>Avg CO Emission</div><div style={{fontSize:22,fontWeight:800,color:C.primary2}}>30.2 mg/Nm³</div></div>
                     </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,flex:1}}>
-                      <div style={{...panel({padding:"12px"})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Latest Reading (Jun 2026)</div><div style={{position:"relative",height:260}}><canvas id="testParamChart" /></div></div>
-                      <div style={{...panel({padding:"12px"})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Parameter Details</div><table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}><thead><tr>{["Parameter","Std","Latest","Status"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{TEST_PARAMS.map((p,i)=>(<tr key={i}><td style={tdStyle}>{p.parameter.split(" (")[0]}</td><td style={tdStyle}>{p.standard}</td><td style={tdStyle}>{String(p.jun)}</td><td style={tdStyle}><Badge color="green" T={T}>{p.status}</Badge></td></tr>))}</tbody></table></div>
-                    </div>
+                    <div style={{...panel({padding:"12px",flex:1})}}><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:8}}>Parameter Details</div><table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}><thead><tr>{["Parameter","Std","Latest","Status"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{TEST_PARAMS.map((p,i)=>(<tr key={i}><td style={tdStyle}>{p.parameter.split(" (")[0]}</td><td style={tdStyle}>{p.standard}</td><td style={tdStyle}>{String(p.jun)}</td><td style={tdStyle}><Badge color="green" T={T}>{p.status}</Badge></td></tr>))}</tbody></table></div>
                   </div>)}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN — only Deduction by Indicator + Finance (2 cards) */}
+          {/* RIGHT COLUMN — Deduction by Indicator only (Finance removed) */}
           <div style={{width:300,flexShrink:0,display:"flex",flexDirection:"column",gap:14,overflow:"hidden"}}>
 
-            {/* DEDUCTION BY INDICATOR — enlarged, takes ~60% of the right column */}
-            <div style={{...card({display:"flex",flexDirection:"column",overflow:"hidden"}),flex:3,position:"relative",minHeight:0}}>
+            {/* DEDUCTION BY INDICATOR — fills the whole right column now */}
+            <div style={{...card({display:"flex",flexDirection:"column",overflow:"hidden"}),flex:1,position:"relative",minHeight:0}}>
               <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",justifyContent:"space-between",flexShrink:0}}>
                 <div>
                   <div style={{fontSize:14,fontWeight:700,color:T.text}}>Deduction by Indicator</div>
@@ -800,22 +742,6 @@ export default function HWMSDashboard(){
                 </div>
               </div>
             </div>
-
-            {/* FINANCE */}
-            <div style={{...card({display:"flex",flexDirection:"column",overflow:"hidden"}),flex:2,position:"relative",minHeight:0}}>
-              <div style={{padding:"14px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",justifyContent:"space-between",flexShrink:0}}>
-                <div>
-                  <div style={{fontSize:14,fontWeight:700,color:T.text}}>Finance</div>
-                  <div style={{fontSize:10,color:T.muted}}>Aug'25 to Jan'26</div>
-                </div>
-                <button className="no-print" onClick={()=>openModal("finance")} style={{background:T.panel,border:`1px solid ${T.border}`,color:T.muted,width:28,height:28,borderRadius:7,cursor:"pointer",fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}><BIcon name="bi-arrows-angle-expand" size={13} color={T.muted} /></button>
-              </div>
-              <div style={{padding:"8px 14px",display:"flex",gap:14,flexShrink:0}}>
-                <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:T.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:T.accent}} />Invoice</div>
-                <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:T.muted}}><div style={{width:7,height:7,borderRadius:"50%",background:T.danger}} />Penalty</div>
-              </div>
-              <div style={{flex:1,padding:"0 12px 12px",position:"relative",minHeight:0}}><canvas id="financeChart" style={{position:"absolute",inset:0,width:"100%",height:"100%"}} /></div>
-            </div>
           </div>
         </div>
 
@@ -831,12 +757,15 @@ export default function HWMSDashboard(){
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,marginTop:18}}><thead><tr>{["ID","Type","Date","Status","Department","Description"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{getFilteredSRData().map((sr,i)=><tr key={i}>{[sr.id,sr.type,sr.date,<Badge key="status" color={sr.status==="Completed"?"green":sr.status==="In Progress"?"blue":sr.status==="Open"?"warn":"danger"} T={T}>{sr.status}</Badge>,sr.department,sr.description].map((cell,j)=><td key={j} style={tdStyle}>{cell}</td>)}</tr>)}</tbody></table>
         </Modal>)}
 
-        {modal==="ncr"&&(<Modal title="NCR — HTA" onClose={()=>setModal(null)} T={T} onPrint={printPage} onExport={exportNCRModal} {...modalDateProps}>
+        {modal==="ncr"&&(<Modal title="NCR — HTA" onClose={()=>setModal(null)} T={T} onPrint={printPage} onExport={exportNCRModal} {...modalDateProps} showNCRFilter={true} ncrTypeFilter={ncrTypeFilter} onNCRTypeChange={handleNCRTypeChange}>
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
             {[{v:String(NCR_TOTAL),l:"Total NCR",c:T.warn},{v:String(NCR_OPEN),l:"Open",c:T.danger},{v:String(NCR_CLOSED),l:"Closed",c:T.success},{v:NCR_CLOSURE_RATE+"%",l:"Closure Rate",c:C.primary1}].map((s,i)=>(<div key={i} style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:26,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>{s.l}</div></div>))}
           </div>
-          <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>NCR Trend — Previous 6 Months</div><div style={{position:"relative",height:240}}><canvas id="m-ncrBar" /></div>
-          <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,marginTop:18}}><thead><tr>{["Month","Total NCR","Open","Closed","Closure Rate"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{NCR_BY_MONTH.map((r,i)=><tr key={i}>{[r.month,String(r.total),String(r.open),String(r.closed),r.rate].map((cell,j)=><td key={j} style={tdStyle}>{String(cell)}</td>)}</tr>)}</tbody></table>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+            <div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>NCR Trend — Previous 6 Months</div><div style={{position:"relative",height:220}}><canvas id="m-ncrBar" /></div></div>
+            <div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>NCR by Type</div><div style={{display:"flex",alignItems:"center",gap:16}}><div style={{position:"relative",width:160,height:160}}><canvas id="m-ncrPie" /></div><div style={{flex:1}}>{NCR_BY_TYPE_HWMS.map((it,i)=>(<div key={it.type} style={{marginBottom:8}}><div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:7,height:7,borderRadius:"50%",background:it.color}} /><span style={{fontSize:10,color:T.muted}}>{it.type}</span></div><div style={{fontSize:14,fontWeight:700,color:T.text}}>{it.count.toLocaleString()} <span style={{fontSize:9,color:T.muted}}>({it.pct}%)</span></div></div>))}</div></div></div>
+          </div>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,marginTop:18}}><thead><tr>{["ID","Type","Date","Status","Department","Description"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{getFilteredNCRData().map((n,i)=><tr key={i}>{[n.id,n.type,n.date,<Badge key="status" color={n.status==="Closed"?"green":"danger"} T={T}>{n.status}</Badge>,n.department,n.description].map((cell,j)=><td key={j} style={tdStyle}>{cell}</td>)}</tr>)}</tbody></table>
         </Modal>)}
 
         {modal==="deduct"&&(<Modal title="Deduction by Indicator — HTA" onClose={()=>setModal(null)} T={T} onPrint={printPage} onExport={exportDeductModal} {...modalDateProps}>
@@ -844,19 +773,6 @@ export default function HWMSDashboard(){
           <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>{HC_LABELS.map((label,i)=>(<div key={label} style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{width:11,height:11,borderRadius:"50%",background:HC_COLORS[i],display:"inline-block",marginBottom:8}} /><div style={{fontSize:18,fontWeight:800,color:HC_COLORS[i]}}>RM 0.00</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>{label} — {HC_VALUES[i]}%</div></div>))}</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}><div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>% HC1–HC5 Distribution</div><div style={{position:"relative",height:220}}><canvas id="m-lBar" /></div></div><div><div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>% Deduction Trend (Jan–Oct)</div><div style={{position:"relative",height:220}}><canvas id="m-deductLine" /></div></div></div>
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,marginTop:18}}><thead><tr>{["Indicator","% Weight","Deduction (RM)"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{HC_LABELS.map((label,i)=><tr key={label}>{[label,HC_VALUES[i].toFixed(2)+"%","RM 0.00"].map((cell,j)=><td key={j} style={tdStyle}>{String(cell)}</td>)}</tr>)}</tbody></table>
-        </Modal>)}
-
-        {modal==="finance"&&(<Modal title="Finance — HTA" onClose={()=>setModal(null)} T={T} onPrint={printPage} onExport={exportFinanceModal} {...modalDateProps}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:20}}>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.accent}}>RM 120,105</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Aug Invoice</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.accent}}>RM 119,326</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Sep Invoice</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.accent}}>RM 134,552</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Oct Invoice</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.accent}}>RM 140,710</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Nov Invoice</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.muted}}>RM 0</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Dec Invoice</div></div>
-            <div style={{background:T.card,borderRadius:12,padding:"14px",textAlign:"center",border:`1px solid ${T.border}`}}><div style={{fontSize:18,fontWeight:800,color:T.danger}}>RM 175</div><div style={{fontSize:12,color:T.muted,marginTop:4}}>Jan Penalty</div></div>
-          </div>
-          <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:12}}>Finance Overview</div><div style={{position:"relative",height:260}}><canvas id="m-finLine" /></div>
-          <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,marginTop:18}}><thead><tr>{["Month","Invoice (RM)","Penalty (RM)"].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead><tbody>{[["Aug '25","120,105.00","0.00"],["Sep '25","119,326.00","0.00"],["Oct '25","134,552.00","0.00"],["Nov '25","140,710.00","0.00"],["Dec '25","0.00","0.00"],["Jan '26","0.00","175.00"]].map((r,i)=><tr key={i}>{r.map((cell,j)=><td key={j} style={tdStyle}>{String(cell)}</td>)}</tr>)}</tbody></table>
         </Modal>)}
       </>)}
     </div>
